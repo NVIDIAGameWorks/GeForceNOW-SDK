@@ -32,7 +32,6 @@ The distribution is laid out as below:
 +-- README.md
 +-- LICENSE
 +-- doc
-|   Feature_Integration_Points.pdf
 |   GFN_SDK_Primer.pdf
 |   GFN_SDK_Runtime_API.pdf
 |   SDK-GFN-NGN-ENDPOINT.pdf
