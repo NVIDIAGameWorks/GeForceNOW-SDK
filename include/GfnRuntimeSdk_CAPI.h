@@ -149,10 +149,9 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
-/// C async  | @ref gfnSetupTitleAsync
 /// C sync   | @ref gfnSetupTitle
 ///
-/// @copydoc gfnSetupTitleAsync
+/// @copydoc gfnSetupTitle
 ///
 /// Language | API
 /// -------- | -------------------------------------
@@ -177,9 +176,13 @@
 /// C        | @ref gfnStartStream
 ///
 /// @copydoc gfnStartStream
-
-
-
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnRequestKeyboardOverlayOpen
+/// C        | @ref gfnRequestKeyboardOverlayClose
+///
+/// @copydoc gfnRequestKeyboardOverlay
 
 
 #ifndef GFN_RUNTIME_SDK_CAPI_H
@@ -209,32 +212,29 @@ namespace GfnRuntimeSdk
         /// @brief Returned by InitializeGfnRuntime and GfnRuntime API methods
         typedef enum GfnRuntimeError
         {
-            gfnSuccess = 0,
-            gfnDLLNotPresent = -1,
-            gfnComNotEstablished = -2,          ///< No controller/test application running to connect to.
-            gfnComError = -3,
-            gfnErrorCallingDLLFunction = -4,    ///< Generic DLL error - possibly due to incompatible DLL.
-            gfnIncompatibleVersion = -5,
-            gfnUnableToAllocateMemory = -6,
-            gfnInvalidParameter = -7,
-            gfnInternalError = -8,              ///< Generic error on controller side, treat as unsupported
-            gfnUnsupportedAPICall = -9,
-            gfnInvalidToken = -10,
-            gfnTimedOut = -11,
-            gfnSetupTitleFailure = -12,
-            gfnMessageBusNotInstalled = -13,    ///< No GFE/MessageBus installed on system
-			gfnClientDownloadFailed = -14       ///< Failed to download GFN Client
+            gfnSuccess =                  0,
+            gfnDLLNotPresent =           -1,
+            gfnComNotEstablished =       -2, ///< SDK communication channels opened, but no Geforce Now components found.
+            gfnComError =                -3, ///< Geforce Now SDK internal component communication error.
+            gfnErrorCallingDLLFunction = -4, ///< Geforce Now SDK components were reachable, but could not serve the request.
+            gfnIncompatibleVersion =     -5,
+            gfnUnableToAllocateMemory =  -6,
+            gfnInvalidParameter =        -7,
+            gfnInternalError =           -8, ///< Generic Geforce Now SDK internal error.
+            gfnUnsupportedAPICall =      -9,
+            gfnInvalidToken =            -10,
+            gfnTimedOut =                -11,
+            gfnSetupTitleFailure =       -12,
+			gfnClientDownloadFailed =    -13 ///< Failed to download the Geforce Now client.
         } GfnRuntimeError;
 
-        /**
-         * @brief Returned by callbacks the application registers with the Geforce Now Runtime SDK, or passes
-         *        in to asynchronous SDK calls. By default, the SDK will return crCallbackNotRegistered for you
-         *        if your application has not registered a particular callback.
-         */
+        /* @brief Returned by callbacks the application registers with the Geforce Now Runtime SDK, or passes
+         *  in to asynchronous SDK calls. By default, the SDK will return crCallbackNotRegistered for you
+         *  if your application has not registered a particular callback. */
         typedef enum GfnApplicationCallbackResult
         {
-            crCallbackSuccess = 0,       ///< Return to indicate that a callback has performed the requested operation
-            crCallbackFailure = -1       ///< Return to indicate that a callback did not perform the requested operation
+            crCallbackSuccess =  0, ///< Return to indicate that a callback has performed the requested operation
+            crCallbackFailure = -1  ///< Return to indicate that a callback did not perform the requested operation
         } GfnApplicationCallbackResult;
 
         /// @brief Parameter to RequestKeyboardOverlay method. Specifies where to display text input element on screen
@@ -251,58 +251,19 @@ namespace GfnRuntimeSdk
             gspBottomRight
         } GFNScreenPosition;
 
-        /// @brief Parameter to LockUserOptions. Flags indicating user's options in the application
-        typedef enum UserOptions
-        {
-            uoNone = 0,
-            uoGraphicsSettings = 0 << 1
-        } UserOptions;
-
-        /// @brief GFN Runtime Application error codes
-        // These can be passed to the NotifyErrorEncountered method in order to inform GFN Runtime
-        // that an error occurred on the application
-        typedef enum GfnRuntimeAppError
-        {
-            gfnAppSuccess = 0,
-
-            // Block 100 Errors are application specific errors
-            // Application devs can add their own error codes here for more specific reporting.
-            // Default behavior is to terminate session
-            gfnAppCriticalApplicationError = -0x100,
-
-            // Block 200 Errors are authorization/account federation errors
-            // Default behavior is to terminate the session and notify user of problem
-            gfnAppCriticalAuthenticationError = -0x200,		// Default handler for this block
-            gfnAppDelegateTokenExpired = -0x201,
-            gfnAppDelegateTokenRevoked = -0x202,
-            gfnAppDelegateTokenInvalid = -0x203,
-            gfnAppUserUnauthorized = -0x210,
-            gfnAppUserNotFound = -0x211,
-
-            // Block 300 Errors are critical version/patching related errors
-            // Default behavior is to terminate the session
-            gfnAppCriticalVersionError = -0x300,		      // Default handler for this block
-            gfnAppGameClientOutOfDate = -0x301,		        // Game client needs a patch to play
-
-            // Block 350 Errors are non critical version/patching related errors
-            // Default behavior is to log and continue
-            gfnAppNonCriticalVersionError = -0x350,		    // Default handler for this block
-            gfnAppGameClientPatched = -0x351,		          // Game client was updated successfully
-        } GfnRuntimeAppError;
-
-        typedef struct SetupTitleResponse
-        {
-            const char* pchPlatformId;      ///< Platform ID passed into the API
-            const char* pchPlatformAppId;   ///< Platform application ID passed into the API
-            const char* pchBuildPath;       ///< The path at which game build files can be found on success, else NULL.
-            const char* pchMetadataPath;    ///< The path at which game metadata can be found on success, else NULL.
-        } SetupTitleResponse;
-
         /// @brief Output response when streaming has started
         typedef struct StartStreamResponse
         {
-            bool downloaded;              ///< Downloaded GeForceNOW from the release site
+            bool downloaded; ///< True if Geforce Now client components were downloaded from the release site
         } StartStreamResponse;
+
+        /// @brief Input to the function registered via gfnRegisterInstallCallback (if any).
+        typedef struct TitleInstallationInformation
+        {
+            const char* pchPlatformAppId; ///< Platform application ID passed into the API.
+            const char* pchBuildPath;     ///< The path at which game build files can be found.
+            const char* pchMetadataPath;  ///< Optionally contains the path at which game metadata can be found, else NULL.
+        } TitleInstallationInformation;
 
         // ============================================================================================
         // Callback signatures
@@ -313,9 +274,9 @@ namespace GfnRuntimeSdk
         // GfnApplicationCallbackResult::crCallbackSuccess or GfnApplicationCallbackResult::crCallbackFailure.
         typedef GfnApplicationCallbackResult(*ExitCallbackSig)(void* pUserContext);  // Register via gfnRegisterExitCallback
         typedef GfnApplicationCallbackResult(*PauseCallbackSig)(void* pUserContext); // Register via gfnRegisterPauseCallback
+        typedef GfnApplicationCallbackResult(*InstallCallbackSig)(const TitleInstallationInformation* pInfo, void* pUserContext); // Register via gfnRegisterInstallCallback
 
         // Callbacks into client code passed as arguments to asynchronous API calls.
-        typedef GfnApplicationCallbackResult(*ConfirmSetupTitleSig)(GfnRuntimeError, SetupTitleResponse*, void* context);
         typedef void(*StartStreamCallbackSig)(GfnRuntimeError, StartStreamResponse*, void* context);
 
         // ============================================================================================
@@ -360,48 +321,70 @@ namespace GfnRuntimeSdk
         /// @}
 
         // ============================================================================================
-        // Callback registration functions (GFN SDK -> Application communication)
+        // Callback registration functions (Geforce Now SDK -> Application communication)
         // Register callbacks here in order to receieve various messages / requests from the SDK.
         // Register only after calling gfnInitializeGfnRuntimeSdk().
         /// @defgroup callbacks Client Callback Registration
         /// @{
 
-        /// @brief Register an application function to call when GFN needs to exit the game
+        /// @brief Optionally, register a function to call when Geforce Now needs to exit the game
         ///
         /// @par Description
-        /// Register an application function to call when GFN needs to exit the game.
+        /// Register an application function to call when Geforce Now needs to exit the game.
         ///
         /// @par Usage
-        /// Register an application function to call when GFN needs to exit the game.
+        /// Register an application function to call when Geforce Now needs to exit the game.
         ///
-        /// @param exitCallback[in] - Function pointer to application code to call when GFN needs to exit the game
+        /// @param exitCallback[in] - Function pointer to application code to call when Geforce Now
+        ///                           needs to exit the game
         /// @param pUserContext[in] - Pointer to user context, which will be passed unmodified to the
-        ///                           callback specified. Can be NULL.
+        ///                           registered callback. Can be NULL.
         ///
-        /// @retval gfnSuccess - On success when running in a GFN environment
-        /// @retval gfnDLLNotPresent - If callback was not registered
+        /// @retval gfnSuccess       - On success, when running in a Geforce Now environment
+        /// @retval gfnDLLNotPresent - If callback could not be registered
         GfnRuntimeError gfnRegisterExitCallback(ExitCallbackSig exitCallback, void* pUserContext);
 
-        /// @brief Register an application function to call when GFN needs to pause the game
+        /// @brief Optionally, register a function to call when Geforce Now needs to pause the game
         ///
         /// @par Description
-        /// Register an application callback with GFN to be called when GFN needs to pause
-        /// the game on the user’s behalf. For Multiplayer games, it is recommended that
-        /// this is implemented similar to a client disconnect.
+        /// Register an application callback with Geforce Now to be called when Geforce Now
+        /// needs to pause the game on the user’s behalf. For Multiplayer games, it is
+        /// recommended that this is implemented similar to a client disconnect.
         ///
         /// @par Usage
-        /// Register an application function to call when GFN needs to pause the game.
+        /// Register an application function to call when Geforce Now needs to pause the game.
         ///
-        /// @param pauseCallback[in] - Function pointer to application code to call when GFN needs to pause the game
-        /// @param pUserContext[in] - Pointer to user context, which will be passed unmodified to the
-        ///                           callback specified. Can be NULL.
+        /// @param pauseCallback[in] - Function pointer to application code to call when
+        ///                            Geforce Now needs to pause the game
+        /// @param pUserContext[in]  - Pointer to user context, which will be passed unmodified to the
+        ///                            registered callback. Can be NULL.
         ///
-        /// @retval gfnSuccess - On success when running in a GFN environment
-        /// @retval gfnDLLNotPresent - If callback was not registered
+        /// @retval gfnSuccess       - On success, when running in a Geforce Now environment
+        /// @retval gfnDLLNotPresent - If callback could not be registered
         GfnRuntimeError gfnRegisterPauseCallback(PauseCallbackSig pauseCallback, void* pUserContext);
 
+        /// @brief Optionally, register a function to call after a successful call to gfnSetupTitle
+        ///
+        /// @par Description
+        /// Register an application callback with Geforce Now to be called after a successful call to
+        /// gfnSetupTitle. Typically, the callback would handle any additional installation steps that
+        /// are necessary after Geforce Now performs its own setup for a given title.
+        ///
+        /// @par Usage
+        /// Register a function to call after a successful call to gfnSetupTitle.
+        ///
+        /// @param gfnRegisterInstallCallback[in] - Function pointer to application code to call after
+        ///                                         Geforce Now successfully performs its own title setup.
+        /// @param pUserContext[in]               - Pointer to user context, which will be passed unmodified to the
+        ///                                         registered callback. Can be NULL.
+        ///
+        /// @retval gfnSuccess       - On success, when running in a GFN environment
+        /// @retval gfnDLLNotPresent - If callback could not be registered
+        GfnRuntimeError gfnRegisterInstallCallback(InstallCallbackSig installCallback, void* pUserContext);
+        /// @}
+
         // ============================================================================================
-        // Application -> GFN SDK communication
+        // Application -> Geforce Now SDK communication
         // The application should call these methods at the appropriate locations.
         /// @defgroup launcher Launcher Application Methods
         /// @{
@@ -421,32 +404,6 @@ namespace GfnRuntimeSdk
         ///                 Geforce Now test environment.
         bool gfnIsRunningInCloud();
 
-        /// @brief Notifies GFN to ready an application for launch in the background, without blocking.
-        ///
-        /// @par Description
-        /// Notifies Geforce Now that an application should be readied for launch in the background.
-        /// Since readying an application may be a long-running operation, this function should
-        /// generally be preferred over its synchronous counterpart below. Geforce Now will make
-        /// the build files associated with the application available at the path returned in the
-        /// SetupTitleResult struct passed in to the ConfirmTitleSetup callback provided by the caller.
-        /// Additionally, Geforce Now will set all necessary settings to optimize for the Geforce Now
-        /// cloud environment, and download any associated user data, including save files.
-        ///
-        /// @par Usage
-        /// Use to asynchronously prepare an application for launch on Geforce Now.
-        ///
-        /// @param pchPlatformId[in]    - Identifier of the launcher service, e.g. “Steam”
-        /// @param pchPlatformAppId[in] - Identifier of the requested application to setup
-        /// @param cb[in]               - Callback to call on success or failure. On success, the callback should
-        ///                               return GfnApplicationCallbackResult::crCallbackSuccess to indicate that
-        ///                               the SDK client was able to complete title setup with the information
-        ///                               provided to the callback in the SetupTitleResponse struct.
-        /// @param userContext[in]      - Opaque pointer returned with callback untouched
-        /// @param timeoutMs[in]        - Amount of time to give the request before giving up
-        ///
-        /// @return void
-        void gfnSetupTitleAsync(const char* pchPlatformId, const char* pchPlatformAppId, ConfirmSetupTitleSig cb, void* userContext, int timeoutMs);
-
         /// @brief Notifies GFN to ready an application for launch. This is a blocking call.
         ///
         /// @par Description
@@ -460,19 +417,12 @@ namespace GfnRuntimeSdk
         /// @par Usage
         /// Use to prepare an application for launch on Geforce Now, and block on the result.
         ///
-        /// @param pchPlatformId[in]    - Identifier of the launcher service, e.g. “Steam”
         /// @param pchPlatformAppId[in] - Identifier of the requested application to setup
-        /// @param cb[in]               - Callback to call on success or failure. On success, the callback should
-        ///                               return GfnApplicationCallbackResult::crCallbackSuccess to indicate that
-        ///                               the SDK client was able to complete title setup with the information
-        ///                               provided to the callback in the SetupTitleResponse struct.
-        /// @param userContext[in]      - Opaque pointer returned with callback untouched
-        /// @param timeoutMs[in]        - Amount of time to give the request before giving up
         ///
         /// @retval gfnSuccess           - On success
-        /// @retval gfnTimedOut          - Could not perform title setup in time
-        /// @retval gfnSetupTitleFailure - Either the SDK failed to set up the title, or the callback defined by cb reported failure.
-        GfnRuntimeError gfnSetupTitle(const char* pchPlatformId, const char* pchPlatformAppId, ConfirmSetupTitleSig cb, void* userContext, int timeoutMs);
+        /// @retval gfnSetupTitleFailure - The Geforce Now SDK failed to set up the title
+        /// @return Otherwise, appropriate error code
+        GfnRuntimeError gfnSetupTitle(const char* pchPlatformAppId);
 
         /// @brief Notifies GFN that an application has exited
         ///
@@ -496,11 +446,11 @@ namespace GfnRuntimeSdk
         /// @brief Gets user’s client IPv4 address
         ///
         /// @par Description
-        /// Since Applications running under GFN run in the GFN data centers,
+        /// Since Applications running under Geforce Now run in the Geforce Now data centers,
         /// any IP queries made by the Application will return IPs associated
-        /// with the data center, not the user’s client IP. This allows the
-        /// Application obtain the client IP in v4 format so that developers can
-        /// make regional business decisions.
+        /// with the data center, not the user’s client IP. This SDK call allows the
+        /// Application to obtain the client IP in the IPv4 format so that developers
+        /// can make regional business decisions.
         ///
         /// @par Usage
         /// Call this during application start or from the platform client in
@@ -517,15 +467,15 @@ namespace GfnRuntimeSdk
         ///
         /// @par Description
         /// Gets user’s client language code  in the form <lang>-<country> using
-        /// the standard ISO 639 language codes and ISO 3166 country codes.
+        /// a standard ISO 639-1 language code and ISO 3166-1 Alpha-2 country code.
         ///
         /// @par Usage
         /// Call this during application start or from the platform client in
         /// order to get the user’s language and country settings
         ///
-        /// @param ppchLanguageCode[out] - Language code as a string. Example: “en-us”
+        /// @param ppchLanguageCode[out] - Language code as a string. Example: “en-US”
         ///
-        /// @retval gfnSuccess  - On success
+        /// @retval gfnSuccess - On success
         /// @return Otherwise, appropriate error code
         GfnRuntimeError gfnGetClientLanguageCode(const char** ppchLanguageCode);
 
@@ -545,7 +495,7 @@ namespace GfnRuntimeSdk
         /// @param ppchAuthToken[out] - Populated with a user specific GFN access token.
         /// @param pchClientId[in]    - The Jarvis identifier for your application.
         ///
-        /// @retval gfnSuccess  - On success
+        /// @retval gfnSuccess - On success
         /// @return Otherwise, appropriate error code
         GfnRuntimeError gfnRequestGfnAccessToken(const char* pchClientId, const char** ppchAuthToken);
 
@@ -557,12 +507,12 @@ namespace GfnRuntimeSdk
         /// @par Usage
         /// Use to start a streaming session.
         ///
-        /// @param pchServiceId[in]     - Populated with a provider specific unique identifier.
-        /// @param pchAppId[in]         - Populated with a game specific unique identifier.
-        /// @param pchAuthToken[in]     - Delegate token from NVIDIA IDM.
-        /// @param cb[in]               - Callback to be called with streaming events.
-        /// @param context[in]          - Context
-        /// @param timeoutMs[in]        - Time after which attempt to start streaming will be aborted.
+        /// @param pchServiceId[in] - Populated with a provider specific unique identifier.
+        /// @param pchAppId[in]     - Populated with a game specific unique identifier.
+        /// @param pchAuthToken[in] - Delegate token from NVIDIA IDM.
+        /// @param cb[in]           - Callback to be called with streaming events.
+        /// @param context[in]      - User context
+        /// @param timeoutMs[in]    - Time after which attempt to start streaming will be aborted.
         void gfnStartStreamAsync(const char* pchServiceId, const char* pchAppId, const char* pchAuthToken, StartStreamCallbackSig cb, void* context, int timeoutMs);
 
         /// @brief Start streaming an application
@@ -573,26 +523,43 @@ namespace GfnRuntimeSdk
         /// @par Usage
         /// Use to start a streaming session.
         ///
-        /// @param pchServiceId[in]     - Populated with a provider specific unique identifier.
-        /// @param pchAppId[in]         - Populated with a game specific unique identifier.
-        /// @param pchAuthToken[in]     - Delegate token from NVIDIA IDM.
-        /// @param response[in]         - Start streaming response.
-        /// @param timeoutMs[in]        - Time after which attempt to start streaming will be aborted.
+        /// @param pchServiceId[in] - Populated with a provider specific unique identifier.
+        /// @param pchAppId[in]     - Populated with a game specific unique identifier.
+        /// @param pchAuthToken[in] - Delegate token from NVIDIA IDM.
+        /// @param response[in]     - Start streaming response.
+        /// @param timeoutMs[in]    - Time after which attempt to start streaming will be aborted.
         ///
-        /// @retval gfnSuccess  - On success
+        /// @retval gfnSuccess - On success
         /// @return Otherwise, appropriate error code
         GfnRuntimeError gfnStartStream(const char* pchServiceId, const char* pchAppId, const char* pchAuthToken, StartStreamResponse* response, int timeoutMs);
 
-        /// @}
-
-        // Called from application when text input is needed to continue
+        /// @brief Called from application when text input is needed to continue
+        ///
+        /// @par Description
+        /// Open the onscreen keyboard in the specified screen position.
+        ///
+        /// @par Usage
+        /// Use to allow keyboard style input when required, if the control scheme is known
+        /// to use input other than a standard keyboard (such as a controller).
+        ///
+        /// @param gspPosition[in] - The screen position at which the onscreen keyboard should display
+        ///
+        /// @retval gfnSuccess - On success
+        /// @return Otherwise, appropriate error code
         GfnRuntimeError gfnRequestKeyboardOverlayOpen(GFNScreenPosition gspPosition);
 
-        // Called from application when necessary text input has been processed and user can continue
+        /// @brief Called when any required text input has been processed and the onscreen keyboard can be closed
+        ///
+        /// @par Description
+        /// Closes the onscreen keyboard if it is open.
+        ///
+        /// @par Usage
+        /// Once any required keyboard-style input has been received and / or processed, close the onscreen keyboard.
+        ///
+        /// @retval gfnSuccess - On success
+        /// @return Otherwise, appropriate error code
         GfnRuntimeError gfnRequestKeyboardOverlayClose();
-
-        // Notifies GFN runtime that an error occurred in the application
-        GfnRuntimeError gfnNotifyErrorEncountered(GfnRuntimeAppError appError, const char* pchErrorMessage);
+        /// @}
 
 #ifdef __cplusplus
     } // extern "C"

@@ -2,11 +2,11 @@
 
 ## At a Glance
 
-The GeForce NOW SDK (GFNSDK) is a means for game developers and publishers to directly integrate GeForce NOW, NVIDIA's Cloud Gaming Service. This service allows gamers to experience GeForce gaming anywhere - PC, Mac or NVIDIA Shield TV, as well as allowing publishers and game developers to take advantage of high-performance rendering through NVIDIA's top-notch DirectX and Vulkan drivers on both Windows and Linux platforms. 
+The GeForce NOW SDK (GFNSDK) is a means for game developers and publishers to directly integrate with GeForce NOW, NVIDIA's Cloud Gaming Service. This service allows gamers to experience GeForce gaming anywhere, as well as allowing publishers and game developers to take advantage of high-performance rendering through NVIDIA's top-notch DirectX and Vulkan drivers on both Windows and Linux platforms. 
 
 The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features into publisher applications and games, as well as more efficient way to integrate games into the GeForce NOW ecosystem. 
 
-At this time, this repository provides a sneak-peak into the APIs for Stream and Single Sign-on integration into your launcher application, as well as information on the APIs for providing new builds of games into the GeForce NOW environment. Full APIs for these as well as new features will be made available in the near future.
+**At this time, this repository provides preliminary definition and documentation on the APIs for Stream and Single Sign-on integration into your launcher application, as well as information on the APIs for providing new builds of games into the GeForce NOW environment. These APIs are subject to change as they evolve and full APIs for these as well as new features will be made available in the near future.**
 
 Please refer to the [GFN SDK Primer](./doc/GFN_SDK_Primer.pdf) for a more detailed overview of the features.
 
@@ -33,8 +33,8 @@ The distribution is laid out as below:
 +-- LICENSE
 +-- doc
 |   GFN_SDK_Primer.pdf
-|   GFN_SDK_Runtime_API.pdf
 |   SDK-GFN-NGN-ENDPOINT.pdf
+|   SDK-GFN-RUNTIME.pdf
 |   SDK-GFN-SUPPORTED-TITLES.pdf
 +-- include
 |   GfnRuntimeSdk_CAPI.h
