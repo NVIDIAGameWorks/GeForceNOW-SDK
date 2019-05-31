@@ -24,7 +24,7 @@ Each feature has different integration points. Some features define REST Web API
 
 Some features require a compatible version of GeForce NOW to be installed on the client system. The integrated GFNSDK components are designed to take care of downloading and installing GeForce NOW client when needed.
 
-### GfeSDK Package
+### GeForece NOW SDK Package
 
 The distribution is laid out as below:
 ```
