@@ -293,19 +293,13 @@ namespace GfnRuntimeSdk
         ///
         /// @par Description
         /// Should be called at application startup and prior to any GFN Runtime
-        /// API methods. When running outside of a GFN environment (a game seat
-        /// virtual machine or development environment) it is expected for this
-        /// method to return a result other than success. In this case all GFN
-        /// methods become no-ops and have no performance impact on your
-        /// application.
+        /// API methods.
         ///
         /// @par Usage
         /// Call as soon as possible during application startup.
         ///
         /// @retval gfnSuccess - On success when running in a GFN environment
-        /// @retval gfnGfnDLLNotPresent - if running outside a GFN environment (No GFN.dll present)
         /// @retval gfnGfnComNotEstablished - if running outside a GFN environment (No GFN host or test app running)
-        /// @retval gfnIncompatibleVersion - Linked GFN Runtime SDK library not compatible
         GfnRuntimeError gfnInitializeGfnRuntimeSdk();
 
         /// @brief Free the GFN Runtime
@@ -493,11 +487,10 @@ namespace GfnRuntimeSdk
         /// Federation section for more information.
         ///
         /// @param ppchAuthToken[out] - Populated with a user specific GFN access token.
-        /// @param pchClientId[in]    - The Jarvis identifier for your application.
         ///
         /// @retval gfnSuccess - On success
         /// @return Otherwise, appropriate error code
-        GfnRuntimeError gfnRequestGfnAccessToken(const char* pchClientId, const char** ppchAuthToken);
+        GfnRuntimeError gfnRequestGfnAccessToken(const char** ppchAuthToken);
 
         /// @brief Start streaming an application asynchronously
         ///
