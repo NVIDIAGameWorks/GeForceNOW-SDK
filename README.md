@@ -6,7 +6,7 @@ The GeForce NOW SDK (GFNSDK) is a means for game developers and publishers to di
 
 The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features into publisher applications and games, as well as more efficient way to integrate games into the GeForce NOW ecosystem. 
 
-**At this time, this repository provides preliminary definition and documentation on the APIs for Stream and Single Sign-on integration into your launcher application, as well as information on the APIs for providing new builds of games into the GeForce NOW environment. These APIs are subject to change as they evolve and full APIs for these as well as new features will be made available in the near future.**
+**At this time, this repository provides preliminary definition and documentation on the APIs for Stream and Single Sign-On integration into your launcher application, as well as information on the APIs for providing new builds of games into the GeForce NOW environment. These APIs are subject to change as they evolve and full APIs for these as well as new features will be made available in the near future.**
 
 Please refer to the [GFN SDK Primer](./doc/GFN_SDK_Primer.pdf) for a more detailed overview of the features.
 
