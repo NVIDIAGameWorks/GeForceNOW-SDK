@@ -6,9 +6,7 @@ The GeForce NOW SDK (GFNSDK) is a means for game developers and publishers to di
 
 The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features into publisher applications and games, as well as more efficient way to integrate games into the GeForce NOW ecosystem. 
 
-**At this time, this repository provides preliminary definition and documentation on the APIs for Stream and Single Sign-On integration into your launcher application, as well as information on the APIs for providing new builds of games into the GeForce NOW environment. These APIs are subject to change as they evolve and full APIs for these as well as new features will be made available in the near future.**
-
-Please refer to the [GFN SDK Primer](./doc/GFN_SDK_Primer.pdf) for a more detailed overview of the features.
+Please refer to the [GFN SDK Primer](./doc/GFN-SDK-PRIMER.pdf) for a more detailed overview of the features.
 
 ## Developer Content Portal
 
@@ -29,19 +27,34 @@ Some features require a compatible version of GeForce NOW to be installed on the
 The distribution is laid out as below:
 ```
 .
-+-- README.md
++-- CMakeLists.txt
++-- generate.bat
 +-- LICENSE
++-- README.md
 +-- doc
-|   GFN_SDK_Primer.pdf
-|   SDK-GFN-NGN-ENDPOINT.pdf
-|   SDK-GFN-RUNTIME.pdf
-|   SDK-GFN-SUPPORTED-TITLES.pdf
+|       GFN-SDK-RUNTIME
++--     index.html
+|       GFN-SDK-PRIMER.pdf
+|       SDK-GFN-NGN-ENDPOINT.pdf
+|       SDK-GFN-SUPPORTED-TITLES.pdf
 +-- include
-|   GfnRuntimeSdk_CAPI.h
+|       GfnRuntimeSdk_CAPI.h
++-- lib
++-- samples
+|       SampleCApp
+|       SampleLauncher
+|       README.md
 ```
 
 ### Additional Documentation Online
 
-In addition to the documents included in /doc in this repository, there are online resources for some of the features. Please refer to the [NVIDIA Developer Services Help](https://portal-developer.nvidia.com/help/).
+In addition to the documents included in /doc in this repository, there are online documentation resources for some of the features.
+
+* For game and launcher related APIs, please refer to the [NVIDIA Developer Services API Help](https://portal-developer.nvidia.com/help/).
+* For account-related APIs, please refer to the Swagger documentation in the [NVIDIA Identity Service API Help](https://devportal.nvgs.nvidia.com/docs/api-docs-proxy/docs/api/jarvis/help/docs).
+   * OAuth APIs are documented under the "OAuth 2.0 Provider" item in the "API group" pulldown menu.
+   * Token APIs are documented under the "Authentication" item in the "API group" pulldown menu. 
+Please note that the documentation for Account and IDM-related APIs are not public and require your NVIDIA account to be granted access. To request access, visit the [Developer Portal](https://devportal.nvgs.nvidia.com) or contact NVIDIA Developer Relations.
+
 
 

@@ -1,0 +1,43 @@
+<html>
+<head>
+    <title>GeForce NOW SDK Sample</title>
+    <style>
+        body {
+            left: 0;
+            top: 0;
+            width: 496px;
+            height: 330px;
+            background: #191919;
+            margin: 0 !important;
+            overflow: hidden;
+            color: white;
+        }
+
+        .parent {
+            padding: 8px;
+        }
+    </style>
+    <script language="JavaScript">
+        function postMessage() {
+            var parameterMap = [];
+            var queryString = window.document.URL.split('?')[1];
+            var responseParameters = queryString.split('&');
+            for (var i = 0; i < responseParameters.length; i++) {
+                var keyValuePair = responseParameters[i].split('=');
+                parameterMap[keyValuePair[0]] = keyValuePair[1];
+            }
+            window.opener.postMessage({
+                data: parameterMap,
+                state: ''
+            }, '*');
+        }
+
+        postMessage();
+    </script>
+</head>
+<body>
+    <div class="parent">
+        Hi!
+    </div>
+</body>
+</html>
