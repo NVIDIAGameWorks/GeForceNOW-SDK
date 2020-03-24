@@ -19,6 +19,11 @@ class Client : public CefClient,
  public:
   explicit Client(const CefString& startup_url);
 
+  typedef enum {
+    CLIENT_ID_SHOW_DEVTOOLS = 0,
+    CLIENT_ID_INSPECT_ELEMENT
+  } SHClientID;
+
   // CefClient methods:
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE { return this; }
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE { return this; }
@@ -66,8 +71,13 @@ class Client : public CefClient,
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefContextMenuParams> params,
                            CefRefPtr<CefMenuModel> model) OVERRIDE;
+  bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefContextMenuParams> params, int command_id,
+                           CefContextMenuHandler::EventFlags event_flags) OVERRIDE;
 
  private:
+  void ShowDevTools(CefRefPtr<CefBrowser> browser, const CefPoint &inspect_element_at);
+
   // Handles the browser side of query routing.
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;
   scoped_ptr<CefMessageRouterBrowserSide::Handler> message_handler_;

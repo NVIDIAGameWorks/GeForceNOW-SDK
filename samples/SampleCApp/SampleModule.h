@@ -30,6 +30,6 @@
 /* These are application methods we need to register with the Geforce NOW Runtime SDK.
  * They have been placed here to emphasize that they're application specific and
  * should come from the application developer. */
-extern GfnApplicationCallbackResult ExitApp(void* pContext);
-extern GfnApplicationCallbackResult PauseApp(void* pContext);
-extern GfnApplicationCallbackResult InstallApp(const TitleInstallationInformation* pInfo, void* pContext);
+extern GfnApplicationCallbackResult GFN_CALLBACK ExitApp(void* pContext);
+extern GfnApplicationCallbackResult GFN_CALLBACK PauseApp(void* pContext);
+extern GfnApplicationCallbackResult GFN_CALLBACK InstallApp(const TitleInstallationInformation* pInfo, void* pContext);

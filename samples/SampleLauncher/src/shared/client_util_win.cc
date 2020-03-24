@@ -6,6 +6,7 @@
 
 #include <windows.h>
 #include <string>
+#include <ShlObj.h>
 
 #include "include/cef_browser.h"
 
@@ -15,6 +16,32 @@ void PlatformTitleChange(CefRefPtr<CefBrowser> browser,
                          const CefString& title) {
   CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
   SetWindowText(hwnd, std::wstring(title).c_str());
+}
+
+bool TryGetSpecialFolderPath(SpecialDirectory sd, std::wstring& path)
+{
+  KNOWNFOLDERID knownId;
+  switch(sd)
+  {
+    case SD_LOCALAPPDATA:
+      knownId = FOLDERID_LocalAppData;
+      break;
+    default:
+      LOG(ERROR) << "Invalid special directory: " << sd;
+      return false;
+  }
+
+  wchar_t *pPath = NULL;
+  if (SHGetKnownFolderPath(knownId, KF_FLAG_DEFAULT, NULL, &pPath) != S_OK)
+  {
+    LOG(ERROR) << "Failed to get Special Directory: " << GetLastError();
+    return false;
+  }
+
+  path = pPath;
+  CoTaskMemFree(pPath);
+
+  return true;
 }
 
 }  // namespace shared

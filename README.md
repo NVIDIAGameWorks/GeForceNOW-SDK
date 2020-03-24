@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK #
+# NVIDIA GeForce NOW SDK Release 1.1
 
 ## At a Glance
 
@@ -7,6 +7,14 @@ The GeForce NOW SDK (GFNSDK) is a means for game developers and publishers to di
 The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features into publisher applications and games, as well as more efficient way to integrate games into the GeForce NOW ecosystem. 
 
 Please refer to the [GFN SDK Primer](./doc/GFN-SDK-PRIMER.pdf) for a more detailed overview of the features.
+
+### What's New in This Release
+* X86 support for X86-based titles.
+* New StartStream callback that provides status notifications while the streaming is starting up.
+* Implemented support for timeout in gfnStartStreamAsync.
+* Documentation correction along with some minor cleanup.
+* Crash and bug fixes in the APIs.
+* Crash and bug fixes in the Launcher sample.
 
 ## Developer Content Portal
 
@@ -29,6 +37,7 @@ The distribution is laid out as below:
 .
 +-- CMakeLists.txt
 +-- generate.bat
++-- generate_x86.bat
 +-- LICENSE
 +-- README.md
 +-- doc

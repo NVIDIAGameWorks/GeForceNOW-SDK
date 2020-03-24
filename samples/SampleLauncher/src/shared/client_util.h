@@ -8,6 +8,7 @@
 #include "include/cef_client.h"
 
 namespace shared {
+    extern CefRefPtr<CefBrowserHost> g_browserHost;
 
 // This file provides functionality common to all CefClient example
 // implementations.
@@ -36,6 +37,13 @@ void PlatformTitleChange(CefRefPtr<CefBrowser> browser, const CefString& title);
 
 // Returns the contents of |request| as a string.
 std::string DumpRequestContents(CefRefPtr<CefRequest> request);
+
+typedef enum
+{
+    SD_UNDEFINED = 0x00000000,
+    SD_LOCALAPPDATA = 0x00000001   //(Ex: CSIDL_LOCAL_APPDATA)
+} SpecialDirectory;
+bool TryGetSpecialFolderPath(SpecialDirectory sd, std::wstring& path);
 
 }  // namespace shared
 

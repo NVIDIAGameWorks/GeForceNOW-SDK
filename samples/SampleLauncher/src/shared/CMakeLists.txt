@@ -132,6 +132,9 @@ endif()
 #
 
 if(OS_WINDOWS)
+  # Needed for exception handling
+  list(APPEND CEF_COMPILER_FLAGS /EHsc)
+  
   # Create source groups for Visual Studio.
   SET_EXAMPLE_SOURCE_GROUPS("${SHARED_SRCS}")
 

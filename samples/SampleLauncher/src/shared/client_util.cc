@@ -14,6 +14,7 @@
 #include "shared/client_manager.h"
 
 namespace shared {
+    CefRefPtr<CefBrowserHost> g_browserHost;
 
 void OnTitleChange(CefRefPtr<CefBrowser> browser, const CefString& title) {
   CEF_REQUIRE_UI_THREAD();

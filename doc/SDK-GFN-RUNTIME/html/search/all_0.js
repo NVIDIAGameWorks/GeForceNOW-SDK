@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['client_20callback_20registration',['Client Callback Registration',['../group__callbacks.html',1,'']]],
-  ['crcallbackfailure',['crCallbackFailure',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a9c7df068710138e6a6f0162f758ff38dafa434ad2ee74412682391b5a6c1a4c3a',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['crcallbacksuccess',['crCallbackSuccess',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a9c7df068710138e6a6f0162f758ff38da6fe43bb33c3f346fd52dcec96fff043a',1,'GfnRuntimeSdk_CAPI.h']]]
+  ['auth_5fjarvis',['AUTH_JARVIS',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aa9beb2b071baac09983157fd5fef7083',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['auth_5fjwt',['AUTH_JWT',['../_gfn_runtime_sdk___c_a_p_i_8h.html#ab4cde44d9c537b8d39dfa8df1c95e459',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['authtype_5ft',['AuthType_t',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aa0248bd6ee742dfdf112c228ea832f21',1,'GfnRuntimeSdk_CAPI.h']]]
 ];

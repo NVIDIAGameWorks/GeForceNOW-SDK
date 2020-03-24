@@ -1,15 +1,16 @@
 var indexSectionsWithContent =
 {
-  0: "cdglnpst",
+  0: "acdegilnpstu",
   1: "st",
   2: "g",
   3: "g",
-  4: "dp",
-  5: "gst",
+  4: "dptu",
+  5: "aegipst",
   6: "g",
-  7: "cg",
-  8: "cgl",
-  9: "n"
+  7: "cdegilns",
+  8: "a",
+  9: "cgl",
+  10: "n"
 };
 
 var indexSectionNames =
@@ -22,8 +23,9 @@ var indexSectionNames =
   5: "typedefs",
   6: "enums",
   7: "enumvalues",
-  8: "groups",
-  9: "pages"
+  8: "defines",
+  9: "groups",
+  10: "pages"
 };
 
 var indexSectionLabels =
@@ -36,7 +38,8 @@ var indexSectionLabels =
   5: "Typedefs",
   6: "Enumerations",
   7: "Enumerator",
-  8: "Modules",
-  9: "Pages"
+  8: "Macros",
+  9: "Modules",
+  10: "Pages"
 };
 

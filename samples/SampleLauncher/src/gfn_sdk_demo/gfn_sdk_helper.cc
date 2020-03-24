@@ -9,13 +9,19 @@
 #include "gfn_sdk_demo/gfn_sdk_helper.h"
 
 #include "include/cef_parser.h"
+#include "shared/client_util.h"
 #include "GfnRuntimeSdk_CAPI.h"
+
+#include <Shlobj.h>
+
+#include <fstream>
 
 CefString GFN_SDK_INIT = "GFN_SDK_INIT";
 CefString GFN_SDK_LAUNCH_GAME = "GFN_SDK_LAUNCH_GAME";
 CefString GFN_SDK_IS_RUNNING_IN_CLOUD = "GFN_SDK_IS_RUNNING_IN_CLOUD";
 CefString GFN_SDK_REQUEST_GFN_ACCESS_TOKEN = "GFN_SDK_REQUEST_GFN_ACCESS_TOKEN";
 CefString GFN_SDK_GET_CLIENT_IP = "GFN_SDK_GET_CLIENT_IP";
+CefString GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK = "GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK";
 
 static CefString DictToJson(CefRefPtr<CefDictionaryValue> dict)
 {
@@ -42,26 +48,60 @@ static CefString GfnRuntimeErrorToString(GfnRuntimeSdk::GfnRuntimeError err)
     case GfnRuntimeSdk::GfnRuntimeError::gfnInvalidToken: return "Invalid Token";
     case GfnRuntimeSdk::GfnRuntimeError::gfnTimedOut: return "Timed Out";
     case GfnRuntimeSdk::GfnRuntimeError::gfnClientDownloadFailed: return "GFN Client download failed";
+    case GfnRuntimeSdk::GfnRuntimeError::gfnWebApiFailed: return "NVIDIA Web API returned invalid data";
     default: return "Unknown Error";
     }
 }
 
+static void logGfnSdkData()
+{
+    std::wstring appDataPath;
+    shared::TryGetSpecialFolderPath(shared::SD_LOCALAPPDATA, appDataPath);
+    std::wstring dataFilePath = appDataPath + L"\\NVIDIA Corporation\\GfnRuntimeSdk\\GFNSDK_Data.json";
+
+    std::ifstream ifs(dataFilePath);
+    if (!ifs)
+    {
+        LOG(ERROR) << "Could not locate " << dataFilePath;
+    }
+    else
+    {
+        std::string contents;
+
+        ifs.seekg(0, std::ios::end);
+        contents.reserve(ifs.tellg());
+        ifs.seekg(0, std::ios::beg);
+
+        contents.assign((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+
+        LOG(INFO) << "Contents of " << dataFilePath << ":";
+        LOG(INFO) << contents;
+        ifs.close();
+    }
+}
+
+// Callback function for handling stream status callbacks
+static void __stdcall handleStreamStatusCallback(GfnRuntimeSdk::GfnStreamStatus status, void* context);
+static CefMessageRouterBrowserSide::Callback* s_registerStreamStatusCallback = nullptr;
+
 static GfnRuntimeSdk::GfnRuntimeError initGFN()
 {
-    static bool isInitialized = false;
     GfnRuntimeSdk::GfnRuntimeError err = GfnRuntimeSdk::GfnRuntimeError::gfnSuccess;
-
-    if (isInitialized)
-        return err;
-
-    if ((err = GfnRuntimeSdk::gfnInitializeRuntimeSdk()) == GfnRuntimeSdk::GfnRuntimeError::gfnSuccess)
+    // Change the language value in the gfnInitializeRuntimeSDK call to force specific language usage
+    err = GfnRuntimeSdk::gfnInitializeRuntimeSdk(GfnRuntimeSdk::GfnDisplayLanguage::gfnDefaultLanguage);
+    switch (err)
     {
-        LOG(INFO) << "succeeded at initializing GFNLinkSDK";
-        isInitialized = true;
-        return err;
+    case GfnRuntimeSdk::GfnRuntimeError::gfnSuccess:
+        LOG(INFO) << "succeeded at initializing GFNRuntime SDK";
+        logGfnSdkData();
+        break;
+    case GfnRuntimeSdk::GfnRuntimeError::gfnInitSuccessClientOnly:
+        LOG(INFO) << "succeeded at initializing client-only GFNRuntime SDK";
+        break;
+    default:
+        LOG(ERROR) << "error initializing: " << GfnRuntimeErrorToString(err);
     }
 
-    LOG(ERROR) << "error initializing: " << GfnRuntimeErrorToString(err);
     return err;
 }
 
@@ -85,7 +125,8 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     {
         GfnRuntimeSdk::GfnRuntimeError err = initGFN();
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
-        response_dict->SetBool("success", err == GfnRuntimeSdk::GfnRuntimeError::gfnSuccess);
+        // gfnInitSuccessClientOnly is also success, and needs to be treated as such
+        response_dict->SetBool("success", (err == GfnRuntimeSdk::GfnRuntimeError::gfnSuccess || err == GfnRuntimeSdk::GfnRuntimeError::gfnInitSuccessClientOnly));
         response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
 
         CefString response(DictToJson(response_dict));
@@ -119,36 +160,46 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     {
         bool gameLaunched = false;
         std::string msg;
-        if (dict->HasKey("serviceId") && dict->HasKey("appId") && dict->HasKey("authToken"))
+        if (dict->HasKey("gfnTitleId") && dict->HasKey("authToken") && dict->HasKey("tokenType"))
         {
             GfnRuntimeSdk::StartStreamResponse response;
             GfnRuntimeSdk::StartStreamInput startStreamInput = { 0 };
-            std::string pchServiceId = dict->GetString("serviceId").ToString();
-            startStreamInput.pchServiceId = pchServiceId.c_str();
-            std::string pchAppId = dict->GetString("appId").ToString();
-            startStreamInput.pchAppId = pchAppId.c_str();
+            uint32_t gfnTitleId = dict->GetInt("gfnTitleId");
+            startStreamInput.uiTitleId = gfnTitleId;
             std::string pchAuthToken = dict->GetString("authToken").ToString();
             startStreamInput.pchAuthToken = pchAuthToken.c_str();
-            startStreamInput.pchCustomData = "This is example custom data";
+            bool hasTokenType = false;
+            std::stringstream ssTokenType(dict->GetString("tokenType"));
+            ssTokenType >> startStreamInput.tokenType;
+            hasTokenType = !ssTokenType.fail() && !ssTokenType.bad();
 
-            GfnRuntimeSdk::GfnRuntimeError err = GfnRuntimeSdk::gfnStartStream(&startStreamInput, &response);
-            msg = "gfnStartStream = " + std::string(GfnRuntimeErrorToString(err));
-            if (err != GfnRuntimeSdk::GfnRuntimeError::gfnSuccess)
+            if (hasTokenType)
             {
-                LOG(ERROR) << "launch game error: " << msg;
+                startStreamInput.pchCustomData = "This is example custom data";
+
+                GfnRuntimeSdk::GfnRuntimeError err = GfnRuntimeSdk::gfnStartStream(&startStreamInput, &response);
+                msg = "gfnStartStream = " + std::string(GfnRuntimeErrorToString(err));
+                if (err != GfnRuntimeSdk::GfnRuntimeError::gfnSuccess)
+                {
+                    LOG(ERROR) << "launch game error: " << msg;
+                }
+                else
+                {
+                    gameLaunched = true;
+                    msg = msg + ", GFN Downloaded & Installed = " + (response.downloaded ? "Yes" : "Not needed");
+                    LOG(INFO) << "launch game response. Downloaded GeForceNOW? : " << response.downloaded;
+                }
             }
             else
             {
-                gameLaunched = true;
-                msg = msg + ", GFN Downloaded & Installed = " + (response.downloaded ? "Yes" : "Not needed");
-                LOG(INFO) << "launch game response. Downloaded GeForceNOW? : " << response.downloaded;
+                msg = "An error occurred while parsing tokenType argument to CEF extention";
             }
         }
         else
         {
             msg = "Bad arguments to CEF extension";
         }
-    
+
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         response_dict->SetBool("gameLaunched", gameLaunched);
         response_dict->SetString("errorMessage", CefString(msg.c_str()));
@@ -218,5 +269,26 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         return true;
     }
 
+
+    else if (command == GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK)
+    {
+        s_registerStreamStatusCallback = callback;
+
+        GfnRuntimeSdk::gfnRegisterStreamStatusCallback(reinterpret_cast<GfnRuntimeSdk::StreamStatusCallbackSig>(&handleStreamStatusCallback), nullptr);
+        return true;
+    }
+
     return false;
+}
+
+void __stdcall handleStreamStatusCallback(GfnRuntimeSdk::GfnStreamStatus status, void* context)
+{
+    if (s_registerStreamStatusCallback)
+    {
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        response_dict->SetString("status", GfnStreamStatusToString(status));
+
+        CefString response(DictToJson(response_dict));
+        s_registerStreamStatusCallback->Success(response);
+    }
 }

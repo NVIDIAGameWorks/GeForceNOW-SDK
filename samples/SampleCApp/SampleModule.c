@@ -30,14 +30,14 @@
 
 extern bool g_MainDone;
 
-GfnApplicationCallbackResult ExitApp(void* pContext); ExitApp(void* pContext)
+GfnApplicationCallbackResult GFN_CALLBACK ExitApp(void* pContext)
 {
     printf("Application exiting...\n");
     g_MainDone = true;
     return crCallbackSuccess;
 }
 
-GfnApplicationCallbackResult PauseApp(void* pContext)
+GfnApplicationCallbackResult GFN_CALLBACK PauseApp(void* pContext)
 {
     // For the sake of example, imagine we treat the context like an int and print
     // the number of times an application pause has been requested by the SDK.
@@ -46,7 +46,7 @@ GfnApplicationCallbackResult PauseApp(void* pContext)
     return crCallbackSuccess;
 }
 
-GfnApplicationCallbackResult InstallApp(TitleInstallationInformation* pInfo, void* pContext)
+GfnApplicationCallbackResult GFN_CALLBACK InstallApp(TitleInstallationInformation* pInfo, void* pContext)
 {
     printf("\"Completing\" title setup for: %s.\n\tBuild path: %s\n\tMetadata path: %s\n",
         pInfo->pchPlatformAppId, pInfo->pchBuildPath, pInfo->pchMetadataPath);

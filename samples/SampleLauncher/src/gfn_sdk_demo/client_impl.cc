@@ -3,21 +3,34 @@
 // can be found in the LICENSE file.
 
 #include "gfn_sdk_demo/client_impl.h"
+#include "gfn_sdk_demo/gfn_sdk_helper.h"
 
 #include "include/wrapper/cef_helpers.h"
 
 #include "shared/client_util.h"
 #include "shared/resource_util.h"
-
-#include "gfn_sdk_demo/gfn_sdk_helper.h"
-
 #include "shared/resources/win/resource.h"
+
+#include "GfnRuntimeSdk_CAPI.h"
+
+#ifdef WIN32
+#include <ShellScalingApi.h>
+#endif
 
 namespace message_router {
 
 namespace {
 
 const char kTestMessageName[] = "MessageRouterTest";
+
+typedef enum {
+    DEV_TOOLS_HEIGHT = 600,
+    DEV_TOOLS_WIDTH = 900
+} DevTools;
+
+// HiDPI The default logical DPI when scaling is applied in windows. see.
+// https://msdn.microsoft.com/en-us/library/ms701681(v=vs.85).aspx
+#define DEFAULT_WINDOWS_DPI 96
 
 // Handle messages in the browser process.
 class MessageHandler : public CefMessageRouterBrowserSide::Handler {
@@ -97,14 +110,16 @@ void Client::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     // Register handlers with the router.
     message_handler_.reset(new MessageHandler(startup_url_));
     message_router_->AddHandler(message_handler_.get(), false);
+    shared::g_browserHost = browser->GetHost();
   }
 
   browser_ct_++;
-  
+
   HWND windowHandle = static_cast<HWND>(browser->GetHost()->GetWindowHandle());
   HICON iconHandle = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_GFNICON));
   SendMessage(windowHandle, WM_SETICON, ICON_SMALL, (LPARAM)iconHandle);
   SendMessage(windowHandle, WM_SETICON, ICON_BIG, (LPARAM)iconHandle);
+  shared::g_browserHost = browser->GetHost();
 
   // Call the default shared implementation.
   shared::OnAfterCreated(browser);
@@ -123,6 +138,9 @@ void Client::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     message_router_->RemoveHandler(message_handler_.get());
     message_handler_.reset();
     message_router_ = NULL;
+   
+    GfnRuntimeSdk::gfnShutdownRuntimeSdk();
+    shared::g_browserHost = NULL;
   }
 
   // Call the default shared implementation.
@@ -172,8 +190,47 @@ void Client::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefMenuModel> model) {
     CEF_REQUIRE_UI_THREAD();
 
+#if 1
+    model->AddSeparator();
+    // Add a "Show DevTools" item to all context menus.
+    model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
+    model->AddItem(CLIENT_ID_INSPECT_ELEMENT, "Inspect Element");
+#else
     // Disable right-click context menu since we don't need it for anything
     model->Clear();
+#endif
+}
+
+bool Client::OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+                                  CefRefPtr<CefContextMenuParams> params, int command_id,
+                                  CefContextMenuHandler::EventFlags event_flags)
+{
+
+    switch (command_id)
+    {
+    case CLIENT_ID_SHOW_DEVTOOLS:
+        ShowDevTools(browser, CefPoint());
+        return true;
+    case CLIENT_ID_INSPECT_ELEMENT:
+        ShowDevTools(browser, CefPoint(params->GetXCoord(), params->GetYCoord()));
+        return true;
+    default: // Allow default handling, if any.
+        return true;
+    }
+}
+
+void Client::ShowDevTools(CefRefPtr<CefBrowser> browser, const CefPoint &inspect_element_at)
+{
+    CefWindowInfo windowInfo;
+    CefBrowserSettings settings;
+
+#ifdef WIN32
+    windowInfo.SetAsPopup(NULL, "");
+    windowInfo.width = MulDiv(DEV_TOOLS_WIDTH, DEFAULT_WINDOWS_DPI, DEFAULT_WINDOWS_DPI);
+    windowInfo.height = MulDiv(DEV_TOOLS_HEIGHT, DEFAULT_WINDOWS_DPI, DEFAULT_WINDOWS_DPI);
+#endif
+
+    browser->GetHost()->ShowDevTools(windowInfo, browser->GetHost()->GetClient(), settings, inspect_element_at);
 }
 
 }  // namespace message_router

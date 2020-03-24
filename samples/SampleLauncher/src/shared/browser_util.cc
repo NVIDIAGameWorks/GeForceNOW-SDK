@@ -135,19 +135,20 @@ void CreateBrowser(CefRefPtr<CefClient> client,
 #if defined(OS_WIN)
     // On Windows we need to specify certain flags that will be passed to
     // CreateWindowEx().
-    window_info.SetAsPopup(NULL, "examples");
+    window_info.SetAsPopup(NULL, "GFN SDK Sample Launcher");
     // Adjust window dimensions for system DPI settings
     HDC screen = GetDC(0);
     int systemDpi = GetDeviceCaps(screen, LOGPIXELSX);
+    // We can't programmatically know the side of the rendered HTML without
+    // resizing windows after the fact. Size this to fit the HTML.
     int dpiAdjustedWidth = MulDiv(512, systemDpi, 96);
-    int dpiAdjustedHeight = MulDiv(600, systemDpi, 96);
+    int dpiAdjustedHeight = MulDiv(624, systemDpi, 96);
     window_info.width = dpiAdjustedWidth;
     window_info.height = dpiAdjustedHeight;
 #endif
 
     // Create the browser window.
-    CefBrowserHost::CreateBrowser(window_info, client, startup_url, settings,
-                                  NULL);
+    CefBrowserHost::CreateBrowser(window_info, client, startup_url, settings, NULL);
   }
 }
 

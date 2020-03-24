@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>GfnRuntimeSdkDevelopment: Client Callback Registration</title>
+<title>GfnSdkDevelopment: Client Callback Registration</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -87,15 +87,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga1bfb0c124d29aa735e8308f36624bbb5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__callbacks.html#ga1bfb0c124d29aa735e8308f36624bbb5">gfnRegisterExitCallback</a> (ExitCallbackSig exitCallback, void *pUserContext)</td></tr>
+<tr class="memitem:ga1bfb0c124d29aa735e8308f36624bbb5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__callbacks.html#ga1bfb0c124d29aa735e8308f36624bbb5">gfnRegisterExitCallback</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a1b7de2891a1a633769c97cf118f32240">ExitCallbackSig</a> exitCallback, void *pUserContext)</td></tr>
 <tr class="separator:ga1bfb0c124d29aa735e8308f36624bbb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga25f78b92284429ca8274ce2c22a9b332"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__callbacks.html#ga25f78b92284429ca8274ce2c22a9b332">gfnRegisterPauseCallback</a> (PauseCallbackSig pauseCallback, void *pUserContext)</td></tr>
+<tr class="memitem:ga25f78b92284429ca8274ce2c22a9b332"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__callbacks.html#ga25f78b92284429ca8274ce2c22a9b332">gfnRegisterPauseCallback</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#acf857bd2399ebd7c18c57c212c6e6a23">PauseCallbackSig</a> pauseCallback, void *pUserContext)</td></tr>
 <tr class="separator:ga25f78b92284429ca8274ce2c22a9b332"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9456c68f4b2ced62808ea7016e425a94"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__callbacks.html#ga9456c68f4b2ced62808ea7016e425a94">gfnRegisterInstallCallback</a> (InstallCallbackSig installCallback, void *pUserContext)</td></tr>
+<tr class="memitem:ga9456c68f4b2ced62808ea7016e425a94"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__callbacks.html#ga9456c68f4b2ced62808ea7016e425a94">gfnRegisterInstallCallback</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a7d77221563bc63396a70c8f1a6d2f59c">InstallCallbackSig</a> installCallback, void *pUserContext)</td></tr>
 <tr class="separator:ga9456c68f4b2ced62808ea7016e425a94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad6b7fc7ca23a782b8f2d8c4fba76e796"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__callbacks.html#gad6b7fc7ca23a782b8f2d8c4fba76e796">gfnRegisterStreamStatusCallback</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#acbb9a59546e24d337ba84b6f61984d3e">StreamStatusCallbackSig</a> streamStatusCallback, void *pUserContext)</td></tr>
+<tr class="separator:gad6b7fc7ca23a782b8f2d8c4fba76e796"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<p>Callback registration functions to receieve various messages / requests from the SDK. Register only after calling <a class="el" href="group__general.html#ga1fabdfb40bb6cc6d7e4973ea7f6070b4">gfnInitializeRuntimeSdk()</a>. </p>
+<p>Callback registration functions to receieve various messages / requests from the SDK. Register only after calling <a class="el" href="group__general.html#ga33bdd15339db99cfda6d88d37390ab6b">gfnInitializeRuntimeSdk()</a>. </p>
 <h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="ga1bfb0c124d29aa735e8308f36624bbb5"></a>
 <div class="memitem">
@@ -104,7 +106,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> gfnRegisterExitCallback </td>
           <td>(</td>
-          <td class="paramtype">ExitCallbackSig&#160;</td>
+          <td class="paramtype"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a1b7de2891a1a633769c97cf118f32240">ExitCallbackSig</a>&#160;</td>
           <td class="paramname"><em>exitCallback</em>, </td>
         </tr>
         <tr>
@@ -134,6 +136,7 @@ Functions</h2></td></tr>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a Geforce NOW environment </td></tr>
     <tr><td class="paramname">gfnDLLNotPresent</td><td>- If callback could not be registered </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- If exitCallback function pointer is NULL. </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a cloud execution environment </td></tr>
   </table>
   </dd>
@@ -148,7 +151,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> gfnRegisterInstallCallback </td>
           <td>(</td>
-          <td class="paramtype">InstallCallbackSig&#160;</td>
+          <td class="paramtype"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a7d77221563bc63396a70c8f1a6d2f59c">InstallCallbackSig</a>&#160;</td>
           <td class="paramname"><em>installCallback</em>, </td>
         </tr>
         <tr>
@@ -178,6 +181,7 @@ Functions</h2></td></tr>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a Geforce NOW environment </td></tr>
     <tr><td class="paramname">gfnDLLNotPresent</td><td>- If callback could not be registered </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- If installCallback function pointer is NULL. </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a cloud execution environment </td></tr>
   </table>
   </dd>
@@ -192,7 +196,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> gfnRegisterPauseCallback </td>
           <td>(</td>
-          <td class="paramtype">PauseCallbackSig&#160;</td>
+          <td class="paramtype"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#acf857bd2399ebd7c18c57c212c6e6a23">PauseCallbackSig</a>&#160;</td>
           <td class="paramname"><em>pauseCallback</em>, </td>
         </tr>
         <tr>
@@ -222,7 +226,51 @@ Functions</h2></td></tr>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a Geforce NOW environment </td></tr>
     <tr><td class="paramname">gfnDLLNotPresent</td><td>- If callback could not be registered </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- If pauseCallback function pointer is NULL. </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a cloud execution environment </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="gad6b7fc7ca23a782b8f2d8c4fba76e796"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> gfnRegisterStreamStatusCallback </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#acbb9a59546e24d337ba84b6f61984d3e">StreamStatusCallbackSig</a>&#160;</td>
+          <td class="paramname"><em>streamStatusCallback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>pUserContext</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Register a callback that gets called on the user's PC when the streaming session state changes</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register a function to call when stream status changes on the user's client PC</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">gfnRegisterStreamStatusCallback[in]</td><td>- Function pointer to application code to call after the Geforce NOW streamer changes state </td></tr>
+    <tr><td class="paramname">pUserContext[in]</td><td>- Pointer to user context, which will be passed unmodified to the registered callback. Can be NULL.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running on the client PC </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a client execution environment </td></tr>
   </table>
   </dd>
 </dl>

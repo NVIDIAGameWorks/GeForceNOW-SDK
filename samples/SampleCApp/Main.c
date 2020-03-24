@@ -38,7 +38,7 @@ int g_pause_call_counter = 0;
 void ApplicationInitialize()
 {
     // Initialize the Geforce NOW Runtime SDK using the C calling convention.
-    gfnInitializeRuntimeSdk();
+    gfnInitializeRuntimeSdk(gfnDefaultLanguage);
 
     // Register any implemented callbacks capable of serving requests from the SDK.
     gfnRegisterExitCallback(ExitApp, NULL);
