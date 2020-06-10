@@ -52,3 +52,9 @@ GfnApplicationCallbackResult GFN_CALLBACK InstallApp(TitleInstallationInformatio
         pInfo->pchPlatformAppId, pInfo->pchBuildPath, pInfo->pchMetadataPath);
     return crCallbackSuccess;
 }
+
+GfnApplicationCallbackResult GFN_CALLBACK AutoSave(void* pContext)
+{
+    printf("AutoSave\n");
+    return crCallbackSuccess;
+}

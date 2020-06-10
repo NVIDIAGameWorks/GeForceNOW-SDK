@@ -285,7 +285,10 @@
                         if (data.enabled) {
                             // Get current client IP
                             getClientIp();
-
+                            // Get streamable status about a specific title
+                            isTitleAvailable();
+                            // Get all titles available to stream in the current GFN game seat
+                            getAvailableTitles();
                             // Retrieve and redeem delegate token and restore launcher user info
                             setStatus('Requesting GFN Access Token from SDK...');
                             requestGfnAccessToken(function () {
@@ -301,6 +304,36 @@
                             });
                         }
                         resolve(data.enabled);
+                    }
+                });
+            });
+        }
+
+        function getAvailableTitles() {
+            return new Promise((resolve, reject) => {
+                window.cefQuery({
+                    request: JSON.stringify({
+                        command: 'GFN_SDK_GET_AVAILABLE_TITLES',
+                    }),
+                    onSuccess: function (response) {
+                        var data = JSON.parse(response);
+                        setStatus('Available titles: ' + data.titles);
+                    }
+                });
+            });
+        }
+
+        function isTitleAvailable() {
+            return new Promise((resolve, reject) => {
+                window.cefQuery({
+                    request: JSON.stringify({
+                        command: 'GFN_SDK_IS_TITLE_AVAILABLE',
+                        appId: "730",   // Use the ID of your specific title of your platform
+                    }),
+                    onSuccess: function (response) {
+                        var data = JSON.parse(response);
+                        setStatus(data.available ? 'Title is available to stream' : 'Title is not available to stream');
+                        resolve(data.available);
                     }
                 });
             });

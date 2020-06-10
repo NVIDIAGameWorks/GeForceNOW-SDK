@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include "GfnRuntimeSdk_CAPI.h"
+#include "GfnRuntimeSdk_Wrapper.h"
 
 /* These are application methods we need to register with the Geforce NOW Runtime SDK.
  * They have been placed here to emphasize that they're application specific and
@@ -33,3 +34,4 @@
 extern GfnApplicationCallbackResult GFN_CALLBACK ExitApp(void* pContext);
 extern GfnApplicationCallbackResult GFN_CALLBACK PauseApp(void* pContext);
 extern GfnApplicationCallbackResult GFN_CALLBACK InstallApp(const TitleInstallationInformation* pInfo, void* pContext);
+extern GfnApplicationCallbackResult GFN_CALLBACK AutoSave(void* pContext);

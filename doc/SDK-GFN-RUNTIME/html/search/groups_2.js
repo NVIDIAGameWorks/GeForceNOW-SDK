@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['launcher_20application_20methods',['Launcher Application Methods',['../group__launcher.html',1,'']]]
+  ['general_20_2f_20common_20methods',['General / Common Methods',['../group__general.html',1,'']]]
 ];

@@ -14,8 +14,12 @@ endif()
 
 ##### Cache Configuration #####
 set(GFN_RUNTIME_SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Location of the GfnRuntimeSdk root")
-set(GFN_RUNTIME_SDK_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${BUILD_ARCH}_${CMAKE_VS_PLATFORM_TOOLSET}_$<$<CONFIG:Debug>:Debug>$<$<NOT:$<CONFIG:Debug>>:Release>
-    CACHE PATH "Location of the GfnRuntimeSdk library binaries")
+
+if(NOT GFN_RUNTIME_SDK_LIB_DIR)
+    set(GFN_RUNTIME_SDK_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${BUILD_ARCH}
+        CACHE PATH "Location of the GfnRuntimeSdk library binaries"
+    )
+endif()
 
 set(SAMPLES_INSTALL_ROOT "" CACHE STRING "(Optional) location to install sample launcher with cmake install command")
 set(SAMPLES_CEF_URL "" CACHE STRING "(Optional) URL to use to download libcef for launcher sample")
@@ -26,23 +30,21 @@ endif ()
 option(BUILD_SAMPLES "Build the GFN SDK samples" ON)
 ###############################
 
-if (USE_STATIC_CRT)
-    # Force MSVC static runtime library for each configuration
-    # Replace the strings instead of appending /MT(d), because overriding gives a compile error
-    # This handles both /MDd -> /MTd, and /MD -> /MT
-    foreach(i CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO
-            CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO)
-        string(REGEX REPLACE "/MD" "/MT" ${i} "${${i}}")
-    endforeach()
-    set(MSVC_RUNTIME "MT")
-else (USE_STATIC_CRT)
-    set(MSVC_RUNTIME "MD")
-endif ()
-set(GFN_RUNTIME_LIB "GfnRuntime${MSVC_RUNTIME}.lib")
+# Force MSVC static runtime library for each configuration
+# Replace the strings instead of appending /MT(d), because overriding gives a compile error
+# This handles both /MDd -> /MTd, and /MD -> /MT
+foreach(i CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO)
+    string(REGEX REPLACE "/MD" "/MT" ${i} "${${i}}")
+endforeach()
+set(MSVC_RUNTIME "MT")
 
 set(GFN_RUNTIME_SDK_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnRuntimeSdk_CAPI.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnRuntimeSdk_Wrapper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnRuntimeSdk_Wrapper.c
 )
+
 add_custom_target(GfnRuntimeSdk SOURCES ${GFN_RUNTIME_SDK_SOURCES})
 
 if (BUILD_SAMPLES)

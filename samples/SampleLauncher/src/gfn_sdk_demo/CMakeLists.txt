@@ -14,6 +14,7 @@ endif()
 
 # Main executable sources.
 set(EXAMPLE_SRCS
+  ${GFN_RUNTIME_SDK_SOURCES}
   ../minimal/main_minimal.cc
   app_browser_impl.cc
   client_impl.cc
@@ -176,7 +177,6 @@ if(OS_WINDOWS)
   target_link_libraries(${EXAMPLE_TARGET} shared)
 
   target_link_libraries(${EXAMPLE_TARGET}
-    "${GFN_RUNTIME_SDK_LIB_DIR}/GfnRuntime${MSVC_RUNTIME}.lib"
     crypt32.lib
     Wldap32.lib
   )
@@ -224,6 +224,11 @@ if (SAMPLES_INSTALL_ROOT)
     )
     install(FILES ${EXAMPLE_INSTALL_FILES_RELEASE}
       CONFIGURATIONS Release MinSizeRel RelWithDebInfo
+      DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
+      COMPONENT sample_bins
+    )
+    
+    install(FILES ${PACK_PARTNER_ROOT}/lib/${BUILD_ARCH}/GfnRuntimeSdk.dll
       DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
       COMPONENT sample_bins
     )

@@ -28,7 +28,6 @@
 #include <tchar.h>
 #include <windows.h>            // For GetAsyncKeyState
 #include "SampleModule.h"
-#include "GfnRuntimeSdk_CAPI.h"
 
 bool g_MainDone = false;
 int g_pause_call_counter = 0;
@@ -38,12 +37,13 @@ int g_pause_call_counter = 0;
 void ApplicationInitialize()
 {
     // Initialize the Geforce NOW Runtime SDK using the C calling convention.
-    gfnInitializeRuntimeSdk(gfnDefaultLanguage);
+    GfnInitializeSdk(gfnDefaultLanguage);
 
     // Register any implemented callbacks capable of serving requests from the SDK.
-    gfnRegisterExitCallback(ExitApp, NULL);
-    gfnRegisterPauseCallback(PauseApp, &g_pause_call_counter);
-    gfnRegisterInstallCallback(InstallApp, NULL);
+    GfnRegisterExitCallback(ExitApp, NULL);
+    GfnRegisterPauseCallback(PauseApp, &g_pause_call_counter);
+    GfnRegisterInstallCallback(InstallApp, NULL);
+    GfnRegisterSaveCallback(AutoSave, NULL);
 
     // Application Initialization...
 }
@@ -57,7 +57,7 @@ void ApplicationShutdown()
 
     // Shut down the Geforce NOW Runtime SDK. Note that it's safe to call
     // gfnShutdownRuntimeSdk even if the SDK was not initialized.
-    gfnShutdownRuntimeSdk();
+    GfnShutdownSdk();
 }
 
 // Example application main
@@ -66,8 +66,8 @@ int _tmain(int argc, _TCHAR* argv[])
     ApplicationInitialize();
 
     // Sample C API call
-    bool bIsCloudEnvironment;
-    bIsCloudEnvironment = gfnIsRunningInCloud();
+    bool bIsCloudEnvironment = false;
+    GfnIsRunningInCloud(&bIsCloudEnvironment);
     printf("\nApplication executing in Geforce NOW environment: %s\n", (bIsCloudEnvironment == true) ? "true" : "false");
 
     if (bIsCloudEnvironment) // More sample C API calls.
@@ -75,7 +75,7 @@ int _tmain(int argc, _TCHAR* argv[])
         GfnRuntimeError runtimeError = gfnSuccess;
 
         char* clientIp;
-        runtimeError = gfnGetClientIp(&clientIp);
+        runtimeError = GfnGetClientIpV4(&clientIp);
         if (runtimeError == gfnSuccess)
         {
             printf("Retrieved Geforce NOW Client I.P.: %s\n", clientIp);
@@ -86,7 +86,7 @@ int _tmain(int argc, _TCHAR* argv[])
         }
 
         char* clientLanguageCode;
-        runtimeError = gfnGetClientLanguageCode(&clientLanguageCode);
+        runtimeError = GfnGetClientLanguageCode(&clientLanguageCode);
         if (runtimeError == gfnSuccess)
         {
             printf("Retrieved Geforce NOW client language code: %s\n", clientLanguageCode);
@@ -98,7 +98,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
         
         char* gfnAccessToken;
-        runtimeError = gfnRequestGfnAccessToken(&gfnAccessToken);
+        runtimeError = GfnRequestAccessToken(&gfnAccessToken);
         if (runtimeError == gfnSuccess)
         {
             printf("Retrieved Geforce NOW access token: %s\n", gfnAccessToken);
@@ -109,7 +109,7 @@ int _tmain(int argc, _TCHAR* argv[])
         }
 
         // Try "setting up" a title!
-        runtimeError = gfnSetupTitle("Sample C App");
+        runtimeError = GfnSetupTitle("Sample C App");
     }
 
     // Application main loop

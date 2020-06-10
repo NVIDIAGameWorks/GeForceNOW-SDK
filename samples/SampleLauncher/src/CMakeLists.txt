@@ -91,6 +91,10 @@ macro(SET_EXAMPLE_EXECUTABLE_TARGET_PROPERTIES target)
                         \"${CMAKE_CURRENT_SOURCE_DIR}/${SHARED_COMPATIBILITY_MANIFEST}\"
               -outputresource:"${EXAMPLE_TARGET_OUT_DIR}/${target}.exe"\;\#1
       COMMENT "Adding manifest..."
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${GFN_RUNTIME_SDK_LIB_DIR}/GfnRuntimeSdk.dll"
+            "${EXAMPLE_TARGET_OUT_DIR}"
+      COMMENT "Updating manifests and copying SDK DLL to build..."
       )
   endif()
 endmacro()

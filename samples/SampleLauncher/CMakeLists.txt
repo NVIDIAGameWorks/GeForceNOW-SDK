@@ -89,8 +89,13 @@ project(GfnSdkSampleLauncher)
 set(USE_SANDBOX OFF CACHE BOOL "")
 
 #
-# Generate libcef URL if not set by cache
+# Get CEF, if needed
 #
+cmake_policy(SET CMP0074 NEW)
+set(libcef_download_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/libcef_download-src")
+set(CEF_SOURCE_FILE "${CMAKE_BINARY_DIR}/_deps/libcef_source-url.txt")
+
+# Generate libcef URL if not set by cache
 set (LIBCEF_URL ${SAMPLES_CEF_URL})
 if (NOT LIBCEF_URL)
     if (WIN32)
@@ -107,19 +112,27 @@ if (NOT LIBCEF_URL)
         set(PROJECT_ARCH "x86_64")
     endif ()
 
-    set(LIBCEF_URL "http://opensource.spotify.com/cefbuilds/cef_binary_3.3626.1894.g90eb8cc_${OS_STRING}${SAMPLES_ARCH}.tar.bz2")
+    set(CURRENT_LIBCEF_URL "http://opensource.spotify.com/cefbuilds/cef_binary_3.3626.1894.g90eb8cc_${OS_STRING}${SAMPLES_ARCH}.tar.bz2")
 endif ()
 
-#
-# Fetch libcef and point to it
-#
-include(FetchContent)
-FetchContent_Declare(libcef_download
-  URL ${LIBCEF_URL}
-)
+set (EXISTING_CEF_SOURCE_URL "This is not a valid version string")
+if (EXISTS ${CEF_SOURCE_FILE})
+    file(READ ${CEF_SOURCE_FILE} EXISTING_CEF_SOURCE_URL)
+endif()
+if ((NOT EXISTS ${libcef_download_SOURCE_DIR}) OR (NOT EXISTS ${CEF_SOURCE_FILE}) OR (NOT EXISTING_CEF_SOURCE_URL STREQUAL CURRENT_LIBCEF_URL))
+    # Fetch libcef
+    include(FetchContent)
+    FetchContent_Declare(libcef_download
+      URL ${CURRENT_LIBCEF_URL}
+    )
+    message("Please wait, downloading libcef from ${CURRENT_LIBCEF_URL} to ${libcef_download_SOURCE_DIR}")
+    FetchContent_Populate(libcef_download)
+    file(WRITE ${CEF_SOURCE_FILE} ${CURRENT_LIBCEF_URL})
+endif()
 
-message("Please wait, downloading libcef from ${LIBCEF_URL}")
-FetchContent_Populate(libcef_download)
+#
+# Include cef package
+#
 
 set(CEF_ROOT "${libcef_download_SOURCE_DIR}")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake")

@@ -11,7 +11,7 @@
 #include "shared/resource_util.h"
 #include "shared/resources/win/resource.h"
 
-#include "GfnRuntimeSdk_CAPI.h"
+#include "GfnRuntimeSdk_Wrapper.h"
 
 #ifdef WIN32
 #include <ShellScalingApi.h>
@@ -139,7 +139,7 @@ void Client::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     message_handler_.reset();
     message_router_ = NULL;
    
-    GfnRuntimeSdk::gfnShutdownRuntimeSdk();
+    GfnShutdownSdk();
     shared::g_browserHost = NULL;
   }
 

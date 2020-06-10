@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['client_20callback_20registration',['Client Callback Registration',['../group__callbacks.html',1,'']]]
+  ['api_20wrapper_20methods',['API Wrapper Methods',['../group__wrapper.html',1,'']]]
 ];

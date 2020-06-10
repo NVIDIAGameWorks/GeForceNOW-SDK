@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['general_20_2f_20common_20methods',['General / Common Methods',['../group__general.html',1,'']]]
+  ['client_20callback_20registration',['Client Callback Registration',['../group__callbacks.html',1,'']]]
 ];
