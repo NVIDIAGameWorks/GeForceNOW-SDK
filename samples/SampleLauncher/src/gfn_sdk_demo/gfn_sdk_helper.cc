@@ -15,10 +15,11 @@
 #include <fstream>
 
 CefString GFN_SDK_INIT = "GFN_SDK_INIT";
-CefString GFN_SDK_LAUNCH_GAME = "GFN_SDK_LAUNCH_GAME";
+CefString GFN_SDK_STREAM_ACTION = "GFN_SDK_STREAM_ACTION";
 CefString GFN_SDK_IS_RUNNING_IN_CLOUD = "GFN_SDK_IS_RUNNING_IN_CLOUD";
 CefString GFN_SDK_REQUEST_GFN_ACCESS_TOKEN = "GFN_SDK_REQUEST_GFN_ACCESS_TOKEN";
 CefString GFN_SDK_GET_CLIENT_IP = "GFN_SDK_GET_CLIENT_IP";
+CefString GFN_SDK_GET_CLIENT_COUNTRY_CODE = "GFN_SDK_GET_CLIENT_COUNTRY_CODE";
 CefString GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK = "GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK";
 CefString GFN_SDK_IS_TITLE_AVAILABLE = "GFN_SDK_IS_TITLE_AVAILABLE";
 CefString GFN_SDK_GET_AVAILABLE_TITLES = "GFN_SDK_GET_AVAILABLE_TITLES";
@@ -49,6 +50,10 @@ static CefString GfnRuntimeErrorToString(GfnRuntimeError err)
     case GfnRuntimeError::gfnTimedOut: return "Timed Out";
     case GfnRuntimeError::gfnClientDownloadFailed: return "GFN Client download failed";
     case GfnRuntimeError::gfnWebApiFailed: return "NVIDIA Web API returned invalid data";
+    case GfnRuntimeError::gfnStreamFailure: return "GFN Streamer hit a failure while starting a stream";
+    case GfnRuntimeError::gfnAPINotFound: return "GFN SDK API Library API call not found";
+    case GfnRuntimeError::gfnAPINotInit: return "GFN SDK API not initialized";
+    case GfnRuntimeError::gfnStreamStopFailure: return "GFN SDK failed to stop active streaming session";
     default: return "Unknown Error";
     }
 }
@@ -223,53 +228,78 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
      * delegate token is passed in then the GeForce NOW streaming client will display a login
      * window prompting the user to authenticate first.
      */
-    else if (command == GFN_SDK_LAUNCH_GAME)
+    else if (command == GFN_SDK_STREAM_ACTION)
     {
-        bool gameLaunched = false;
+        bool actionSuccess = false;
+        bool launchStream = false;
         std::string msg;
-        if (dict->HasKey("gfnTitleId") && dict->HasKey("authToken") && dict->HasKey("tokenType"))
+        if (!dict->HasKey("launchStream"))
         {
-            StartStreamResponse response = { 0 };
-            StartStreamInput startStreamInput = { 0 };
-            uint32_t gfnTitleId = dict->GetInt("gfnTitleId");
-            startStreamInput.uiTitleId = gfnTitleId;
-            std::string pchAuthToken = dict->GetString("authToken").ToString();
-            startStreamInput.pchAuthToken = pchAuthToken.c_str();
-            bool hasTokenType = false;
-            std::stringstream ssTokenType(dict->GetString("tokenType"));
-            ssTokenType >> startStreamInput.tokenType;
-            hasTokenType = !ssTokenType.fail() && !ssTokenType.bad();
-            std::string pchNonce;
-
-            if (hasTokenType)
+            msg = "Call to Stream action missing \"launchStream\" parameter";
+        }
+        launchStream = dict->GetBool("launchStream");
+        if (launchStream)
+        {
+            LOG(INFO) << "Received request to start a session";
+            if (dict->HasKey("gfnTitleId") && dict->HasKey("authToken") && dict->HasKey("tokenType"))
             {
-                startStreamInput.pchCustomData = "This is example custom data";
+                StartStreamResponse response = { 0 };
+                StartStreamInput startStreamInput = { 0 };
+                uint32_t gfnTitleId = dict->GetInt("gfnTitleId");
+                startStreamInput.uiTitleId = gfnTitleId;
+                std::string pchAuthToken = dict->GetString("authToken").ToString();
+                startStreamInput.pchAuthToken = pchAuthToken.c_str();
+                bool hasTokenType = false;
+                std::stringstream ssTokenType(dict->GetString("tokenType"));
+                ssTokenType >> startStreamInput.tokenType;
+                hasTokenType = !ssTokenType.fail() && !ssTokenType.bad();
+                std::string pchNonce;
 
-                GfnRuntimeError err = GfnStartStream(&startStreamInput, &response);
-                msg = "gfnStartStream = " + std::string(GfnRuntimeErrorToString(err));
-                if (err != GfnRuntimeError::gfnSuccess)
+                if (hasTokenType)
                 {
-                    LOG(ERROR) << "launch game error: " << msg;
+                    startStreamInput.pchCustomData = "This is example custom data";
+
+                    GfnRuntimeError err = GfnStartStream(&startStreamInput, &response);
+                    msg = "gfnStartStream = " + std::string(GfnRuntimeErrorToString(err));
+                    if (err != GfnRuntimeError::gfnSuccess)
+                    {
+                        LOG(ERROR) << "launch game error: " << msg;
+                    }
+                    else
+                    {
+                        actionSuccess = true;
+                        msg = msg + ", GFN Downloaded & Installed = " + (response.downloaded ? "Yes" : "Not needed");
+                        LOG(INFO) << "launch game response. Downloaded GeForceNOW? : " << response.downloaded;
+                    }
                 }
                 else
                 {
-                    gameLaunched = true;
-                    msg = msg + ", GFN Downloaded & Installed = " + (response.downloaded ? "Yes" : "Not needed");
-                    LOG(INFO) << "launch game response. Downloaded GeForceNOW? : " << response.downloaded;
+                    msg = "An error occurred while parsing tokenType argument to CEF extention";
                 }
             }
             else
             {
-                msg = "An error occurred while parsing tokenType argument to CEF extention";
+                msg = "Bad arguments to CEF extension";
             }
         }
         else
         {
-            msg = "Bad arguments to CEF extension";
+            LOG(INFO) << "Received request to stop a session";
+            GfnRuntimeError err = GfnStopStream();
+            msg = "gfnStopStream = " + std::string(GfnRuntimeErrorToString(err));
+            if (err != GfnRuntimeError::gfnSuccess)
+            {
+                LOG(ERROR) << "Stream stop error: " << msg;
+            }
+            else
+            {
+                actionSuccess = true;
+                LOG(INFO) << "Stream stop success";
+            }
         }
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
-        response_dict->SetBool("gameLaunched", gameLaunched);
+        response_dict->SetBool("actionSuccess", actionSuccess);
         response_dict->SetString("errorMessage", CefString(msg.c_str()));
 
         CefString response(DictToJson(response_dict));
@@ -336,8 +366,32 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
 
         return true;
     }
+    /**
+     * Calls into GFN SDK to get the user's country code. This is meant to be
+     * called while running on the GeForce NOW game seat to determine the country where
+     * user is located
+     */
+    else if (command == GFN_SDK_GET_CLIENT_COUNTRY_CODE)
+    {
+        char clientCountryCode[3] = { 0 };
+        GfnRuntimeError err = GfnGetClientCountryCode(clientCountryCode, 3);
+        if (err != GfnRuntimeError::gfnSuccess)
+        {
+            LOG(ERROR) << "get client country code error: " << GfnRuntimeErrorToString(err);
+        }
+        else
+        {
+            LOG(INFO) << "client country code: " << clientCountryCode;
+        }
 
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        response_dict->SetString("clientCountryCode", clientCountryCode);
+        response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
 
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
+        return true;
+    }
     else if (command == GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK)
     {
         s_registerStreamStatusCallback = callback;

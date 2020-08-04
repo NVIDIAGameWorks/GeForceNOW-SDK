@@ -113,7 +113,7 @@ Overview</h1>
 <div class="image">
 <img src="sso.png" alt="sso.png"/>
 </div>
-<p>For additional high-level overview, please refer to the SDK primer available as part of the documentation section of the SDK’s repository.</p>
+<p>For additional high-level overview, please refer to the SDK primer available as part of the documentation section of the SDK's repository.</p>
 <h1><a class="anchor" id="keyconcepts"></a>
 Key Concepts</h1>
 <p>GFN Runtime API methods are used to make requests from or to notify the GFN backend.</p>
@@ -262,7 +262,7 @@ Launcher or Game Specific Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Use to notify GFN that your application has exited.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pchPlatformId</td><td>- Identifier of the launcher service, e.g. “Steam” </td></tr>
+    <tr><td class="paramname">pchPlatformId</td><td>- Identifier of the launcher service, e.g. "Steam" </td></tr>
     <tr><td class="paramname">pchPlatformAppId</td><td>- Identifier of the application that has exited.</td></tr>
   </table>
   </dd>
@@ -282,12 +282,12 @@ Launcher or Game Specific Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__launcher.html#ga8c41a40828a5bd9a0cf087a0fd2757a8">gfnGetClientIp</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Since applications running under Geforce NOW run in the Geforce NOW data centers, any IP queries made by the Application will return IPs associated with the data center, not the user’s external client IP, as seen by Internet queries. This SDK call allows the application to obtain the user's client IP in the IPv4 format so that developers can make regional business decisions for the user based on it versus the region of the data center the user is connected to for game streaming sessions.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Since applications running under Geforce NOW run in the Geforce NOW data centers, any IP queries made by the Application will return IPs associated with the data center, not the user's external client IP, as seen by Internet queries. This SDK call allows the application to obtain the user's client IP in the IPv4 format so that developers can make regional business decisions for the user based on it versus the region of the data center the user is connected to for game streaming sessions.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user’s external client IP address.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchClientIp</td><td>- Output IPv4 in string format. Example: “192.168.0.1”</td></tr>
+    <tr><td class="paramname">ppchClientIp</td><td>- Output IPv4 in string format. Example: "192.168.0.1"</td></tr>
   </table>
   </dd>
 </dl>
@@ -307,12 +307,12 @@ Launcher or Game Specific Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__launcher.html#ga95ddfe6fabeec68eb40b2ffa28d604ec">gfnGetClientLanguageCode</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Gets user’s client language code in the form "&lt;lang&gt;-&lt;country&gt;" using a standard ISO 639-1 language code and ISO 3166-1 Alpha-2 country code.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Gets user's client language code in the form "&lt;lang&gt;-&lt;country&gt;" using a standard ISO 639-1 language code and ISO 3166-1 Alpha-2 country code.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's language and country settings.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchLanguageCode</td><td>- Language code as a string. Example: “en-US”</td></tr>
+    <tr><td class="paramname">ppchLanguageCode</td><td>- Language code as a string. Example: "en-US"</td></tr>
   </table>
   </dd>
 </dl>
@@ -329,11 +329,36 @@ Launcher or Game Specific Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
+<td>C </td><td><a class="el" href="group__launcher.html#ga59456b469f989e05918d1d7c6e8f3454">gfnGetClientCountryCode</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Gets user’s client country code using ISO 3166-1 Alpha-2 country code.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's country code.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pchCountryCode</td><td>- Country code as a 2 character string. Example: “US” </td></tr>
+    <tr><td class="paramname">length</td><td>- Length of pchCountryCode character array, the length should be at least 3</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in or buffer length is too small </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
 <td>C </td><td><a class="el" href="group__launcher.html#ga21d47131ae3098cc2ee071a49e7502e8">gfnRequestGfnAccessToken</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Request to obtain a user-specific access token to allow access to the GFN backend service (IDM endpoint).</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>The access token provided can be used by the application’s backend servers to validate the user and obtain user data from the GFN backend service. The GFN backend service provides an OAuth2 interface for validating users and retrieving data. See Account Linking information in the Overview section for more information.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>The access token provided can be used by the application's backend servers to validate the user and obtain user data from the GFN backend service. The GFN backend service provides an OAuth2 interface for validating users and retrieving data. See Account Linking information in the Overview section for more information.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>For security purposes, the access token is provided only to applications registered at <a href="https://devportal.nvgs.nvidia.com,">https://devportal.nvgs.nvidia.com,</a> and have a client and an API key created for them. Contact your NVIDIA partner to have your application registered and assigned these two keys.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -399,6 +424,42 @@ Launcher or Game Specific Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
+<td>C </td><td><a class="el" href="group__launcher.html#gaf187e90d0ba2eb566244c2d302fed86e">gfnStopStream</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Requests GFN client to stop the active streaming session of an application in a synchronous (blocking) fashion.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to request the streaming session be stopped</dd></dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnStreamStopFailure</td><td>- Failure to stop the streaming session </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a cloud environment </td></tr>
+    <tr><td class="paramname">gfnStreamFailure</td><td>- Network failure or other error prevented the stream from starting </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__launcher.html#ga2392b3feb76dc6e77cc32d39c7193428">gfnStopStreamAsync</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Requests GFN client to stop the active streaming session of an application in aynchronous fashion.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to request the streaming session be stopped</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cb</td><td>- A StartStreamCallbackSig callback to be called with streaming events. </td></tr>
+    <tr><td class="paramname">context</td><td>- User context </td></tr>
+    <tr><td class="paramname">timeoutMs</td><td>- Time after which attempt to stop streaming and associated processed to close will be aborted. A value of 0 signals to immediately return without waiting for processes to close.</td></tr>
+  </table>
+  </dd>
+</dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
 <td>C </td><td><a class="el" href="group__launcher.html#ga64fe02420ecb734722359277caa57350">gfnGetCustomData</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Retrieves custom data passed in by the client in the gfnStartStream call.</dd></dl>
@@ -453,7 +514,7 @@ Callback-related Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__callbacks.html#gaf1965f1ccce59f6748ea4eed3df4edc0">gfnRegisterPauseCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with Geforce NOW to be called when Geforce NOW needs to pause the game on the user’s behalf. For Multiplayer games, it is recommended that this is implemented similar to a client disconnect.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with Geforce NOW to be called when Geforce NOW needs to pause the game on the user's behalf. For Multiplayer games, it is recommended that this is implemented similar to a client disconnect.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to pause the game.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>

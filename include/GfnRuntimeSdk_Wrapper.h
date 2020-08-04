@@ -259,9 +259,9 @@ extern "C"
     ///
     /// @par Usage
     /// Call this during application start or from the platform client in
-    /// order to get the user’s external client IP address.
+    /// order to get the user's external client IP address.
     ///
-    /// @param clientIp - Output IPv4 in string format. Example: “192.168.0.1”
+    /// @param clientIp - Output IPv4 in string format. Example: "192.168.0.1"
     ///
     /// @retval gfnSuccess               - On success
     /// @retval gfnInvalidParameter      - NULL pointer passed in
@@ -272,7 +272,7 @@ extern "C"
 
     ///
     /// @par Description
-    /// Calls @ref gfnGetClientLanguageCode to gets user’s client language code in the form
+    /// Calls @ref gfnGetClientLanguageCode to gets user's client language code in the form
     /// "<lang>-<country>" using a standard ISO 639-1 language code and ISO 3166-1 Alpha-2 country code.
     ///
     /// @par Environment
@@ -282,7 +282,7 @@ extern "C"
     /// Call this during application start or from the platform client in
     /// order to get the user's language and country settings.
     ///
-    /// @param languageCode - Language code as a string. Example: “en-US”
+    /// @param languageCode - Language code as a string. Example: "en-US"
     ///
     /// @retval gfnSuccess               - On success
     /// @retval gfnInvalidParameter      - NULL pointer passed in
@@ -290,6 +290,27 @@ extern "C"
     /// @retval gfnDllNotPresent         - GFN SDK Library could not be found.
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
     GfnRuntimeError GfnGetClientLanguageCode(const char** languageCode);
+
+    ///
+    /// @par Description
+    /// Gets user’s client country code using ISO 3166-1 Alpha-2 country code.
+    ///
+    /// @par Environment
+    /// Cloud
+    ///
+    /// @par Usage
+    /// Call this during application start or from the platform client in order to get 
+    /// the user's country code.
+    ///
+    /// @param[out] countryCode          - Country code as a 2 character string. Example: “US”
+    /// @param length                    - Length of pchCountryCode character array
+    ///
+    /// @retval gfnSuccess               - On success
+    /// @retval gfnInvalidParameter      - NULL pointer passed in
+    /// @retval gfnCallWrongEnvironment  - If called in a client environment
+    /// @retval gfnDllNotPresent         - GFN SDK Library could not be found.
+    /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
+    GfnRuntimeError GfnGetClientCountryCode(char* countryCode, unsigned int length);
 
     ///
     /// @par Description
@@ -320,7 +341,7 @@ extern "C"
     /// Cloud
     ///
     /// @par Usage
-    /// The access token provided can be used by the application’s backend
+    /// The access token provided can be used by the application's backend
     /// servers to validate the user and obtain user data from the GFN
     /// backend service. The GFN backend service provides an OAuth2
     /// interface for validating users and retrieving data. See Account Linking information
@@ -431,7 +452,7 @@ extern "C"
 
     ///
     /// @par Description
-    /// Calls @ref gfnStartStream to requests GFN client to start a streamed session of an application
+    /// Calls @ref gfnStartStream to request GFN client to start a streaming session of an application
     /// in a synchronous (blocking) fashion.
     ///
     /// @par Environment
@@ -480,6 +501,51 @@ extern "C"
 
     ///
     /// @par Description
+    /// Calls @ref gfnStopStream to request GFN client to stop a streaming session of an application
+    /// in a synchronous (blocking) fashion.
+    ///
+    /// @par Environment
+    /// Client
+    ///
+    /// @par Usage
+    /// Use to stop a streaming session started by the same process
+    ///
+    /// @retval gfnSuccess              - On success
+    /// @retval gfnCallWrongEnvironment - If called in a cloud environment
+    /// @retval gfnStreamStopFailure    - Failure to stop the streaming session
+    /// @retval gfnDllNotPresent        - GFN SDK Library could not be found.
+    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    GfnRuntimeError GfnStopStream(void);
+
+    ///
+    /// @par Description
+    /// Calls @ref gfnStopStreamAsync to request GFN client to stop a streaming session of an
+    /// application in an asynchronous fashion.
+    ///
+    /// @par Environment
+    /// Client
+    ///
+    /// @par Usage
+    /// Use to start a streaming session.
+    ///
+    /// @param cb                        - A StartStreamCallbackSig callback to be called with streaming events.
+    /// @param context                   - User context
+    /// @param timeoutMs                 - Time after which attempt to start streaming will be aborted.
+    ///
+    /// @retval gfnSuccess               - On success
+    /// @retval gfnStreamStopFailure     - Failure to stop the streaming session
+    /// @retval gfnInvalidParameter      - NULL pointer passed in
+    /// @retval gfnCallWrongEnvironment  - If called in a cloud environment
+    /// @retval gfnDllNotPresent         - GFN SDK Library could not be found.
+    /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
+    ///
+    /// @note
+    /// This function's definition differs from the export that it wraps, as it returns a
+    /// GfnRuntimeError instead of being void for consistent error reporting.
+    GfnRuntimeError GfnStopStreamAsync(StopStreamCallbackSig cb, void* context, unsigned int timeoutMs);
+
+    ///
+    /// @par Description
     /// Calls @ref gfnSetupTitle to notify Geforce NOW that an application should be readied for launch.
     ///
     /// @par Environment
@@ -508,7 +574,7 @@ extern "C"
     /// @par Usage
     /// Use to notify GFN that your application has exited.
     ///
-    /// @param platformId                - Identifier of the launcher service, e.g. “Steam”
+    /// @param platformId                - Identifier of the launcher service, e.g. "Steam"
     /// @param platformAppId             - Identifier of the application that has exited.
     ///
     /// @retval gfnSuccess               - On success
@@ -545,7 +611,7 @@ extern "C"
     ///
     /// @par Description
     /// Calls @ref gfnRegisterPauseCallback to register an application callback with Geforce NOW
-    /// to be called when Geforce NOW needs to pause the game on the user’s behalf.
+    /// to be called when Geforce NOW needs to pause the game on the user's behalf.
     ///
     /// @par Environment
     /// Cloud

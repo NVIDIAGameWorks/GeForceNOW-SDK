@@ -213,6 +213,10 @@ if (SAMPLES_INSTALL_ROOT)
       DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
       COMPONENT sample_bins
     )
+    install(FILES $<TARGET_PDB_FILE:${EXAMPLE_TARGET}>
+        DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}/symbols
+        COMPONENT sample_bins
+    )
     install(FILES ${EXAMPLE_INSTALL_FILES}
       DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
       COMPONENT sample_bins
@@ -228,8 +232,15 @@ if (SAMPLES_INSTALL_ROOT)
       COMPONENT sample_bins
     )
     
-    install(FILES ${PACK_PARTNER_ROOT}/lib/${BUILD_ARCH}/GfnRuntimeSdk.dll
+    install(FILES
+      ${CMAKE_BINARY_DIR}/$<CONFIG>/GfnRuntimeSdk.dll
       DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
+      COMPONENT sample_bins
+    )
+
+    install(FILES
+      ${CMAKE_BINARY_DIR}/$<CONFIG>/GfnRuntimeSdk.pdb
+      DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}/symbols
       COMPONENT sample_bins
     )
 endif ()

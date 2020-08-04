@@ -96,7 +96,17 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("Failed to retrieve Geforce NOW client language code. GfnRuntimeError: %d\n", (int) runtimeError);
         }
 
-        
+        char clientCountryCode[3];
+        runtimeError = GfnGetClientCountryCode(clientCountryCode, 3);
+        if (runtimeError == gfnSuccess)
+        {
+            printf("Retrieved Geforce NOW client Country code: %s\n", clientCountryCode);
+        }
+        else
+        {
+            printf("Failed to retrieve Geforce NOW client Country code. GfnRuntimeError: %d\n", (int)runtimeError);
+        }
+
         char* gfnAccessToken;
         runtimeError = GfnRequestAccessToken(&gfnAccessToken);
         if (runtimeError == gfnSuccess)

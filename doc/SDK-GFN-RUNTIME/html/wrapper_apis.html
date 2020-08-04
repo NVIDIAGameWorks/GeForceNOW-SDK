@@ -165,10 +165,10 @@ Wrapper Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga8c41a40828a5bd9a0cf087a0fd2757a8">gfnGetClientIp</a> to get user client's IP address.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user’s external client IP address.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">clientIp</td><td>- Output IPv4 in string format. Example: “192.168.0.1”</td></tr>
+    <tr><td class="paramname">clientIp</td><td>- Output IPv4 in string format. Example: "192.168.0.1"</td></tr>
   </table>
   </dd>
 </dl>
@@ -190,10 +190,10 @@ Wrapper Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga8c41a40828a5bd9a0cf087a0fd2757a8">gfnGetClientIp</a> to get user client's IP address.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user’s external client IP address.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">clientIp</td><td>- Output IPv4 in string format. Example: “192.168.0.1”</td></tr>
+    <tr><td class="paramname">clientIp</td><td>- Output IPv4 in string format. Example: "192.168.0.1"</td></tr>
   </table>
   </dd>
 </dl>
@@ -213,12 +213,12 @@ Wrapper Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#ga20ea89be27f64ca0a15c397b112541d3">GfnGetClientLanguageCode</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga95ddfe6fabeec68eb40b2ffa28d604ec">gfnGetClientLanguageCode</a> to gets user’s client language code in the form "&lt;lang&gt;-&lt;country&gt;" using a standard ISO 639-1 language code and ISO 3166-1 Alpha-2 country code.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga95ddfe6fabeec68eb40b2ffa28d604ec">gfnGetClientLanguageCode</a> to gets user's client language code in the form "&lt;lang&gt;-&lt;country&gt;" using a standard ISO 639-1 language code and ISO 3166-1 Alpha-2 country code.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's language and country settings.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">languageCode</td><td>- Language code as a string. Example: “en-US”</td></tr>
+    <tr><td class="paramname">languageCode</td><td>- Language code as a string. Example: "en-US"</td></tr>
   </table>
   </dd>
 </dl>
@@ -265,7 +265,7 @@ Wrapper Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga21d47131ae3098cc2ee071a49e7502e8">gfnRequestGfnAccessToken</a> to obtain a user-specific access token to allow access to the GFN backend service (IDM endpoint).</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>The access token provided can be used by the application’s backend servers to validate the user and obtain user data from the GFN backend service. The GFN backend service provides an OAuth2 interface for validating users and retrieving data. See Account Linking information in the Overview section for more information.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>The access token provided can be used by the application's backend servers to validate the user and obtain user data from the GFN backend service. The GFN backend service provides an OAuth2 interface for validating users and retrieving data. See Account Linking information in the Overview section for more information.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">accessToken</td><td>- Populated with a user specific GFN access token.</td></tr>
@@ -390,7 +390,7 @@ Wrapper Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#ga8b35031da8034f2c2e85f2f1b8ec127c">GfnStartStream</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream</a> to requests GFN client to start a streamed session of an application in a synchronous (blocking) fashion.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream</a> to request GFN client to start a streaming session of an application in a synchronous (blocking) fashion.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to start a streaming session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -477,7 +477,7 @@ Wrapper Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Use to notify GFN that your application has exited.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">platformId</td><td>- Identifier of the launcher service, e.g. “Steam” </td></tr>
+    <tr><td class="paramname">platformId</td><td>- Identifier of the launcher service, e.g. "Steam" </td></tr>
     <tr><td class="paramname">platformAppId</td><td>- Identifier of the application that has exited.</td></tr>
   </table>
   </dd>
@@ -524,7 +524,7 @@ Wrapper Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#gac2ebe6a27df6165e2be6dac82923664f">GfnRegisterPauseCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__callbacks.html#gaf1965f1ccce59f6748ea4eed3df4edc0">gfnRegisterPauseCallback</a> to register an application callback with Geforce NOW to be called when Geforce NOW needs to pause the game on the user’s behalf.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__callbacks.html#gaf1965f1ccce59f6748ea4eed3df4edc0">gfnRegisterPauseCallback</a> to register an application callback with Geforce NOW to be called when Geforce NOW needs to pause the game on the user's behalf.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to pause the game.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>

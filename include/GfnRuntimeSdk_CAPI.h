@@ -104,7 +104,7 @@
 /// @image html sso.png
 ///
 /// For additional high-level overview, please refer to the SDK primer available as part of the
-/// documentation section of the SDK’s repository.
+/// documentation section of the SDK's repository.
 ///
 /// @section keyconcepts Key Concepts
 ///
@@ -185,6 +185,12 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
+/// C        | @ref gfnGetClientCountryCode
+///
+/// @copydoc gfnGetClientCountryCode
+///
+/// Language | API
+/// -------- | -------------------------------------
 /// C        | @ref gfnRequestGfnAccessToken
 ///
 /// @copydoc gfnRequestGfnAccessToken
@@ -200,6 +206,18 @@
 /// C        | @ref gfnStartStreamAsync
 ///
 /// @copydoc gfnStartStreamAsync
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnStopStream
+///
+/// @copydoc gfnStopStream
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnStopStreamAsync
+///
+/// @copydoc gfnStopStreamAsync
 ///
 /// Language | API
 /// -------- | -------------------------------------
@@ -306,9 +324,10 @@ typedef char bool;
             gfnClientDownloadFailed =    -13, ///< Failed to download the Geforce NOW client.
             gfnCallWrongEnvironment =    -14, ///< Function limited to specific environment called in wrong environment
             gfnWebApiFailed          =   -15, ///< A call to a NVIDIA Web API failed to return valid data
-            gfnStreamFailure =           -16,  ///< GeForceNOW Streamer hit a failure while starting a stream
-            gfnAPINotFound =             -17,  ///< Library API call not found
-            gfnAPINotInit =              -18  ///< API not initialized
+            gfnStreamFailure =           -16, ///< GeForceNOW Streamer hit a failure while starting a stream
+            gfnAPINotFound =             -17, ///< Library API call not found
+            gfnAPINotInit =              -18, ///< API not initialized
+            gfnStreamStopFailure =       -19  ///< Failed to stop active streaming session
         } GfnRuntimeError;
 
         /// @brief Values for languages supported by the GFN SDK, used to define which language any SDK dialogs should be displayed in.
@@ -329,7 +348,7 @@ typedef char bool;
             gfn_fr_FR = 11,
             gfn_hu_HU = 12,
             gfn_it_IT = 13,
-            gfn_ja_JA = 14,
+            gfn_ja_JP = 14,
             gfn_ko_KR = 15,
             gfn_nb_NO = 16,
             gfn_po_PO = 17,
@@ -343,7 +362,11 @@ typedef char bool;
             gfn_uk_UA = 25,
             gfn_zh_CN = 26,
             gfn_zh_TW = 27,
-            gfnMaxLanguage = gfn_zh_TW
+            gfn_en_GB = 28,
+            gfn_hr_HR = 29,
+            gfn_sk_SK = 30,
+            gfn_sl_SI = 31,
+            gfnMaxLanguage = gfn_sl_SI
         } GfnDisplayLanguage;
 
         /* @brief Returned by callbacks the application registers with the Geforce NOW Runtime SDK, or passes
@@ -363,6 +386,9 @@ typedef char bool;
 
         /// @brief Callback function signation for notifications on status of starting a streaming session.
         typedef void(GFN_CALLBACK *StartStreamCallbackSig)(GfnRuntimeError, StartStreamResponse*, void* context);
+
+        /// @brief Callback function signation for notifications on status of stop a streaming session.
+        typedef void(GFN_CALLBACK* StopStreamCallbackSig)(GfnRuntimeError, void* context);
 
         /// @brief Type of token to use for GFN session. Valid values include AUTH_JARVIS and AUTH_JWT.
         typedef unsigned int AuthType_t;
@@ -394,7 +420,9 @@ typedef char bool;
             GfnStreamStatusLoading,        ///< Client is loading the game
             GfnStreamStatusStreaming,      ///< Client is actively streaming
             GfnStreamStatusDone,           ///< Client has successfully finished streaming
-            GfnStreamStatusError           ///< Client has stopped streaming and has entered an error state
+            GfnStreamStatusError,          ///< Client has stopped streaming and has entered an error state
+            GfnStreamStatusGotInputFocus,  ///< Client has gained input focus to the streamer window
+            GfnStreamStatusLostInputFocus  ///< Client has lost input focus to the streamer window
         } GfnStreamStatus;
 
         /// @brief Converts a GfnStreamStatus enum to a human-readable string
@@ -402,12 +430,14 @@ typedef char bool;
         {
             switch (status)
             {
-            case GfnStreamStatusInit:          return "Init";
-            case GfnStreamStatusNetworkTest:   return "NetworkTest";
-            case GfnStreamStatusLoading:       return "Loading";
-            case GfnStreamStatusStreaming:     return "Streaming";
-            case GfnStreamStatusDone:          return "Done";
-            case GfnStreamStatusError:         return "Error";
+            case GfnStreamStatusInit:           return "Init";
+            case GfnStreamStatusNetworkTest:    return "NetworkTest";
+            case GfnStreamStatusLoading:        return "Loading";
+            case GfnStreamStatusStreaming:      return "Streaming";
+            case GfnStreamStatusDone:           return "Done";
+            case GfnStreamStatusError:          return "Error";
+            case GfnStreamStatusGotInputFocus:  return "GotInputFocus";
+            case GfnStreamStatusLostInputFocus: return "LostInputFocus";
             }
             return "Unknown GfnStreamStatus";
         }
@@ -504,7 +534,7 @@ typedef char bool;
         ///
         /// @par Description
         /// Register an application callback with Geforce NOW to be called when Geforce NOW
-        /// needs to pause the game on the user’s behalf. For Multiplayer games, it is
+        /// needs to pause the game on the user's behalf. For Multiplayer games, it is
         /// recommended that this is implemented similar to a client disconnect.
         ///
         /// @par Environment
@@ -715,7 +745,7 @@ typedef char bool;
         /// @par Usage
         /// Use to notify GFN that your application has exited.
         ///
-        /// @param pchPlatformId             - Identifier of the launcher service, e.g. “Steam”
+        /// @param pchPlatformId             - Identifier of the launcher service, e.g. "Steam"
         /// @param pchPlatformAppId          - Identifier of the application that has exited.
         ///
         /// @retval gfnSuccess               - On success
@@ -728,7 +758,7 @@ typedef char bool;
         /// @par Description
         /// Since applications running under Geforce NOW run in the Geforce NOW data centers,
         /// any IP queries made by the Application will return IPs associated
-        /// with the data center, not the user’s external client IP, as seen by Internet queries.
+        /// with the data center, not the user's external client IP, as seen by Internet queries.
         /// This SDK call allows the application to obtain the user's client IP in the IPv4 format
         /// so that developers can make regional business decisions for the user based on it versus
         /// the region of the data center the user is connected to for game streaming sessions.
@@ -738,9 +768,9 @@ typedef char bool;
         ///
         /// @par Usage
         /// Call this during application start or from the platform client in
-        /// order to get the user’s external client IP address.
+        /// order to get the user's external client IP address.
         ///
-        /// @param ppchClientIp              - Output IPv4 in string format. Example: “192.168.0.1”
+        /// @param ppchClientIp              - Output IPv4 in string format. Example: "192.168.0.1"
         ///
         /// @retval gfnSuccess               - On success
         /// @retval gfnInvalidParameter      - NULL pointer passed in
@@ -754,7 +784,7 @@ typedef char bool;
 
         ///
         /// @par Description
-        /// Gets user’s client language code in the form "<lang>-<country>" using
+        /// Gets user's client language code in the form "<lang>-<country>" using
         /// a standard ISO 639-1 language code and ISO 3166-1 Alpha-2 country code.
         ///
         /// @par Environment
@@ -764,13 +794,34 @@ typedef char bool;
         /// Call this during application start or from the platform client in
         /// order to get the user's language and country settings.
         ///
-        /// @param ppchLanguageCode          - Language code as a string. Example: “en-US”
+        /// @param ppchLanguageCode          - Language code as a string. Example: "en-US"
         ///
         /// @retval gfnSuccess               - On success
         /// @retval gfnInvalidParameter      - NULL pointer passed in
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetClientLanguageCode(const char** ppchLanguageCode);
+
+        ///
+        /// @par Description
+        /// Gets user’s client country code using ISO 3166-1 Alpha-2 country code.
+        ///
+        /// @par Environment
+        /// Cloud
+        ///
+        /// @par Usage
+        /// Call this during application start or from the platform client in order to get 
+        /// the user's country code.
+        ///
+        /// @param pchCountryCode            - Country code as a 2 character string. Example: “US”
+        /// @param length                    - Length of pchCountryCode character array, the length 
+        ///                                    should be at least 3 
+        ///
+        /// @retval gfnSuccess               - On success
+        /// @retval gfnInvalidParameter      - NULL pointer passed in or buffer length is too small
+        /// @retval gfnCallWrongEnvironment  - If called in a client environment
+        /// @return Otherwise, appropriate error code
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetClientCountryCode(char* pchCountryCode, unsigned int length);
 
         ///
         /// @par Description
@@ -781,7 +832,7 @@ typedef char bool;
         /// Cloud
         ///
         /// @par Usage
-        /// The access token provided can be used by the application’s backend
+        /// The access token provided can be used by the application's backend
         /// servers to validate the user and obtain user data from the GFN
         /// backend service. The GFN backend service provides an OAuth2
         /// interface for validating users and retrieving data. See Account Linking information
@@ -838,7 +889,40 @@ typedef char bool;
         /// @retval gfnCallWrongEnvironment - If called in a cloud environment
         /// @retval gfnStreamFailure        - Network failure or other error prevented the stream from starting
         /// @return Otherwise, appropriate error code
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnStartStream(StartStreamInput * pStartStreamInput, StartStreamResponse* response);
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnStartStream(StartStreamInput* pStartStreamInput, StartStreamResponse* response);
+
+        ///
+        /// @par Description
+        /// Requests GFN client to stop the active streaming session of an application in a synchronous (blocking) fashion.
+        ///
+        /// @par Environment
+        /// Client
+        ///
+        /// @par Usage
+        /// Use to request the streaming session be stopped
+        ///
+        /// @retval gfnSuccess              - On success
+        /// @retval gfnStreamStopFailure    - Failure to stop the streaming session
+        /// @retval gfnCallWrongEnvironment - If called in a cloud environment
+        /// @retval gfnStreamFailure        - Network failure or other error prevented the stream from starting
+        /// @return Otherwise, appropriate error code
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnStopStream(void);
+
+        ///
+        /// @par Description
+        /// Requests GFN client to stop the active streaming session of an application in aynchronous fashion.
+        ///
+        /// @par Environment
+        /// Client
+        ///
+        /// @par Usage
+        /// Use to request the streaming session be stopped
+        ///
+        /// @param cb                           - A StartStreamCallbackSig callback to be called with streaming events.
+        /// @param context                      - User context
+        /// @param timeoutMs                    - Time after which attempt to stop streaming and associated processed to close will be aborted.
+        ///                                       A value of 0 signals to immediately return without waiting for processes to close.
+        NVGFNSDK_EXPORT void NVGFNSDKApi gfnStopStreamAsync(StopStreamCallbackSig cb, void* context, unsigned int timeoutMs);
         
         ///
         /// @par Description

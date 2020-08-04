@@ -127,7 +127,7 @@
             <button class="nv-button-disabled" disabled id="previous-game" onclick="nextGame(-1)">PREVIOUS GAME</button>
             <div class="spacer"></div>
             <button class="nv-button-disabled" disabled id="next-game" onclick="nextGame(1)">NEXT GAME</button>
-            <button class="nv-button-disabled" disabled id="start-stream" onclick="launchGame()">START<br />STREAM</button>
+            <button class="nv-button-disabled" disabled id="stream-action" onclick="performStreamAction()">START<br />STREAM</button>
         </div>
         <div id="stream-status" class="nv-container">
             <span>Stream Status: </span><span class="text" id="stream-status-value">Init</span>
@@ -187,6 +187,7 @@
         var preferredAuthType = 'AUTH_JARVIS';
         // These defines mirror the ones in GfnRuntimeSdk_CAPI.h
         var AUTH_JARVIS = '7';
+        var streamRunning = false;
 
         /**
          * Adds a given input message to the console log as well as the log text box.
@@ -244,6 +245,14 @@
                 onSuccess: function (response) {
                     var data = JSON.parse(response);
                     setStatus('StreamStatus update: ' + data.status);
+                    if (data.status == 'Init') {
+                        streamRunning = true;
+                        updateStreamButton();
+                    }
+                    if (data.status == 'Done' || data.status == 'Error') {
+                        streamRunning = false;
+                        updateStreamButton();
+                    }
 
                     var streamStatusDiv = document.getElementById('stream-status');
                     var streamStatusValue = document.getElementById('stream-status-value');
@@ -285,6 +294,8 @@
                         if (data.enabled) {
                             // Get current client IP
                             getClientIp();
+                            // Get current client country code
+                            getClientCountryCode();
                             // Get streamable status about a specific title
                             isTitleAvailable();
                             // Get all titles available to stream in the current GFN game seat
@@ -380,7 +391,7 @@
 
         /**
          * Calls into GFN SDK to initiate a new GeForce NOW streaming session and launch the currently
-         * selected game. 
+         * selected game, or stop it if a stream is running.
          * 
          * If the authentication method is set to "NVIDIA Account" and a valid delegate token is passed
          * in as a parameter it will automatically authenticate the streaming session and begin streaming
@@ -393,25 +404,46 @@
          * The serviceId and appId parameters should be obtained from an NVIDIA Developer Services
          * API call which returns that information, see the nextGame() function below for an example.
          */
-        function launchGame() {
-            setStatus('Launching game...');
-            var authType = 0;
-            var promise = nvidiaUserId ? requestStreamingDelegateToken(nvidiaUserId) : Promise.resolve(null);
-
-            promise.then(function (streamingToken) {
-                window.cefQuery({
-                    request: JSON.stringify({
-                        command: 'GFN_SDK_LAUNCH_GAME',
-                        gfnTitleId: gfnTitleId,
-                        authToken: streamingToken,
-                        tokenType: AUTH_JARVIS
-                    }),
-                    onSuccess: function (response) {
-                        var data = JSON.parse(response);
-                        setStatus('Game launched: ' + data.gameLaunched + ' (' + data.errorMessage + ')');
-                    }
-                })
-            });
+        function performStreamAction() {
+            if (streamRunning == false) {
+                setStatus('Launching game stream session...');
+                var authType = 0;
+                var promise = nvidiaUserId ? requestStreamingDelegateToken(nvidiaUserId) : Promise.resolve(null);
+                promise.then(function (streamingToken) {
+                    window.cefQuery({
+                        request: JSON.stringify({
+                            command: 'GFN_SDK_STREAM_ACTION',
+                            gfnTitleId: gfnTitleId,
+                            authToken: streamingToken,
+                            tokenType: AUTH_JARVIS,
+                            launchStream: !streamRunning
+                        }),
+                        onSuccess: function (response) {
+                            var data = JSON.parse(response);
+                            setStatus('Game launched: ' + data.actionSuccess + ' (' + data.errorMessage + ')');
+                        }
+                    })
+                });
+            } else {
+                setStatus('Stopping game stream session...');
+                var promise = Promise.resolve(null)
+                promise.then(function () {
+                    window.cefQuery({
+                        request: JSON.stringify({
+                            command: 'GFN_SDK_STREAM_ACTION',
+                            launchStream: !streamRunning
+                        }),
+                        onSuccess: function (response) {
+                            var data = JSON.parse(response);
+                            setStatus('Stream stop request: ' + data.actionSuccess + ' (' + data.errorMessage + ')');
+                            streamRunning = false;
+                            updateStreamButton();
+                            var streamStatusValue = document.getElementById('stream-status-value');
+                            streamStatusValue.innerHTML = "Stopped";
+                        }
+                    })
+                });
+            }
         }
 
         /**
@@ -438,10 +470,6 @@
 
             cover.src = 'https://img.nvidiagrid.net/appimg/' + supportedTitlesAsJson[gameIndex].appId + '/ZZ/23';
             gfnTitleId = supportedTitlesAsJson[gameIndex].appId;
-            // TODO: GFNP-304
-            //launcherName = supportedTitlesAsJson[gameIndex].launcher;
-            //launcherGameId = supportedTitlesAsJson[gameIndex].launcherGameId;
-
             var lastIndex = supportedTitlesAsJson.length - 1;
             setStatus('GFN Game ' + gameIndex + ' of ' + lastIndex + ':  ' + JSON.stringify(supportedTitlesAsJson[gameIndex]));
         }
@@ -499,6 +527,23 @@
             });
         }
 
+        /**
+         * Calls into GFN SDK to get the user's current country code. This is meant to be
+         * called while running on the GeForce NOW game seat to validation purposes or things like
+         * region specific localization or other UI.
+         */
+        function getClientCountryCode() {
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GFN_SDK_GET_CLIENT_COUNTRY_CODE'
+                }),
+                onSuccess: function (response) {
+                    var data = JSON.parse(response);
+                    clientCountryCode = data.clientCountryCode;
+                    setStatus('Got client country code: ' + clientCountryCode + ' (' + data.errorMessage + ')');
+                }
+            });
+        }
         /**
          * Opens a popup window that displays the NVIDIA Identity Services login website to
          * facilitate authentication with a new or existing NVIDIA account. This is part of
@@ -806,7 +851,7 @@
                 document.getElementById('nv-logout').setAttribute("class", 'nv-button');
                 document.getElementById('next-game').setAttribute("class", 'nv-button');
                 document.getElementById('previous-game').setAttribute("class", 'nv-button');
-                document.getElementById('start-stream').setAttribute("class", 'nv-button');
+                document.getElementById('stream-action').setAttribute("class", 'nv-button');
             }
             else {
                 document.getElementById('login').setAttribute("class", 'nv-button-disabled');
@@ -815,7 +860,7 @@
                 document.getElementById('nv-logout').setAttribute("class", 'nv-button-disabled');
                 document.getElementById('next-game').setAttribute("class", 'nv-button-disabled');
                 document.getElementById('previous-game').setAttribute("class", 'nv-button-disabled');
-                document.getElementById('start-stream').setAttribute("class", 'nv-button-disabled');
+                document.getElementById('stream-action').setAttribute("class", 'nv-button-disabled');
             }
 
             document.getElementById('login').disabled = !enable;
@@ -824,7 +869,16 @@
             document.getElementById('nv-logout').disabled = !enable;
             document.getElementById('next-game').disabled = !enable;
             document.getElementById('previous-game').disabled = !enable;
-            document.getElementById('start-stream').disabled = !enable;
+            document.getElementById('stream-action').disabled = !enable;
+        }
+
+        function updateStreamButton() {
+            if (streamRunning == false) {
+                document.getElementById('stream-action').innerHTML = 'START <br> STREAM';
+            }
+            else {
+                document.getElementById('stream-action').innerHTML = 'STOP <br> STREAM';
+            }
         }
 
         function surfaceDemoTitle() {

@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.2
+# NVIDIA GeForce NOW SDK Release 1.3
 
 ## At a Glance
 
@@ -9,11 +9,11 @@ The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features
 Please refer to the [GFN SDK Primer](./doc/GFN-SDK-PRIMER.pdf) for a more detailed overview of the features.
 
 ### What's New in This Release
-* Major architectural change - the SDK has moved to a dynamic library
-* Added a set of C-based wrapper functions to ease integration of the dynamic library and export functions. See ./include/GfnRuntimeSdk_Wrapper.h or documentation for more information.
-* Added an optional API that provides a secure way of loading the dynamic library. See ./include/GfnRuntimeSdk_SecureLoadLibray.h for more information.
-* Provided new GFN cloud-specific APIs that provide what titles are available for streaming inside the current streaming session.
-* Minor bug and crash fixes.
+* Added GotInputFocus and LostInputFocus streamer states
+* Implemented gfnGetClientCountryCode API
+* Added StopStream APIs
+* Fixed a variety of minor bugs
+* Re-worked download and install UIs
 
 ## Developer Content Portal
 
@@ -44,7 +44,6 @@ The distribution is laid out as below:
 |       index.html
 |       GFN-SDK-PRIMER.pdf
 |       SDK-GFN-NGN-ENDPOINT.pdf
-|       SDK-GFN-SUPPORTED-TITLES.pdf
 +-- include
 |       GfnRuntimeSdk_CAPI.h
 |       GfnRuntimeSdk_SecureLoadLibray.c

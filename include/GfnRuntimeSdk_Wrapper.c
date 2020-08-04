@@ -38,6 +38,7 @@ typedef void(*gfnShutdownRuntimeSdkFn)(void);
 typedef bool(*gfnIsRunningInCloudFn)(void);
 typedef GfnRuntimeError(*gfnGetClientIpFn)(const char** cientIp);
 typedef GfnRuntimeError(*gfnGetClientLanguageCodeFn)(const char** clientLanguageCode);
+typedef GfnRuntimeError(*gfnGetClientCountryCodeFn)(char* clientCountryCode, unsigned int length);
 typedef GfnRuntimeError(*gfnGetCustomDataFn)(const char** customData);
 typedef GfnRuntimeError(*gfnRequestGfnAccessTokenFn)(const char** accessToken);
 
@@ -48,6 +49,9 @@ typedef GfnRuntimeError(*gfnGetTitlesAvailableReleaseFn)(const char** ppchPlatfo
 typedef GfnRuntimeError(*gfnRegisterStreamStatusCallbackFn)(StreamStatusCallbackSig streamStatusCallback, void* pUserContext);
 typedef GfnRuntimeError(*gfnStartStreamFn)(StartStreamInput * pStartStreamInput, StartStreamResponse* response);
 typedef void(*gfnStartStreamAsyncFn)(const StartStreamInput* pStartStreamInput, StartStreamCallbackSig cb, void* context, unsigned int timeoutMs);
+
+typedef GfnRuntimeError(*gfnStopStreamFn)(void);
+typedef void(*gfnStopStreamAsyncFn)(StopStreamCallbackSig cb, void* context, unsigned int timeoutMs);
 
 typedef GfnRuntimeError(*gfnSetupTitleFn)(const char* platformAppId);
 typedef GfnRuntimeError(*gfnTitleExitedFn)(const char* platformId, const char* platformAppId);
@@ -169,6 +173,23 @@ GfnRuntimeError GfnGetClientLanguageCode(const char** languageCode)
     }
 
     return fnGfnGetClientLanguageCode(languageCode);
+}
+
+GfnRuntimeError GfnGetClientCountryCode(char* countryCode, unsigned int length)
+{
+    if (g_gfnSdkModule == NULL)
+    {
+        return gfnAPINotInit;
+    }
+
+    gfnGetClientCountryCodeFn fnGfnGetClientCountryCode = (gfnGetClientCountryCodeFn)GetProcAddress(g_gfnSdkModule, "gfnGetClientCountryCode");
+
+    if (fnGfnGetClientCountryCode == NULL)
+    {
+        return gfnAPINotFound;
+    }
+
+    return fnGfnGetClientCountryCode(countryCode, length);
 }
 
 GfnRuntimeError GfnGetCustomData(const char** customData)
@@ -324,6 +345,42 @@ GfnRuntimeError GfnStartStreamAsync(const StartStreamInput* startStreamInput, St
     }
 
     fnGfnStartStreamAsync(startStreamInput, cb, context, timeoutMs);
+
+    return gfnSuccess;
+}
+
+GfnRuntimeError GfnStopStream(void)
+{
+    if (g_gfnSdkModule == NULL)
+    {
+        return gfnAPINotInit;
+    }
+
+    gfnStopStreamFn fnGfnStopStream = (gfnStopStreamFn)GetProcAddress(g_gfnSdkModule, "gfnStopStream");
+
+    if (fnGfnStopStream == NULL)
+    {
+        return gfnAPINotFound;
+    }
+
+    return fnGfnStopStream();
+}
+
+GfnRuntimeError GfnStopStreamAsync(StopStreamCallbackSig cb, void* context, unsigned int timeoutMs)
+{
+    if (g_gfnSdkModule == NULL)
+    {
+        return gfnAPINotInit;
+    }
+
+    gfnStopStreamAsyncFn fnGfnStopStreamAsync = (gfnStopStreamAsyncFn)GetProcAddress(g_gfnSdkModule, "gfnStopStreamAsync");
+
+    if (fnGfnStopStreamAsync == NULL)
+    {
+        return gfnAPINotFound;
+    }
+
+    fnGfnStopStreamAsync(cb, context, timeoutMs);
 
     return gfnSuccess;
 }

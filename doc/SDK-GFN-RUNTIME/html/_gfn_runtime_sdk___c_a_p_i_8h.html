@@ -176,6 +176,10 @@ typedef struct <a class="el" href="struct_start_stream_response.html">StartStrea
 typedef void(<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a6c0d24df59a5bd1c1fbf10cc0864d1d6">GFN_CALLBACK</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#adec3b60c6f670217c8067f1f0311d92e">StartStreamCallbackSig</a>) (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a>, <a class="el" href="struct_start_stream_response.html">StartStreamResponse</a> *, void *context)</td></tr>
 <tr class="memdesc:adec3b60c6f670217c8067f1f0311d92e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function signation for notifications on status of starting a streaming session. <br /></td></tr>
 <tr class="separator:adec3b60c6f670217c8067f1f0311d92e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19851a66182321b10f714e395fcb4737"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a19851a66182321b10f714e395fcb4737"></a>
+typedef void(<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a6c0d24df59a5bd1c1fbf10cc0864d1d6">GFN_CALLBACK</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a19851a66182321b10f714e395fcb4737">StopStreamCallbackSig</a>) (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a>, void *context)</td></tr>
+<tr class="memdesc:a19851a66182321b10f714e395fcb4737"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function signation for notifications on status of stop a streaming session. <br /></td></tr>
+<tr class="separator:a19851a66182321b10f714e395fcb4737"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0248bd6ee742dfdf112c228ea832f21"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0248bd6ee742dfdf112c228ea832f21"></a>
 typedef unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#aa0248bd6ee742dfdf112c228ea832f21">AuthType_t</a></td></tr>
 <tr class="memdesc:aa0248bd6ee742dfdf112c228ea832f21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of token to use for GFN session. Valid values include AUTH_JARVIS and AUTH_JWT. <br /></td></tr>
@@ -239,7 +243,9 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a566fb9a0cb932ab665b76b945d13db23">gfnWebApiFailed</a> = -15, 
 <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100adc518573bb6087e3de0138e564b2ec33">gfnStreamFailure</a> = -16, 
 <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a7a025dda39a30b9965e41f195a075c8b">gfnAPINotFound</a> = -17, 
-<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a8071b5184e59885268728c7d992edb1d">gfnAPINotInit</a> = -18
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a8071b5184e59885268728c7d992edb1d">gfnAPINotInit</a> = -18, 
+<br />
+&#160;&#160;<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a0ee5d1e21ee2ebb8da6e91ec349118ff">gfnStreamStopFailure</a> = -19
 <br />
  }<tr class="memdesc:a446d35a7188d5fb0588e33bcccb7f100"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returned by InitializeGfnRuntime and GfnRuntime API methods.  <a href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">More...</a><br /></td></tr>
 </td></tr>
@@ -263,7 +269,7 @@ Enumerations</h2></td></tr>
 &#160;&#160;<b>gfn_fr_FR</b> = 11, 
 <b>gfn_hu_HU</b> = 12, 
 <b>gfn_it_IT</b> = 13, 
-<b>gfn_ja_JA</b> = 14, 
+<b>gfn_ja_JP</b> = 14, 
 <br />
 &#160;&#160;<b>gfn_ko_KR</b> = 15, 
 <b>gfn_nb_NO</b> = 16, 
@@ -281,7 +287,12 @@ Enumerations</h2></td></tr>
 <b>gfn_zh_CN</b> = 26, 
 <br />
 &#160;&#160;<b>gfn_zh_TW</b> = 27, 
-<b>gfnMaxLanguage</b> = gfn_zh_TW
+<b>gfn_en_GB</b> = 28, 
+<b>gfn_hr_HR</b> = 29, 
+<b>gfn_sk_SK</b> = 30, 
+<br />
+&#160;&#160;<b>gfn_sl_SI</b> = 31, 
+<b>gfnMaxLanguage</b> = gfn_sl_SI
 <br />
  }<tr class="memdesc:ab6a79fd15fb8eb5f3293444e8572acf2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Values for languages supported by the GFN SDK, used to define which language any SDK dialogs should be displayed in.  <a href="_gfn_runtime_sdk___c_a_p_i_8h.html#ab6a79fd15fb8eb5f3293444e8572acf2">More...</a><br /></td></tr>
 </td></tr>
@@ -297,7 +308,9 @@ Enumerations</h2></td></tr>
 <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfbafd8a7d7d7f9aebaa0d8b54090b8248c0">GfnStreamStatusStreaming</a>, 
 <br />
 &#160;&#160;<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfbaca2dcdf30a19d40901672ebaf28f6f4d">GfnStreamStatusDone</a>, 
-<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfba0dd4d6aefd992e79b0d5df69aecea0a0">GfnStreamStatusError</a>
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfba0dd4d6aefd992e79b0d5df69aecea0a0">GfnStreamStatusError</a>, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfba345bc2679f4eb82f1d0ea2e19e610cbe">GfnStreamStatusGotInputFocus</a>, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfbaeab3d155355dde7e0ec87278900a5905">GfnStreamStatusLostInputFocus</a>
 <br />
  }<tr class="memdesc:a89051c2556587dd00a8810cb65bcccfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Possible states of the client streamer.  <a href="_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfb">More...</a><br /></td></tr>
 </td></tr>
@@ -339,12 +352,18 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:ga8c41a40828a5bd9a0cf087a0fd2757a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga95ddfe6fabeec68eb40b2ffa28d604ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga95ddfe6fabeec68eb40b2ffa28d604ec">gfnGetClientLanguageCode</a> (const char **ppchLanguageCode)</td></tr>
 <tr class="separator:ga95ddfe6fabeec68eb40b2ffa28d604ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga59456b469f989e05918d1d7c6e8f3454"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga59456b469f989e05918d1d7c6e8f3454">gfnGetClientCountryCode</a> (char *pchCountryCode, unsigned int length)</td></tr>
+<tr class="separator:ga59456b469f989e05918d1d7c6e8f3454"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga21d47131ae3098cc2ee071a49e7502e8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga21d47131ae3098cc2ee071a49e7502e8">gfnRequestGfnAccessToken</a> (const char **ppchAuthToken)</td></tr>
 <tr class="separator:ga21d47131ae3098cc2ee071a49e7502e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac080be91f1f7c784b42147101ece1c93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> void <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gac080be91f1f7c784b42147101ece1c93">gfnStartStreamAsync</a> (const <a class="el" href="struct_start_stream_input.html">StartStreamInput</a> *pStartStreamInput, <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#adec3b60c6f670217c8067f1f0311d92e">StartStreamCallbackSig</a> cb, void *context, unsigned int timeoutMs)</td></tr>
 <tr class="separator:gac080be91f1f7c784b42147101ece1c93"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa2d0aa6c6d9325ff2ff5e2beb82c47d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream</a> (<a class="el" href="struct_start_stream_input.html">StartStreamInput</a> *pStartStreamInput, <a class="el" href="struct_start_stream_response.html">StartStreamResponse</a> *response)</td></tr>
 <tr class="separator:gaa2d0aa6c6d9325ff2ff5e2beb82c47d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf187e90d0ba2eb566244c2d302fed86e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gaf187e90d0ba2eb566244c2d302fed86e">gfnStopStream</a> (void)</td></tr>
+<tr class="separator:gaf187e90d0ba2eb566244c2d302fed86e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2392b3feb76dc6e77cc32d39c7193428"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> void <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga2392b3feb76dc6e77cc32d39c7193428">gfnStopStreamAsync</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a19851a66182321b10f714e395fcb4737">StopStreamCallbackSig</a> cb, void *context, unsigned int timeoutMs)</td></tr>
+<tr class="separator:ga2392b3feb76dc6e77cc32d39c7193428"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga64fe02420ecb734722359277caa57350"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100">GfnRuntimeError</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga64fe02420ecb734722359277caa57350">gfnGetCustomData</a> (const char **ppchCustomData)</td></tr>
 <tr class="separator:ga64fe02420ecb734722359277caa57350"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -435,6 +454,9 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr><td class="fieldname"><a class="anchor" id="a446d35a7188d5fb0588e33bcccb7f100a8071b5184e59885268728c7d992edb1d"></a>gfnAPINotInit&#160;</td><td class="fielddoc">
 <p>API not initialized. </p>
 </td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a446d35a7188d5fb0588e33bcccb7f100a0ee5d1e21ee2ebb8da6e91ec349118ff"></a>gfnStreamStopFailure&#160;</td><td class="fielddoc">
+<p>Failed to stop active streaming session. </p>
+</td></tr>
 </table>
 
 </div>
@@ -468,6 +490,12 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 </td></tr>
 <tr><td class="fieldname"><a class="anchor" id="a89051c2556587dd00a8810cb65bcccfba0dd4d6aefd992e79b0d5df69aecea0a0"></a>GfnStreamStatusError&#160;</td><td class="fielddoc">
 <p>Client has stopped streaming and has entered an error state. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a89051c2556587dd00a8810cb65bcccfba345bc2679f4eb82f1d0ea2e19e610cbe"></a>GfnStreamStatusGotInputFocus&#160;</td><td class="fielddoc">
+<p>Client has gained input focus to the streamer window. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a89051c2556587dd00a8810cb65bcccfbaeab3d155355dde7e0ec87278900a5905"></a>GfnStreamStatusLostInputFocus&#160;</td><td class="fielddoc">
+<p>Client has lost input focus to the streamer window. </p>
 </td></tr>
 </table>
 
