@@ -1,43 +1,38 @@
-<html>
+﻿
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>GeForce NOW SDK Sample</title>
-    <style>
-        body {
-            left: 0;
-            top: 0;
-            width: 496px;
-            height: 330px;
-            background: #191919;
-            margin: 0 !important;
-            overflow: hidden;
-            color: white;
-        }
-
-        .parent {
-            padding: 8px;
-        }
-    </style>
-    <script language="JavaScript">
-        function postMessage() {
-            var parameterMap = [];
-            var queryString = window.document.URL.split('?')[1];
-            var responseParameters = queryString.split('&');
-            for (var i = 0; i < responseParameters.length; i++) {
-                var keyValuePair = responseParameters[i].split('=');
-                parameterMap[keyValuePair[0]] = keyValuePair[1];
-            }
-            window.opener.postMessage({
-                data: parameterMap,
-                state: ''
-            }, '*');
-        }
-
-        postMessage();
-    </script>
 </head>
 <body>
-    <div class="parent">
-        Hi!
-    </div>
+    <script>
+        var idToken;
+        var errorResult;
+        var urlParams = new URLSearchParams(window.location.search);
+        var error = urlParams.get('error');
+
+        if (error !== null && error !== '') {
+            errorResult + param[1];
+            console.log('Error encountered getting token information: ' + errorResult);
+        }
+        else {
+            if (window.location.hash && window.location.hash.substr(1)) {
+                var fragmentParameters = window.location.hash.substr(1);
+                if (fragmentParameters) {
+                    console.log('fragmentParameters: ' + fragmentParameters);
+                    var fragmentSectionEl = document.getElementById('fragment-params');
+                    for (const item of fragmentParameters.split('&')) {
+                        var param = item.split('=');
+                        if (param[0] === 'id_token') {
+                            idToken = param[1];
+                        }
+                    }
+                }
+            }
+        }
+        window.opener.postMessage({
+            idToken: idToken,
+            result: errorResult
+        }, '*');
+    </script>
 </body>
 </html>

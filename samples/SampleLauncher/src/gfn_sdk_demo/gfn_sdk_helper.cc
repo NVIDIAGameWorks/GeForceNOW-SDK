@@ -10,19 +10,22 @@
 
 #include "include/cef_parser.h"
 #include "shared/client_util.h"
-#include "GfnRuntimeSdk_Wrapper.h"  //Helper functions that wrap Library-based APIs#include <Shlobj.h>
+#include "shared/defines.h"
+#include "shared/main.h"
+#include "GfnRuntimeSdk_Wrapper.h"  //Helper functions that wrap Library-based APIs
 
 #include <fstream>
 
 CefString GFN_SDK_INIT = "GFN_SDK_INIT";
 CefString GFN_SDK_STREAM_ACTION = "GFN_SDK_STREAM_ACTION";
 CefString GFN_SDK_IS_RUNNING_IN_CLOUD = "GFN_SDK_IS_RUNNING_IN_CLOUD";
-CefString GFN_SDK_REQUEST_GFN_ACCESS_TOKEN = "GFN_SDK_REQUEST_GFN_ACCESS_TOKEN";
 CefString GFN_SDK_GET_CLIENT_IP = "GFN_SDK_GET_CLIENT_IP";
 CefString GFN_SDK_GET_CLIENT_COUNTRY_CODE = "GFN_SDK_GET_CLIENT_COUNTRY_CODE";
 CefString GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK = "GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK";
 CefString GFN_SDK_IS_TITLE_AVAILABLE = "GFN_SDK_IS_TITLE_AVAILABLE";
 CefString GFN_SDK_GET_AVAILABLE_TITLES = "GFN_SDK_GET_AVAILABLE_TITLES";
+CefString GFN_SDK_REQUEST_ACCESS_TOKEN = "GFN_SDK_REQUEST_ACCESS_TOKEN";
+CefString GET_TCP_PORT = "GET_TCP_PORT";
 
 static CefString DictToJson(CefRefPtr<CefDictionaryValue> dict)
 {
@@ -40,7 +43,7 @@ static CefString GfnRuntimeErrorToString(GfnRuntimeError err)
     case GfnRuntimeError::gfnInitFailure: return "SDK initialization failure";
     case GfnRuntimeError::gfnDllNotPresent: return "DLL Not Present";
     case GfnRuntimeError::gfnComError: return "Com Error";
-    case GfnRuntimeError::gfnErrorCallingDLLFunction: return "Error Calling DLL Function";
+    case GfnRuntimeError::gfnLibraryCallFailure: return "Error Calling Library Function";
     case GfnRuntimeError::gfnIncompatibleVersion: return "Incompatible Version";
     case GfnRuntimeError::gfnUnableToAllocateMemory: return "Unable To Allocate Memory";
     case GfnRuntimeError::gfnInvalidParameter: return "Invalid Parameter";
@@ -51,9 +54,10 @@ static CefString GfnRuntimeErrorToString(GfnRuntimeError err)
     case GfnRuntimeError::gfnClientDownloadFailed: return "GFN Client download failed";
     case GfnRuntimeError::gfnWebApiFailed: return "NVIDIA Web API returned invalid data";
     case GfnRuntimeError::gfnStreamFailure: return "GFN Streamer hit a failure while starting a stream";
-    case GfnRuntimeError::gfnAPINotFound: return "GFN SDK API Library API call not found";
+    case GfnRuntimeError::gfnAPINotFound: return "GFN SDK API not found";
     case GfnRuntimeError::gfnAPINotInit: return "GFN SDK API not initialized";
     case GfnRuntimeError::gfnStreamStopFailure: return "GFN SDK failed to stop active streaming session";
+    case GfnRuntimeError::gfnCanceled: return "GFN SDK action was canceled";
     default: return "Unknown Error";
     }
 }
@@ -194,30 +198,28 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         return true;
     }
     /**
-     * Calls into GFN SDK to determine all titles available to stream right now directly from the 
+     * Calls into GFN SDK to determine all titles available to stream right now directly from the
      * NVIDIA GeForce NOW game seat.
      */
     else if (command == GFN_SDK_GET_AVAILABLE_TITLES)
     {
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         char const* appIds = nullptr;
         GfnRuntimeError err = GfnGetTitlesAvailable(&appIds);
         if (err != GfnRuntimeError::gfnSuccess)
         {
             LOG(ERROR) << "get available titles error: " << GfnRuntimeErrorToString(err);
+            response_dict->SetString("titles", "");
         }
         else
         {
-            LOG(INFO) << "titles available: " << appIds;
+            response_dict->SetString("titles", appIds);
+            GfnFree(&appIds);
         }
 
-        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
-        response_dict->SetString("titles", appIds);
         response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
-
         CefString response(DictToJson(response_dict));
         callback->Success(response);
-
-        GfnGetTitlesAvailableRelease(&appIds);
 
         return true;
     }
@@ -247,13 +249,18 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
                 StartStreamInput startStreamInput = { 0 };
                 uint32_t gfnTitleId = dict->GetInt("gfnTitleId");
                 startStreamInput.uiTitleId = gfnTitleId;
+
+                // NVIDIA IDM authorization token (when NV user has logged in)
                 std::string pchAuthToken = dict->GetString("authToken").ToString();
                 startStreamInput.pchAuthToken = pchAuthToken.c_str();
                 bool hasTokenType = false;
                 std::stringstream ssTokenType(dict->GetString("tokenType"));
                 ssTokenType >> startStreamInput.tokenType;
                 hasTokenType = !ssTokenType.fail() && !ssTokenType.bad();
-                std::string pchNonce;
+
+                // 3rd party IDM token for SSO that is consumed by launcher application running in GFN
+                std::string pchcustAuth = dict->GetString("launcherToken").ToString();
+                startStreamInput.pchCustomAuth = pchcustAuth.c_str();
 
                 if (hasTokenType)
                 {
@@ -301,38 +308,6 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         response_dict->SetBool("actionSuccess", actionSuccess);
         response_dict->SetString("errorMessage", CefString(msg.c_str()));
-
-        CefString response(DictToJson(response_dict));
-        callback->Success(response);
-        return true;
-    }
-    /**
-     * Calls into GFN SDK to request a GeForce NOW access token. This function is meant to be
-     * used only when running inside the GeForce NOW game seat, and does not return a valid token
-     * when run on the client side.
-     * The delegate token returned by the call is issued specifically for the calling SDK client
-     * and can only be redeemed by that client. Once redeemed the access token can then be used
-     * to query information such as the NVIDIA Identity Services user ID to facilitate Account Link
-     * lookup for Single Sign-On purposes.
-     * Note that delegate tokens are single use only and can only be used or redeemed once, after
-     * that another new delegate token needs to be retrieved.
-     */
-    else if (command == GFN_SDK_REQUEST_GFN_ACCESS_TOKEN)
-    {
-        const char* result = nullptr;
-        GfnRuntimeError err = GfnRequestAccessToken(&result);
-        if (err != GfnRuntimeError::gfnSuccess)
-        {
-            LOG(ERROR) << "token error: " << GfnRuntimeErrorToString(err);
-        }
-        else
-        {
-            LOG(INFO) << "token response: " << result;
-        }
-
-        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
-        response_dict->SetString("delegateToken", result);
-        response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
 
         CefString response(DictToJson(response_dict));
         callback->Success(response);
@@ -392,6 +367,9 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         callback->Success(response);
         return true;
     }
+    /**
+     * Registers for callback notifications during a streaming session.
+     */
     else if (command == GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK)
     {
         s_registerStreamStatusCallback = callback;
@@ -401,6 +379,42 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         {
             LOG(ERROR) << "Failed to register Stream Status Callback: " << GfnRuntimeErrorToString(err);
         }
+        return true;
+    }
+    /**
+     * Requests a copy of the token data that was passed into customAuth as part of the call to one
+     * of the StartStream APIs. This call should only be made in the GFN cloud environment.
+     */
+    else if (command == GFN_SDK_REQUEST_ACCESS_TOKEN)
+    {
+        char const* authData = nullptr;
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        GfnRuntimeError err = GfnGetAuthData(&authData);
+        response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
+        if (err != GfnRuntimeError::gfnSuccess)
+        {
+            LOG(ERROR) << "get authorization data error: " << GfnRuntimeErrorToString(err);
+            response_dict->SetString("authData", "");
+        }
+        else
+        {
+            response_dict->SetString("authData", authData);
+            GfnFree(&authData);
+        }
+
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
+
+        return true;
+    }
+    else if (command == GET_TCP_PORT)
+    {
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        response_dict->SetString("port", shared::g_activePort);
+
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
+
         return true;
     }
 

@@ -48,14 +48,11 @@
 /// @image html ecosystem.png
 ///
 /// This document provides details of how to integrate the native APIs of GFN Runtime SDK features
-/// into your application and its developer and deployment processes. For more detailed technical
-/// information about the architecture, refer to the architecture section later in this document
+/// into your application and its developer and deployment processes. 
 ///
 /// @section overview Overview
 ///
-/// @image html architecture.png
-///
-/// The GFN Runtime SDK provides a dynamic library with API exports as defined in this document, 
+/// The GFN Runtime SDK provides a dynamic library with API exports as defined in this document,
 /// which is distributed with and loaded by the game/application that utilizes the APIs. The loading
 /// of this library should be done in a way that validates the authenticity of the binary via checking
 /// for a valid digital signature, and that signature is from NVIDIA Corporation.
@@ -79,22 +76,15 @@
 /// systems. In those cases, API calls will return a well-defined error code to denote the call
 /// was not applicable to the environment.
 ///
-/// NVIDIA provides a backend IDM Service that application developers can use to validate users
-/// and obtain user information from.This provides a seamless flow for users to bypass multiple
-/// login steps in streaming a game through GFN.
-///
-/// A simplified flow diagram of how this functions is shown below:
-///
-/// @image html authentication.png
-///
 /// Authentication between the Partner IDM and NVIDIA IDM happens using secure
 /// HTTPS web API calls, and the account linking flow utilizes standard oauth2
 /// protocol. Once the account link is established the authentication process
 /// between Partner and NVIDIA becomes transparent to the user, and gaming
 /// streaming can be initiated without requiring any further authentication or
 /// manual login.
-///
-/// @image html account_link_flow.png
+/// For more information on linking your account system with NVIDIA, please refer
+/// to SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf available as part of the 
+/// documentation section of the SDK's repository.
 ///
 /// After the account link between Partner and NVIDIA has been established, that
 /// link can be utilized on the GFN server to facilitate Single Sign-On (SSO) so
@@ -149,6 +139,12 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
+/// C        | @ref gfnFree
+///
+/// @copydoc gfnIsRunningInCloud
+///
+/// Language | API
+/// -------- | -------------------------------------
 /// C        | @ref gfnIsTitleAvailable
 ///
 /// @copydoc gfnIsTitleAvailable
@@ -188,12 +184,6 @@
 /// C        | @ref gfnGetClientCountryCode
 ///
 /// @copydoc gfnGetClientCountryCode
-///
-/// Language | API
-/// -------- | -------------------------------------
-/// C        | @ref gfnRequestGfnAccessToken
-///
-/// @copydoc gfnRequestGfnAccessToken
 ///
 /// Language | API
 /// -------- | -------------------------------------
@@ -289,12 +279,12 @@ typedef char bool;
 #endif
 
 /// Version of the GeForce NOW SDK
-#define GFN_RUNTIME_SDK_VERSION 1.2
+#define GFN_RUNTIME_SDK_VERSION 1.4
 
 /// One of the possible values of AuthType_t. Delegate token provided by NVIDIA IDM
-#define AUTH_JARVIS 7  
+#define AUTH_NVIDIA_DEFAULT 7
 /// One of the possible values of AuthType_t. JSON Web Token
-#define AUTH_JWT 8
+#define AUTH_NVIDIA_JWT 8
 
 #ifdef __cplusplus
     extern "C"
@@ -312,7 +302,7 @@ typedef char bool;
             gfnInitFailure           =   -1, ///< SDK initialization failure for any reason other than memory allocation failure.
             gfnDllNotPresent =           -2,
             gfnComError =                -3, ///< Geforce NOW SDK internal component communication error.
-            gfnErrorCallingDLLFunction = -4, ///< Geforce NOW SDK components were reachable, but could not serve the request.
+            gfnLibraryCallFailure =      -4, ///< Geforce NOW SDK components were reachable, but could not serve the request.
             gfnIncompatibleVersion =     -5,
             gfnUnableToAllocateMemory =  -6,
             gfnInvalidParameter =        -7,
@@ -327,8 +317,43 @@ typedef char bool;
             gfnStreamFailure =           -16, ///< GeForceNOW Streamer hit a failure while starting a stream
             gfnAPINotFound =             -17, ///< Library API call not found
             gfnAPINotInit =              -18, ///< API not initialized
-            gfnStreamStopFailure =       -19  ///< Failed to stop active streaming session
+            gfnStreamStopFailure =       -19, ///< Failed to stop active streaming session
+            gfnUnhandledException =      -20, ///< Unhandled exceptions
+            gfnIPCFailure =              -21, ///< Messagebus IPC failures
+            gfnCanceled =                -22, ///< Activity was canceled, for example, user canceled the download of GFN client
         } GfnRuntimeError;
+
+        ///
+        /// @par Description
+        /// GfnRuntimeError success function
+        ///
+        /// @par Usage
+        /// Use to determine if GfnRuntimeError value translates to success
+        ///
+        /// @param r      - GfnRuntimeError type value
+        ///
+        /// @retval true  - GfnRuntimeError value indicates success
+        /// @retval false - GfnRuntimeError value indicates failure
+        inline bool GFNSDK_SUCCEEDED(GfnRuntimeError r)
+        {
+            return r >= 0;
+        }
+
+        ///
+        /// @par Description
+        /// GfnRuntimeError failure function
+        ///
+        /// @par Usage
+        /// Use to determine if GfnRuntimeError value translates to failure
+        ///
+        /// @param r      - GfnRuntimeError type value
+        ///
+        /// @retval true  - GfnRuntimeError value indicates failure
+        /// @retval false - GfnRuntimeError value indicates success
+        inline bool GFNSDK_FAILED(GfnRuntimeError r)
+        {
+            return r < 0;
+        }
 
         /// @brief Values for languages supported by the GFN SDK, used to define which language any SDK dialogs should be displayed in.
         typedef enum GfnDisplayLanguage
@@ -336,7 +361,6 @@ typedef char bool;
             gfnDefaultLanguage = 0,         /// Uses the default system language
             gfn_bg_BG = 1,
             gfn_cs_CZ = 2,
-            gfn_da_DK = 2,
             gfn_nl_NL = 3,
             gfn_de_DE = 4,
             gfn_el_GR = 5,
@@ -366,10 +390,11 @@ typedef char bool;
             gfn_hr_HR = 29,
             gfn_sk_SK = 30,
             gfn_sl_SI = 31,
-            gfnMaxLanguage = gfn_sl_SI
+            gfn_da_DK = 32,
+            gfnMaxLanguage = gfn_da_DK
         } GfnDisplayLanguage;
 
-        /* @brief Returned by callbacks the application registers with the Geforce NOW Runtime SDK, or passes
+        /** @brief Returned by callbacks the application registers with the Geforce NOW Runtime SDK, or passes
          *  in to asynchronous SDK calls.
          */
         typedef enum GfnApplicationCallbackResult
@@ -390,18 +415,17 @@ typedef char bool;
         /// @brief Callback function signation for notifications on status of stop a streaming session.
         typedef void(GFN_CALLBACK* StopStreamCallbackSig)(GfnRuntimeError, void* context);
 
-        /// @brief Type of token to use for GFN session. Valid values include AUTH_JARVIS and AUTH_JWT.
+        /// @brief Type of token to use for GFN session. Valid values include AUTH_NVIDIA_DEFAULT and AUTH_NVIDIA_JWT.
         typedef unsigned int AuthType_t;
 
         /// @brief Input data for gfnStartStream
         typedef struct StartStreamInput
         {
             unsigned int uiTitleId;     ///< GFN-sourced game-specific unique identifier.
-            const char* pchAuthToken;   ///< Token string
-            AuthType_t tokenType;    ///< Token identifier
+            const char* pchAuthToken;   ///< NVIDIA IDM Token string
+            AuthType_t tokenType;       ///< Token identifier
             const char* pchCustomData;  ///< Optional data that is passed to the streaming cloud instance and can be retrieved in that instance of application.
-                                        ///< NOTE: Will be implemented in next release.
-            const char* pchCustomAuth;  ///< Optional client-specific data to authenticate the user on the game seat.
+            const char* pchCustomAuth;  ///< Optional client-specific token data that should be used to authenticate the user on the game seat for SSO purposes.
         } StartStreamInput;
 
         /// @brief Input to the function registered via gfnRegisterInstallCallback (if any).
@@ -663,8 +687,8 @@ typedef char bool;
         /// @param pchPlatformAppId - Identifier of the requested title to check
         ///
         /// @retval true                        - Title is available for playing
-        /// @retval false                       - Title is not available for playing. The common cases for this is the 
-        ///                                     title is not supported on GFN, or the GFN servers do not load every 
+        /// @retval false                       - Title is not available for playing. The common cases for this is the
+        ///                                     title is not supported on GFN, or the GFN servers do not load every
         ///                                     supported game to every system in all cases.
         NVGFNSDK_EXPORT bool NVGFNSDKApi gfnIsTitleAvailable(const char* pchPlatformAppId);
 
@@ -681,32 +705,14 @@ typedef char bool;
         /// each title.
         ///
         /// @param ppchPlatformAppIds        - Comma-delimited list of platform identifiers. Memory 
-        ///                                    is allocated for the list. Call @ref 
-        ///                                    gfnGetTitlesAvailableRelease to free the memory.
+        ///                                    is allocated for the list. Call @ref gfnFree to release the memory when done.
         ///
         /// @retval gfnSuccess               - On success
         /// @retval gfnInvalidParameter      - NULL pointer passed in
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @note
-        /// To avoid leaking memory, call @ref gfnGetTitlesAvailableRelease once done with the list
+        /// To avoid leaking memory, call @ref gfnFree once done with the list
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetTitlesAvailable(const char** ppchPlatformAppIds);
-
-        ///
-        /// @par Description
-        /// Releases memory allocated by @ref gfnGetTitlesAvailable
-        ///
-        /// @par Environment
-        /// Cloud
-        ///
-        /// @par Usage
-        /// Use to release memory after a call to gfnGetTitlesAvailable and you are finished with the data
-        ///
-        /// @param ppchPlatformAppIds        - Pointer to list to free
-        ///
-        /// @retval gfnSuccess               - On success
-        /// @retval gfnInvalidParameter      - NULL pointer passed in
-        /// @retval gfnCallWrongEnvironment  - If called in a client environment
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetTitlesAvailableRelease(const char** ppchPlatformAppIds);
 
         ///
         /// @par Description
@@ -770,7 +776,8 @@ typedef char bool;
         /// Call this during application start or from the platform client in
         /// order to get the user's external client IP address.
         ///
-        /// @param ppchClientIp              - Output IPv4 in string format. Example: "192.168.0.1"
+        /// @param ppchClientIp              - Output IPv4 in string format. Example: "192.168.0.1".
+        ///                                    Call @ref gfnFree to release the memory when done.
         ///
         /// @retval gfnSuccess               - On success
         /// @retval gfnInvalidParameter      - NULL pointer passed in
@@ -778,8 +785,10 @@ typedef char bool;
         /// @return Otherwise, appropriate error code
         /// @note
         /// The IP data returned by this API can be subject to various privacy laws depending on how the
-        /// the data is used. To avoid the data being considered Personally Identifiable Information and 
+        /// the data is used. To avoid the data being considered Personally Identifiable Information and
         /// subject to those laws, the IP should be used for geolocation lookup only and then discarded.
+        /// @note
+        /// To avoid leaking memory, call @ref gfnFree once done with the list
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetClientIp(const char** ppchClientIp);
 
         ///
@@ -794,12 +803,15 @@ typedef char bool;
         /// Call this during application start or from the platform client in
         /// order to get the user's language and country settings.
         ///
-        /// @param ppchLanguageCode          - Language code as a string. Example: "en-US"
+        /// @param ppchLanguageCode          - Language code as a string. Example: "en-US".
+        ///                                    Call @ref gfnFree to release the memory when done.
         ///
         /// @retval gfnSuccess               - On success
         /// @retval gfnInvalidParameter      - NULL pointer passed in
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
+        /// @note
+        /// To avoid leaking memory, call @ref gfnFree once done with the list
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetClientLanguageCode(const char** ppchLanguageCode);
 
         ///
@@ -810,50 +822,18 @@ typedef char bool;
         /// Cloud
         ///
         /// @par Usage
-        /// Call this during application start or from the platform client in order to get 
+        /// Call this during application start or from the platform client in order to get
         /// the user's country code.
         ///
-        /// @param pchCountryCode            - Country code as a 2 character string. Example: “US”
-        /// @param length                    - Length of pchCountryCode character array, the length 
-        ///                                    should be at least 3 
+        /// @param pchCountryCode            - Country code as a 2 character string. Example: "US".
+        /// @param length                    - Length of pchCountryCode character array, the length
+        ///                                    should be at least 3
         ///
         /// @retval gfnSuccess               - On success
         /// @retval gfnInvalidParameter      - NULL pointer passed in or buffer length is too small
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetClientCountryCode(char* pchCountryCode, unsigned int length);
-
-        ///
-        /// @par Description
-        /// Request to obtain a user-specific access token to allow access to
-        /// the GFN backend service (IDM endpoint).
-        ///
-        /// @par Environment
-        /// Cloud
-        ///
-        /// @par Usage
-        /// The access token provided can be used by the application's backend
-        /// servers to validate the user and obtain user data from the GFN
-        /// backend service. The GFN backend service provides an OAuth2
-        /// interface for validating users and retrieving data. See Account Linking information
-        /// in the Overview section for more information.
-        ///
-        /// @note For security purposes, the access token is provided only to applications
-        /// registered at https://devportal.nvgs.nvidia.com, and have a client and an API key
-        /// created for them. Contact your NVIDIA partner to have your application registered
-        /// and assigned these two keys.
-        ///
-        /// @param ppchAuthToken             - Populated with a user specific GFN access token.
-        ///
-        /// @retval gfnSuccess               - On success
-        /// @retval gfnInvalidParameter      - NULL pointer passed in
-        /// @retval gfnCallWrongEnvironment  - If called in a client environment
-        /// @return Otherwise, appropriate error code
-        ///
-        /// @note
-        /// This data is also alternatively accessible in the GFN environment without calling this
-        /// API. Please see the "GFN-SDK-ALTERNATIVE-DATA-ACCESS.pdf" document in the "doc" folder
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRequestGfnAccessToken(const char** ppchAuthToken);
 
         ///
         /// @par Description
@@ -888,6 +868,7 @@ typedef char bool;
         /// @retval gfnInvalidParameter     - NULL pointer passed in
         /// @retval gfnCallWrongEnvironment - If called in a cloud environment
         /// @retval gfnStreamFailure        - Network failure or other error prevented the stream from starting
+        /// @retval gfnCanceled             - User canceled the download and install of GFN client during stream initialization
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnStartStream(StartStreamInput* pStartStreamInput, StartStreamResponse* response);
 
@@ -923,7 +904,7 @@ typedef char bool;
         /// @param timeoutMs                    - Time after which attempt to stop streaming and associated processed to close will be aborted.
         ///                                       A value of 0 signals to immediately return without waiting for processes to close.
         NVGFNSDK_EXPORT void NVGFNSDKApi gfnStopStreamAsync(StopStreamCallbackSig cb, void* context, unsigned int timeoutMs);
-        
+
         ///
         /// @par Description
         /// Retrieves custom data passed in by the client in the gfnStartStream call.
@@ -935,13 +916,53 @@ typedef char bool;
         /// Use during cloud session to retrieve custom data
         ///
         /// @param ppchCustomData            - Populated with the custom data.
+        ///                                    Call @ref gfnFree to release the memory when done.
         ///
         /// @retval gfnSuccess               - On success
         /// @retval gfnInvalidParameter      - NULL pointer passed in
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
-        ///
+        /// @note
+        /// To avoid leaking memory, call @ref gfnFree once done with the list
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetCustomData(const char** ppchCustomData);
+
+        ///
+        /// @par Description
+        /// Retrieves custom authorization data passed in by the client in the gfnStartStream call.
+        ///
+        /// @par Environment
+        /// Cloud
+        ///
+        /// @par Usage
+        /// Use during cloud session to retrieve custom data
+        ///
+        /// @param ppchAuthData            - Populated with the custom data.
+        ///                                  Call @ref gfnFree to release the memory when done.
+        ///
+        /// @retval gfnSuccess               - On success
+        /// @retval gfnInvalidParameter      - NULL pointer passed in
+        /// @retval gfnCallWrongEnvironment  - If called in a client environment
+        /// @return Otherwise, appropriate error code
+        /// @note
+        /// To avoid leaking memory, call @ref gfnFree once done with the list
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetAuthData(const char** ppchAuthData);
+
+        ///
+        /// @par Description
+        /// Releases memory allocated by Get functions such as, but not limited to, @ref gfnGetAuthData,
+        /// @ref gfnGetCustomData, or @ref gfnGetTitlesAvailable
+        ///
+        /// @par Environment
+        /// Cloud
+        ///
+        /// @par Usage
+        /// Use to release memory after a call to a memory-allocated function and you are finished with the data
+        ///
+        /// @param ppchData                  - Pointer to allocated string memmory
+        ///
+        /// @retval gfnSuccess               - On success
+        /// @retval gfnInvalidParameter      - NULL pointer passed in
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnFree(const char** ppchData);
         /// @}
 
 #ifdef __cplusplus

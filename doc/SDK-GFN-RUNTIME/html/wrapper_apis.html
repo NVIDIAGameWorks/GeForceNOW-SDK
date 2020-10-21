@@ -161,27 +161,8 @@ Wrapper Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
-<td>C </td><td><a class="el" href="group__wrapper.html#ga1de5d6792f2d658886fe2be992945e69">GfnGetClientIpV4</a> </td></tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga8c41a40828a5bd9a0cf087a0fd2757a8">gfnGetClientIp</a> to get user client's IP address.</dd></dl>
-<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">clientIp</td><td>- Output IPv4 in string format. Example: "192.168.0.1"</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="retval"><dt>Return values</dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
-    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
-    <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
-  </table>
-  </dd>
-</dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -193,7 +174,7 @@ Wrapper Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">clientIp</td><td>- Output IPv4 in string format. Example: "192.168.0.1"</td></tr>
+    <tr><td class="paramname">clientIp</td><td>- Output IPv4 in string format. Example: "192.168.0.1". Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
   </table>
   </dd>
 </dl>
@@ -203,10 +184,37 @@ Wrapper Methods</h2>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data.</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga1de5d6792f2d658886fe2be992945e69">GfnGetClientIpV4</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga8c41a40828a5bd9a0cf087a0fd2757a8">gfnGetClientIp</a> to get user client's IP address.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">clientIp</td><td>- Output IPv4 in string format. Example: "192.168.0.1". Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+    <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -218,7 +226,7 @@ Wrapper Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's language and country settings.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">languageCode</td><td>- Language code as a string. Example: "en-US"</td></tr>
+    <tr><td class="paramname">languageCode</td><td>- Language code as a string. Example: "en-US". Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
   </table>
   </dd>
 </dl>
@@ -228,10 +236,11 @@ Wrapper Methods</h2>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -243,7 +252,7 @@ Wrapper Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve custom data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">customData</td><td>- Populated with the custom data.</td></tr>
+    <tr><td class="paramname">customData</td><td>- Populated with the custom data. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
   </table>
   </dd>
 </dl>
@@ -253,35 +262,11 @@ Wrapper Methods</h2>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
   </table>
   </dd>
 </dl>
-<table class="doxtable">
-<tr>
-<th>Language </th><th>API  </th></tr>
-<tr>
-<td>C </td><td><a class="el" href="group__wrapper.html#ga668a6e131ded26b3a025c2de90b44069">GfnRequestAccessToken</a> </td></tr>
-</table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga21d47131ae3098cc2ee071a49e7502e8">gfnRequestGfnAccessToken</a> to obtain a user-specific access token to allow access to the GFN backend service (IDM endpoint).</dd></dl>
-<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>The access token provided can be used by the application's backend servers to validate the user and obtain user data from the GFN backend service. The GFN backend service provides an OAuth2 interface for validating users and retrieving data. See Account Linking information in the Overview section for more information.</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">accessToken</td><td>- Populated with a user specific GFN access token.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="retval"><dt>Return values</dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
-    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
-    <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -319,7 +304,7 @@ Wrapper Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Use to retrieve a list of all titles available to launch in the current streaming session, for example, to add "Play" buttons to all titles instead of calling gfnIsTitleAvailable on each title.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">platformAppIds</td><td>- Comma-delimited list of platform identifiers. Memory is allocated for the list. Call <a class="el" href="group__launcher.html#ga2fc91dd975e23867912604524861cbba">gfnGetTitlesAvailableRelease</a> to free the memory.</td></tr>
+    <tr><td class="paramname">platformAppIds</td><td>- Comma-delimited list of platform identifiers. Memory is allocated for the list. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
   </table>
   </dd>
 </dl>
@@ -333,32 +318,7 @@ Wrapper Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga2fc91dd975e23867912604524861cbba">gfnGetTitlesAvailableRelease</a> once done with the list</dd></dl>
-<table class="doxtable">
-<tr>
-<th>Language </th><th>API  </th></tr>
-<tr>
-<td>C </td><td><a class="el" href="group__wrapper.html#ga2270b0769b3474620881b5e5c37a8971">GfnGetTitlesAvailableRelease</a> </td></tr>
-</table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga2fc91dd975e23867912604524861cbba">gfnGetTitlesAvailableRelease</a> to release memory allocated by <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a></dd></dl>
-<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use to release memory after a call to gfnGetTitlesAvailable and you are finished with the data</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">platformAppIds</td><td>- Pointer to list to free</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="retval"><dt>Return values</dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
-    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
-    <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the title list.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>

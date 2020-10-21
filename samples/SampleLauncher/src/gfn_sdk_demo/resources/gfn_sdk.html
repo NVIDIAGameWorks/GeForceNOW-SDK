@@ -99,6 +99,12 @@
             flex: auto;
             height: 154px;
         }
+
+        .inputFullWidth {
+            width: 490px;
+            height: 20px;
+            margin: 0px 0px 0px 8px;
+        }
     </style>
 </head>
 <body>
@@ -109,25 +115,18 @@
         <div id="ip-address" class="nv-container" style="display: none">
             <span class="text">User's IP Address: </span><span class="text" id="ip-address-value"></span>
         </div>
-        <div id="login-panel" class="nv-container">
-            <span>LAUNCHER<br />USERNAME</span><input id="username" type="text" class="input" />
-            <span>LAUNCHER<br />PASSWORD</span><input id="password" type="password" class="input" />
-            <div class="spacer"></div>
-            <button class="nv-button-disabled" disabled id="login" onclick="doLogin()">LAUNCHER<br />LOGIN</button>
-        </div>
-        <div id="login-status" class="nv-container" style="display: none">
-            <span>LOGGED IN AS</span><span class="text" id="username-text"></span>
-            <div class="spacer"></div>
-            <button class="nv-button-disabled" disabled id="logout" onclick="doLogout()">LAUNCHER<br />LOGOUT</button>
-        </div>
         <div class="nv-container">
-            <button class="nv-button-disabled" disabled id="nv-login" onclick="doLink()">NVIDIA<br />LOGIN</button>
-            <button class="nv-button-disabled" style="display:none" disabled id="nv-logout" onclick="doUnlink()">NVIDIA<br />LOGOUT</button>
+            <button class="nv-button-disabled" disabled id="nv-login" onclick="doLogin()">NVIDIA<br />LOGIN</button>
+            <button class="nv-button-disabled" style="display:none" disabled id="nv-logout" onclick="doLogout()">NVIDIA<br />LOGOUT</button>
             <div class="spacer"></div>
             <button class="nv-button-disabled" disabled id="previous-game" onclick="nextGame(-1)">PREVIOUS GAME</button>
             <div class="spacer"></div>
             <button class="nv-button-disabled" disabled id="next-game" onclick="nextGame(1)">NEXT GAME</button>
             <button class="nv-button-disabled" disabled id="stream-action" onclick="performStreamAction()">START<br />STREAM</button>
+        </div>
+        <div id="login-panel" class="nv-container">
+            <span>Launcher Token:</span><input id="launcherToken" type="text" class="inputFullWidth" size="32" />
+            <div class="spacer"></div>
         </div>
         <div id="stream-status" class="nv-container">
             <span>Stream Status: </span><span class="text" id="stream-status-value">Init</span>
@@ -139,54 +138,35 @@
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.494.0.min.js"></script>
     <script language="JavaScript">
         /**
-         * The streamer client ID is the ID assigned to the NVIDIA GeForce NOW streaming client,
-         * and used when issuing delegate tokens from NVIDIA Identity Services. This ID does not
-         * change and should be left as is.
-         */
-        var streamerClientId = '156448804920361176';
-        /**
-         * The sample launcher client ID is the ID assigned to this client in the NVIDIA Developer
-         * Portal at https://devportal.nvgs.nvidia.com once the client record is created there.
-         *
          * The client ID is used for NVIDIA Identity Services API calls and authentication to
          * identify where the client calls originate from. The ID used here is only for the
          * purpose of this sample launcher app and can not be reused by your application.
          *
-         * If your application will need to request a delegate token from NVIDIA Identity Services,
+         * If your application will initiate logins to the various NVIDIA GFN infrastructure,
          * you must request your own client ID and make sure it is registered with the NVIDIA
          * Identity Services via your NVIDIA partner representative. Because of the sensitive
-         * nature of authentication, the Authentication APIs will not return a delegate token to any
+         * nature of authentication, the IdP APIs will not return user token data to any
          * application that does not have a valid registered client ID.
          */
-        var sampleLauncherClientId = '226569654140666381';
+        var sampleLauncherClientId = '93bvf7pvsTfhiYFLnlhE8-v07VlJRiDLGiJ94hgxenk';
+
         /**
-         * The sample launcher API key is the key assigned to the client in the NVIDIA Developer
-         * Portal in the API Keys section for a client configuration and can be created or found
-         * at https://devportal.nvgs.nvidia.com.
-         *
-         * It is required to authenticate the client when requesting a delegate token from NVIDIA
-         * Identity Services. The API key used here is only for the purposes of this sample app
-         * and needs to be replaced with your own API key.
-         * As with the client ID, you must use the registered API key value for your application in
-         * your calls to the NVIDIA Identity Services APIs. Failure to use the registered API key
-         * will result in the API calls not returning a delegate token.
-         */
-        var sampleLauncherApiKey = 'hOGvRQcY4UqU4lX7ZGnlIZ3LwslaM073';
+        * The device ID is used by NVIDIA Identity Services API to identify the source of
+        * the request. To be able to tell requests apart, tt should be unique per user device.
+        */
+        var sampleLauncherDeviceId = 'gfnsdksamplelauncherdeviceid';
 
         var launcherName = null;
         var launcherGameId = null;
         var gfnTitleId = null;
-        var nvidiaUserId = null;
+        var nvidiaToken = null;
         var oauthWindow = null;
         var userToken = null;
-        var sessionToken = null;
-        var delegateToken = null;
         var gameIndex = 0;
-        var awsDocumentClient = null;
         var supportedTitlesAsJson = null;
-        var preferredAuthType = 'AUTH_JARVIS';
+        var preferredAuthType = 'AUTH_NVIDIA_DEFAULT';
         // These defines mirror the ones in GfnRuntimeSdk_CAPI.h
-        var AUTH_JARVIS = '7';
+        var AUTH_NVIDIA_DEFAULT = '7';
         var streamRunning = false;
 
         /**
@@ -220,9 +200,6 @@
                             setStatus('GFN SDK not initialized: ' + data.errorMessage);
                             reject(success);
                         }
-
-                        registerStreamStatusCallback();
-
                         resolve(0);
                     },
                     onFailure: function (error_code, error_message) {
@@ -262,20 +239,6 @@
         }
 
         /**
-         * Initializes the sample IDM that is hosted on AWS for the purpose of this sample
-         * launcher. Not meant for any other use and needs to be replaced by actual backend
-         * communication with the IDM of the integrating SDK partner.
-         */
-        function initializeAws() {
-            // Initialize the Amazon Cognito credentials provider
-            AWS.config.region = 'us-west-2'; // Region
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                IdentityPoolId: 'us-west-2:4b976f2f-dd8b-464d-92df-3de380d8f8d6', // For example purposes only!
-            });
-            awsDocumentClient = new AWS.DynamoDB.DocumentClient();
-        }
-
-        /**
          * Calls into GFN SDK to determine whether the sample launcher is being executed inside
          * an NVIDIA GeForce NOW game seat. If running in the cloud it exercises other GFN SDK
          * functions like displaying the user's current local IP address, or restoring the launcher
@@ -300,19 +263,8 @@
                             isTitleAvailable();
                             // Get all titles available to stream in the current GFN game seat
                             getAvailableTitles();
-                            // Retrieve and redeem delegate token and restore launcher user info
-                            setStatus('Requesting GFN Access Token from SDK...');
-                            requestGfnAccessToken(function () {
-                                if (!sessionToken && delegateToken) {
-                                    setStatus('Session not initialized yet, redeeming delegate token for session token...');
-                                    redeemDelegateToken().then(function (userId) {
-                                        setStatus('Restoring Launcher user token...');
-                                        doRestore(userId);
-                                    });
-                                } else if (!delegateToken) {
-                                    setStatus('Empty delegate token returned, redemption not possible.');
-                                }
-                            });
+                            // Obtain custom auth data that passed in as part of StartStream API
+                            requestCustomAuthToken();
                         }
                         resolve(data.enabled);
                     }
@@ -328,6 +280,7 @@
                     }),
                     onSuccess: function (response) {
                         var data = JSON.parse(response);
+                        setStatus('Available titles result: ' + data.errorMessage);
                         setStatus('Available titles: ' + data.titles);
                     }
                 });
@@ -408,14 +361,15 @@
             if (streamRunning == false) {
                 setStatus('Launching game stream session...');
                 var authType = 0;
-                var promise = nvidiaUserId ? requestStreamingDelegateToken(nvidiaUserId) : Promise.resolve(null);
-                promise.then(function (streamingToken) {
+                var promise = Promise.resolve(null);
+                promise.then(function () {
                     window.cefQuery({
                         request: JSON.stringify({
                             command: 'GFN_SDK_STREAM_ACTION',
-                            gfnTitleId: gfnTitleId,
-                            authToken: streamingToken,
-                            tokenType: AUTH_JARVIS,
+                            gfnTitleId: gfnTitleId,                 // GFN ID for the title to stream
+                            authToken: nvidiaToken,                 // NVIDIA IDM ID Token, the user has logged in via the UI
+                            tokenType: AUTH_NVIDIA_DEFAULT,         // Type of authToken
+                            launcherToken: document.getElementById('launcherToken').value,
                             launchStream: !streamRunning
                         }),
                         onSuccess: function (response) {
@@ -475,30 +429,20 @@
         }
 
         /**
-         * Calls into GFN SDK to request a GeForce NOW access token asynchronously, and calls the
-         * provided callback function after completing the token retrieval. This function is meant to
-         * be used only when running inside the GeForce NOW game seat, and does not return a valid
-         * token when run on the client side.
-         * The delegate token returned by the call is issued specifically for the calling SDK client
-         * and can only be redeemed by that client. Once redeemed the access token can then be used
-         * to query information such as the NVIDIA Identity Services user ID to facilitate Account Link
-         * lookup for Single Sign-On purposes.
-         * Note that delegate tokens are single use only and can only be used or redeemed once, after
-         * that another new delegate token needs to be retrieved.
-         * @param callback The function to be called after asynchronous token retrieval is complete
+         * Calls into GFN SDK to request a copy of the 3rd party user access token passed into the
+         * StartStream API. This token should be a token that can be consumed by your application
+         * that is running inside the GFN cloud environment to facilitate Single Sign-On (SSO) and
+         * thus not require the user to manually log into your application.
          */
-        function requestGfnAccessToken(callback) {
+        function requestCustomAuthToken() {
             window.cefQuery({
                 request: JSON.stringify({
-                    command: 'GFN_SDK_REQUEST_GFN_ACCESS_TOKEN'
+                    command: 'GFN_SDK_REQUEST_ACCESS_TOKEN'
                 }),
                 onSuccess: function (response) {
                     var data = JSON.parse(response);
-                    delegateToken = data.delegateToken;
-                    setStatus('Delegate token retrieval completed: ' + data.errorMessage + ', token: "' + delegateToken + '"');
-                    if (callback) {
-                        callback();
-                    }
+                    launcherToken = data.authData;
+                    setStatus('Custom auth token retrieval completed: ' + data.errorMessage + ', token: "' + launcherToken + '"');
                 }
             });
         }
@@ -544,6 +488,7 @@
                 }
             });
         }
+
         /**
          * Opens a popup window that displays the NVIDIA Identity Services login website to
          * facilitate authentication with a new or existing NVIDIA account. This is part of
@@ -551,7 +496,7 @@
          * After login is completed, the response and further calls are done through the
          * receiveMessage event handler.
          */
-        function doLink() {
+        function doLogin() {
             var popupX = 600,
                 popupY = 224,
                 popupWidth = 721,
@@ -564,33 +509,44 @@
             if (oauthWindow !== null && !oauthWindow.closed) {
                 oauthWindow.close();
             }
-            oauthWindow = window.open('https://accounts.nvgs.nvidia.com/api/1/oauth/authorize?' +
-                'response_type=code&' +
-                'scope=user_id%20offline_access&' +
-                'client_id=' + sampleLauncherClientId + '&' +
-                'redirect_uri=https%3A%2F%2Flocalhost%2Fredirect.html&' +
-                'prompt=login&' +
-                'locale=en-US',
-                'app_oauthWindow', 'toolbar=0,location=0,menubar=0,status=0,titlebar=0,' +
-                // Absolute coordinates that match the size/location of the underlying element
-                'left=' + popupX + ',top=' + popupY + ',width=' + popupWidth +
-                ',height=' + popupHeight);
+
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GET_TCP_PORT'
+                }),
+                onSuccess: function (response) {
+                    var tcpPort = JSON.parse(response).port;
+                    var nonce = 'gfnsdksamplelauncher_' + Math.random().toString(18).slice(2);
+                    setStatus('login TCP Port: ' + tcpPort + ', nonce: ' + nonce);
+
+                    oauthWindow = window.open('https://login.nvidia.com/authorize?' +
+                        'response_type=id_token%20token&' +
+                        'client_id=' + sampleLauncherClientId + '&' +
+                        'redirect_uri=https%3A%2F%2Flocalhost%3A' + tcpPort + '%2Fredirect.html&' +
+                        'scope=openid%20email%20preferred_username&' +
+                        'device_id=' + sampleLauncherDeviceId + '&' +
+                        'nonce=' + nonce,
+                        'app_oauthWindow', 'toolbar=0,location=0,menubar=0,status=0,titlebar=0,' +
+                        // Absolute coordinates that match the size/location of the underlying element
+                        'left=' + popupX + ',top=' + popupY + ',width=' + popupWidth +
+                        ',height=' + popupHeight);
+                },
+                onFailure: function (response) {
+                    setStatus('Failed to get TCP port: ' + JSON.stringify(response));
+                }
+            });
         }
 
         /**
-         *  Simulates clearing the link with the user's NVIDIA account.
-         *  All we do in this case is forget the UserId we have stored and continue as if we never had it
-         *  In a real solution, this would likely involve asking a cloud backend to forget the link as well
+         *  Simulates logging out of the user's NVIDIA account.
+         *  All we do in this case is forget the NVIDIA ID Token we have stored and continue as if we never had it
+         *  In a real solution, this would likely involve asking an IDM backend to forget the link as well.
          */
-        function doUnlink() {
-            nvidiaUserId = null;
-            
-            var loginButton = document.getElementById('nv-login');
-            var logoutButton = document.getElementById('nv-logout');
-
-            loginButton.style.display = '';
-            logoutButton.style.display = 'none';
-            setStatus('Unlinked from NVIDIA.');
+        function doLogout() {
+            nvidiaToken = null;
+            document.getElementById('nv-login').style.display = '';
+            document.getElementById('nv-logout').style.display = 'none';
+            setStatus('Logged out from NVIDIA.');
         }
 
         /**
@@ -629,224 +585,27 @@
                 oauthWindow = null;
             }
             window.removeEventListener('message', receiveMessage);
-            if (!event.data || !event.data.data) {
+
+            if (event.result != undefined) {
+                setStatus('Event contains an error: ' + event.result);
+                return;
+            }
+            if (!event.data) {
                 setStatus('Unexpected event data detected.');
                 return;
             }
-            setStatus('Oauth redirect message received, exchanging code for login token...');
-
-            // Call into NVIDIA Identity Services to exchange the OAuth code for additional
-            // information that can then be used for the delegate token request call below.
-            fetch('https://accounts.nvgs.nvidia.com/api/1/oauth/resource?' +
-                'grant_type=authorization_code&' +
-                'code=' + event.data.data.code + '&' +
-                'client_id=' + sampleLauncherClientId + '&' +
-                'redirect_uri=https%3A%2F%2Flocalhost%2Fredirect.html'
-            )
-            .then(function (oauthResponse) {
-                return oauthResponse.json();
-            })
-            .then(function (oauthJson) {
-                setStatus('Succesfully retrieved login token: ' + JSON.stringify(oauthJson));
-                nvidiaUserId = oauthJson.userId;
-                // Store the launcher user session in the IDM database hosted on AWS
-                setStatus('Storing Launcher user token...');
-                doStore(nvidiaUserId);
-
-                var loginButton = document.getElementById('nv-login');
-                var logoutButton = document.getElementById('nv-logout');
-
-                logoutButton.style.display = '';
-                loginButton.style.display = 'none';
-                setStatus('Linked to NVIDIA.');
-            })
-        }
-
-        /**
-         * Requests a delegate token from the NVIDIA Identity Services issued for the given NVIDIA user ID
-         * and which can only be redeemed by the GeForce NOW streaming client. This token is meant to be
-         * passed into the gfnStartStream() call as a parameter to start streaming with an already
-         * authenticated NVIDIA user session.
-         * Note that delegate tokens are single use only, therefore a new token needs to be requested every
-         * time a new game stream is started.
-         * @param userId NVIDIA user ID to request a new delegate token for
-         */
-        function requestStreamingDelegateToken(userId) {
-            return fetch('https://accounts.nvgs.nvidia.com/api/1/service/authentication/delegate/request', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Basic ' + base64encode(sampleLauncherApiKey + ':')
-                },
-                body: JSON.stringify({
-                    clientId: streamerClientId, // GeForce NOW streaming client ID
-                    userId: userId,
-                    scope: 'session_token'
-                })
-            })
-            .then(function (delegateResponse) {
-                return delegateResponse.json();
-            })
-            .then(function (delegateJson) {
-                setStatus('Successfully retrieved delegate token: ' + JSON.stringify(delegateJson));
-                return delegateJson.delegateToken;
-            })
-        }
-
-        /**
-         * Calls the NVIDIA Identity Services endpoint to redeem a given delegate token and exchange
-         * it for information such as the NVIDIA user ID which can be used to verify an existing
-         * Account Link in the launcher IDM. The endpoint should only be called with a delegate token
-         * that was issued for the SDK client, for example it is not possible to redeem a delegate
-         * token obtained from the delegate token request call above, since that token is meant for
-         * the GeForce NOW streaming client.
-         * This function is meant to be called when running on the GeForce NOW game seat with a
-         * delegate token that was obtained by using the gfnRequestGfnAccessToken() API.
-         */
-        function redeemDelegateToken() {
-            return fetch('https://accounts.nvgs.nvidia.com/api/1/authentication/delegate/redeem', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Basic ' + base64encode(delegateToken + ':')
-                },
-                authType: 'delegateToken',
-                body: JSON.stringify({
-                    clientId: sampleLauncherClientId, // NVIDIA GFN SDK Sample App
-                    deviceId: '1234567890',
-                    scope: 'session_token'
-                })
-            }).then(function (redeemResponse) {
-                return redeemResponse.json();
-            }).then(function (redeemJson) {
-                setStatus('Successfully redeemed delegate token: ' + JSON.stringify(redeemJson));
-                sessionToken = redeemJson.sessionToken;
-                return redeemJson.userId;
-            });
-        }
-
-        /**
-         * Stores the launcher user token for the given NVIDIA user ID in the launcher IDM that is
-         * hosted on AWS. This is used to demonstrate the Account Link flow and how to establish
-         * a permanent Account Link between the launcher user and the associated NVIDIA user.
-         * Note that since this simplified sample launcher doesn't have an actual user session we
-         * simply take the username that was used to log into the launcher and base64 encode it
-         * as a simulated launcher user token.
-         * @param userId The NVIDIA user ID to be linked with the current launcher user
-         */
-        function doStore(userId) {
-            var userName = document.getElementById('username');
-
-            // The Launcher login is not required to start streaming a game, therefore we are fine
-            // proceeding without it, but won't sync the Launcher user session into the IDM hosted
-            // on AWS in that case. To exercise the Account Linking flow a user needs to log into
-            // the Sample Launcher first before logging into their NVIDIA account.
-            if (!userName.value) {
-                setStatus('Skipping Launcher user token sync because user did not log into Launcher.');
+            if (!event.data.idToken || event.data.idToken =='') {
+                setStatus('ID token not defined in message.');
                 return;
             }
-
-            // Store base64 encoded username in IDM as Account Link
-            var params = {
-                TableName: 'gfn-sdk-sample-idm',
-                Item: {
-                    linkedUserId: userId,
-                    userToken: base64encode(userName.value)
-                }
-            };
-
-            awsDocumentClient.put(params, function (err, data) {
-                if (err) {
-                    setStatus('An error occurred trying to store Launcher user token in IDM:');
-                    setStatus(err);
-                } else {
-                    setStatus('Launcher user token successfully stored in IDM');
-                }
-            });
-        }
-
-        /**
-         * Retrieves the launcher user token for the given NVIDIA user ID from the launcher IDM that
-         * is hosted on AWS. This is used to demonstrate validating an existing Account Link and
-         * restoring a launcher user session as part of the Single Sign-On flow.
-         * Note that since this simplified sample launcher doesn't have an actual user session we
-         * simply decode the base64 encoded username that was stored in the IDM and use that as our
-         * simulated launcher user token to log the user in automatically.
-         * @param userId The NVIDIA user ID for which to validate the Account Link and retrieve token for
-         */
-        function doRestore(userId) {
-            // Retrieve base64 encoded username from IDM as Account Link
-            var params = {
-                TableName: 'gfn-sdk-sample-idm',
-                Key: {
-                    linkedUserId: userId
-                }
-            };
-
-            awsDocumentClient.get(params, function (err, data) {
-                if (err) {
-                    setStatus('An error occurred trying to retrieve Launcher user token from IDM:');
-                    setStatus(err);
-                } else {
-                    var loginPanel = document.getElementById('login-panel');
-                    var loginStatus = document.getElementById('login-status');
-                    var userNameText = document.getElementById('username-text');
-                    userNameText.innerHTML = base64decode(data.Item.userToken);
-                    loginPanel.style.display = 'none';
-                    loginStatus.style.display = 'flex';
-                    setStatus('Launcher user token restored from IDM');
-                }
-            })
-        }
-
-        /**
-         * Called when a user logs into the launcher. This is for demonstration purposes only and
-         * not driven by any actual user database, therefore the password entered also does not
-         * matter at all as long as it is not empty. This is only used to simulate what a launcher
-         * login flow might look like, and to support launcher user session store/restore actions
-         * for the Account Linking and Single Sign-On flows.
-         */
-        function doLogin() {
-            var loginPanel = document.getElementById('login-panel');
-            var loginStatus = document.getElementById('login-status');
-            var userName = document.getElementById('username');
-            var password = document.getElementById('password');
-            var userNameText = document.getElementById('username-text');
-
-            if (userName.value === '' || password.value === '') return;
-
-            userNameText.innerHTML = userName.value;
-            loginPanel.style.display = 'none';
-            loginStatus.style.display = 'flex';
-            setStatus('Logged into Launcher as user ' + userName.value);
-        }
-
-        /**
-         * Called when a user logs out of the launcher. This is for demonstration purposes only and
-         * not driven by any actual user database, therefore we simply clear out the login fields
-         * and stored values in the UI. This is only used to simulate what a launcher logout flow
-         * might look like, and to support launcher user session store/restore actions for the Account
-         * Linking and Single Sign-On flows.
-         */
-        function doLogout() {
-            var loginPanel = document.getElementById('login-panel');
-            var loginStatus = document.getElementById('login-status');
-            var userName = document.getElementById('username');
-            var password = document.getElementById('password');
-            var userNameText = document.getElementById('username-text');
-
-            userNameText.innerHTML = '';
-            userName.value = '';
-            password.value = '';
-            loginPanel.style.display = 'flex';
-            loginStatus.style.display = 'none';
-            setStatus('Logged out of Launcher.');
+            nvidiaToken = event.data.idToken;            
+            setStatus('Succesfully retrieved NVIDIA ID token: ' + nvidiaToken);
+            document.getElementById('nv-login').style.display = 'none';
+            document.getElementById('nv-logout').style.display = '';
         }
 
         function enableButtons(enable) {
             if (enable) {
-                document.getElementById('login').setAttribute("class", 'nv-button');
-                document.getElementById('logout').setAttribute("class", 'nv-button');
                 document.getElementById('nv-login').setAttribute("class", 'nv-button');
                 document.getElementById('nv-logout').setAttribute("class", 'nv-button');
                 document.getElementById('next-game').setAttribute("class", 'nv-button');
@@ -854,8 +613,6 @@
                 document.getElementById('stream-action').setAttribute("class", 'nv-button');
             }
             else {
-                document.getElementById('login').setAttribute("class", 'nv-button-disabled');
-                document.getElementById('logout').setAttribute("class", 'nv-button-disabled');
                 document.getElementById('nv-login').setAttribute("class", 'nv-button-disabled');
                 document.getElementById('nv-logout').setAttribute("class", 'nv-button-disabled');
                 document.getElementById('next-game').setAttribute("class", 'nv-button-disabled');
@@ -863,8 +620,6 @@
                 document.getElementById('stream-action').setAttribute("class", 'nv-button-disabled');
             }
 
-            document.getElementById('login').disabled = !enable;
-            document.getElementById('logout').disabled = !enable;
             document.getElementById('nv-login').disabled = !enable;
             document.getElementById('nv-logout').disabled = !enable;
             document.getElementById('next-game').disabled = !enable;
@@ -896,12 +651,11 @@
 
         document.addEventListener("DOMContentLoaded", function (event) {
             initializeSdk().then(function () {
-                // Set up the external sample IDM service for use
-                initializeAws();
                 // Check if we're running on the game seat to
                 // decide if we should get the supported titles
                 isRunningInCloud().then(function (isCloud) {
                     if (!isCloud) {
+                        registerStreamStatusCallback();
                         getSupportedTitles().then(function (titles) {
                             supportedTitlesAsJson = titles;
                             surfaceDemoTitle();

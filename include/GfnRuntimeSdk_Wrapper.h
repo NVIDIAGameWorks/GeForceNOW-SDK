@@ -76,6 +76,10 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
+/// C        | @ref GfnFree
+///
+/// Language | API
+/// -------- | -------------------------------------
 /// C        | @ref GfnGetClientIpV4
 ///
 /// @copydoc GfnGetClientIpV4
@@ -100,12 +104,6 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
-/// C        | @ref GfnRequestAccessToken
-///
-/// @copydoc GfnRequestAccessToken
-///
-/// Language | API
-/// -------- | -------------------------------------
 /// C        | @ref GfnIsTitleAvailable
 ///
 /// @copydoc GfnIsTitleAvailable
@@ -115,12 +113,6 @@
 /// C        | @ref GfnGetTitlesAvailable
 ///
 /// @copydoc GfnGetTitlesAvailable
-///
-/// Language | API
-/// -------- | -------------------------------------
-/// C        | @ref GfnGetTitlesAvailableRelease
-///
-/// @copydoc GfnGetTitlesAvailableRelease
 ///
 /// Language | API
 /// -------- | -------------------------------------
@@ -261,13 +253,15 @@ extern "C"
     /// Call this during application start or from the platform client in
     /// order to get the user's external client IP address.
     ///
-    /// @param clientIp - Output IPv4 in string format. Example: "192.168.0.1"
+    /// @param clientIp - Output IPv4 in string format. Example: "192.168.0.1". Call @ref GfnFree to free the memory.
     ///
     /// @retval gfnSuccess               - On success
     /// @retval gfnInvalidParameter      - NULL pointer passed in
     /// @retval gfnCallWrongEnvironment  - If called in a client environment
     /// @retval gfnDllNotPresent         - GFN SDK Library could not be found.
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
+    /// @note
+    /// To avoid leaking memory, call @ref gfnFree once done with the data.
     GfnRuntimeError GfnGetClientIpV4(const char** clientIp);
 
     ///
@@ -282,13 +276,15 @@ extern "C"
     /// Call this during application start or from the platform client in
     /// order to get the user's language and country settings.
     ///
-    /// @param languageCode - Language code as a string. Example: "en-US"
+    /// @param languageCode - Language code as a string. Example: "en-US". Call @ref GfnFree to free the memory.
     ///
     /// @retval gfnSuccess               - On success
     /// @retval gfnInvalidParameter      - NULL pointer passed in
     /// @retval gfnCallWrongEnvironment  - If called in a client environment
     /// @retval gfnDllNotPresent         - GFN SDK Library could not be found.
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
+    /// @note
+    /// To avoid leaking memory, call @ref gfnFree once done with the data.
     GfnRuntimeError GfnGetClientLanguageCode(const char** languageCode);
 
     ///
@@ -323,38 +319,38 @@ extern "C"
     /// @par Usage
     /// Use during cloud session to retrieve custom data
     ///
-    /// @param customData               - Populated with the custom data.
+    /// @param customData               - Populated with the custom data. Call @ref GfnFree to free the memory.
     ///
     /// @retval gfnSuccess              - On success
     /// @retval gfnInvalidParameter     - NULL pointer passed in
     /// @retval gfnCallWrongEnvironment - If called in a client environment
     /// @retval gfnDllNotPresent        - GFN SDK Library could not be found.
     /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @note
+    /// To avoid leaking memory, call @ref gfnFree once done with the data.
     GfnRuntimeError GfnGetCustomData(const char** customData);
 
     ///
     /// @par Description
-    /// Calls @ref gfnRequestGfnAccessToken to obtain a user-specific access token to allow access
-    /// to the GFN backend service (IDM endpoint).
+    /// Calls @ref GfnGetAuthData to retrieves custom authorization passed in by the client in the
+    /// gfnStartStream call.
     ///
     /// @par Environment
     /// Cloud
     ///
     /// @par Usage
-    /// The access token provided can be used by the application's backend
-    /// servers to validate the user and obtain user data from the GFN
-    /// backend service. The GFN backend service provides an OAuth2
-    /// interface for validating users and retrieving data. See Account Linking information
-    /// in the Overview section for more information.
+    /// Use during cloud session to retrieve custom data
     ///
-    /// @param accessToken               - Populated with a user specific GFN access token.
+    /// @param authData               - Populated with the authorization data. Call @ref GfnFree to free the memory.
     ///
-    /// @retval gfnSuccess               - On success
-    /// @retval gfnInvalidParameter      - NULL pointer passed in
-    /// @retval gfnCallWrongEnvironment  - If called in a client environment
-    /// @retval gfnDllNotPresent         - GFN SDK Library could not be found.
-    /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
-    GfnRuntimeError GfnRequestAccessToken(const char** accessToken);
+    /// @retval gfnSuccess              - On success
+    /// @retval gfnInvalidParameter     - NULL pointer passed in
+    /// @retval gfnCallWrongEnvironment - If called in a client environment
+    /// @retval gfnDllNotPresent        - GFN SDK Library could not be found.
+    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @note
+    /// To avoid leaking memory, call @ref gfnFree once done with the data.
+    GfnRuntimeError GfnGetAuthData(const char** authData);
 
     ///
     /// @par Description
@@ -395,9 +391,8 @@ extern "C"
     /// for example, to add "Play" buttons to all titles instead of calling gfnIsTitleAvailable on
     /// each title.
     ///
-    /// @param platformAppIds            - Comma-delimited list of platform identifiers. Memory 
-    ///                                    is allocated for the list. Call @ref gfnGetTitlesAvailableRelease
-    ///                                    to free the memory.
+    /// @param platformAppIds            - Comma-delimited list of platform identifiers. Memory is
+    ///                                    allocated for the list. Call @ref GfnFree to free the memory.
     ///
     /// @retval gfnSuccess               - On success
     /// @retval gfnInvalidParameter      - NULL pointer passed in
@@ -406,27 +401,26 @@ extern "C"
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
     ///
     /// @note
-    /// To avoid leaking memory, call @ref gfnGetTitlesAvailableRelease once done with the list
+    /// To avoid leaking memory, call @ref gfnFree once done with the title list.
     GfnRuntimeError GfnGetTitlesAvailable(const char** platformAppIds);
 
     ///
     /// @par Description
-    /// Calls @ref gfnGetTitlesAvailableRelease  to release memory allocated by @ref gfnGetTitlesAvailable
+    /// Calls @ref gfnFree to free memory allocated by @ref gfnGetTitlesAvailable
     ///
     /// @par Environment
     /// Cloud
     ///
     /// @par Usage
-    /// Use to release memory after a call to gfnGetTitlesAvailable and you are finished with the data
+    /// Use to free memory after a call to a memory-allocating function and you are finished with the data
     ///
-    /// @param platformAppIds            - Pointer to list to free
+    /// @param data                      - Pointer to data to free
     ///
     /// @retval gfnSuccess               - On success
     /// @retval gfnInvalidParameter      - NULL pointer passed in
-    /// @retval gfnCallWrongEnvironment  - If called in a client environment
     /// @retval gfnDllNotPresent         - GFN SDK Library could not be found.
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
-    GfnRuntimeError GfnGetTitlesAvailableRelease(const char** platformAppIds);
+    GfnRuntimeError GfnFree(const char** data);
 
     ///
     /// @par Description

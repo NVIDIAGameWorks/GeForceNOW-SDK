@@ -107,17 +107,6 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("Failed to retrieve Geforce NOW client Country code. GfnRuntimeError: %d\n", (int)runtimeError);
         }
 
-        char* gfnAccessToken;
-        runtimeError = GfnRequestAccessToken(&gfnAccessToken);
-        if (runtimeError == gfnSuccess)
-        {
-            printf("Retrieved Geforce NOW access token: %s\n", gfnAccessToken);
-        }
-        else
-        {
-            printf("Failed to retrieve Geforce NOW access token. GfnRuntimeError: %d\n", (int)runtimeError);
-        }
-
         // Try "setting up" a title!
         runtimeError = GfnSetupTitle("Sample C App");
     }

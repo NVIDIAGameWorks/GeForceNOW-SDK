@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.3
+# NVIDIA GeForce NOW SDK Release 1.4
 
 ## At a Glance
 
@@ -9,11 +9,14 @@ The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features
 Please refer to the [GFN SDK Primer](./doc/GFN-SDK-PRIMER.pdf) for a more detailed overview of the features.
 
 ### What's New in This Release
-* Added GotInputFocus and LostInputFocus streamer states
-* Implemented gfnGetClientCountryCode API
-* Added StopStream APIs
+* New NVIDIA Identity Federation System
+* gfnRequestGfnAccessToken, gfnGetTitlesAvailableRelease APIs are deprecated
+* All get APIs (gfnGetClientIp, gfnGetClientLanguageCode, gfnGetCustomData) will allocate buffers in dynamic memory instead of using static memory
+* New gfnFree API that releases memory allocated by Get functions
+* New getAuthData API to retrieve custom authorized data
+* Fixed filename typos (GfnRuntimeSdk_SecureLoadLibrary.*)
 * Fixed a variety of minor bugs
-* Re-worked download and install UIs
+
 
 ## Developer Content Portal
 
@@ -44,10 +47,11 @@ The distribution is laid out as below:
 |       index.html
 |       GFN-SDK-PRIMER.pdf
 |       SDK-GFN-NGN-ENDPOINT.pdf
+|       SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf
 +-- include
 |       GfnRuntimeSdk_CAPI.h
-|       GfnRuntimeSdk_SecureLoadLibray.c
-|       GfnRuntimeSdk_SecureLoadLibray.h
+|       GfnRuntimeSdk_SecureLoadLibrary.c
+|       GfnRuntimeSdk_SecureLoadLibrary.h
 |       GfnRuntimeSdk_Wrapper.c
 |       GfnRuntimeSdk_Wrapper.h
 +-- lib
@@ -60,16 +64,11 @@ The distribution is laid out as below:
 |       SampleLauncher
 |       README.md
 ```
+### Identity management
+
+* For Account and IDM-related APIs, please refer to the document /doc/SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf
 
 ### Additional Documentation Online
 
 In addition to the documents included in /doc in this repository, there are online documentation resources for some of the features.
-
 * For game and launcher related APIs, please refer to the [NVIDIA Developer Services API Help](https://portal-developer.nvidia.com/help/).
-* For account-related APIs, please refer to the Swagger documentation in the [NVIDIA Identity Service API Help](https://devportal.nvgs.nvidia.com/docs/api-docs-proxy/docs/api/jarvis/help/docs).
-   * OAuth APIs are documented under the "OAuth 2.0 Provider" item in the "API group" pulldown menu.
-   * Token APIs are documented under the "Authentication" item in the "API group" pulldown menu. 
-Please note that the documentation for Account and IDM-related APIs are not public and require your NVIDIA account to be granted access. To request access, visit the [Developer Portal](https://devportal.nvgs.nvidia.com) or contact NVIDIA Developer Relations.
-
-
-

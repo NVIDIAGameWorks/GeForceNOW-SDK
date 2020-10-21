@@ -4,6 +4,7 @@
 
 #include <Shlwapi.h>
 #include <WinInet.h>
+#include <winsock2.h>
 
 #include "gfn_sdk_demo/client_impl.h"
 #include "shared/app_factory.h"
@@ -11,13 +12,64 @@
 #include "shared/resource_util.h"
 #include "include/base/cef_logging.h"
 #include "shared/client_util.h"
+#include "shared/defines.h"
+#include "shared/main.h"
 
 namespace message_router {
 
     namespace {
+        // Iterates through GfnSdk's shared::kTCPPorts to attempt to find a free one
+        bool GetFreePort(std::string & port)
+        {
+            port.clear();
+            char* hostname = nullptr;
+
+            int sockfd = 0;
+            struct sockaddr_in serv_addr;
+            struct hostent* server;
+
+            sockfd = socket(AF_INET, SOCK_STREAM, 0);
+            if (sockfd < 0) {
+                return false;
+            }
+
+            server = gethostbyname(hostname);
+
+            if (!server) {
+                closesocket(sockfd);
+                return false;
+            }
+
+            memset((char*)&serv_addr, 0, sizeof(serv_addr));
+            serv_addr.sin_family = AF_INET;
+            memcpy((char*)server->h_addr,
+                (char*)&serv_addr.sin_addr.s_addr,
+                server->h_length);
+
+            for (int i = 0; ; i++) {
+                const char* testPort = shared::kTCPPorts[i];
+                if (!testPort) {
+                    closesocket(sockfd);
+                    return false;
+                }
+
+                serv_addr.sin_port = htons(std::stoi(testPort));
+                if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+                    // Port is available to use, only the first one is needed
+                    closesocket(sockfd);
+                    port = testPort;
+                    return true;
+                }
+                
+            }
+            closesocket(sockfd);
+        }
 
         std::string GetEmbeddedStartupURL() {
-            return shared::kTestOrigin + std::string("gfn_sdk.html");
+            if (!GetFreePort(shared::g_activePort)) {
+                return std::string();
+            }
+            return shared::kTestOrigin + std::string(":") + shared::g_activePort + std::string("/") +  shared::kResourceHTML;
         }
 
         std::string GetStartupURL() {

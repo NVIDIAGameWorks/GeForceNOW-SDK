@@ -40,15 +40,16 @@ typedef GfnRuntimeError(*gfnGetClientIpFn)(const char** cientIp);
 typedef GfnRuntimeError(*gfnGetClientLanguageCodeFn)(const char** clientLanguageCode);
 typedef GfnRuntimeError(*gfnGetClientCountryCodeFn)(char* clientCountryCode, unsigned int length);
 typedef GfnRuntimeError(*gfnGetCustomDataFn)(const char** customData);
-typedef GfnRuntimeError(*gfnRequestGfnAccessTokenFn)(const char** accessToken);
+typedef GfnRuntimeError(*gfnGetAuthDataFn)(const char** authData);
 
 typedef bool (*gfnIsTitleAvailableFn)(const char* platformAppId);
-typedef GfnRuntimeError(*gfnGetTitlesAvailableFn)(const char** ppchPlatformAppIds);
-typedef GfnRuntimeError(*gfnGetTitlesAvailableReleaseFn)(const char** ppchPlatformAppIds);
+typedef GfnRuntimeError(*gfnGetTitlesAvailableFn)(const char** platformAppIds);
+
+typedef GfnRuntimeError(*gfnFreeFn)(const char** data);
 
 typedef GfnRuntimeError(*gfnRegisterStreamStatusCallbackFn)(StreamStatusCallbackSig streamStatusCallback, void* pUserContext);
-typedef GfnRuntimeError(*gfnStartStreamFn)(StartStreamInput * pStartStreamInput, StartStreamResponse* response);
-typedef void(*gfnStartStreamAsyncFn)(const StartStreamInput* pStartStreamInput, StartStreamCallbackSig cb, void* context, unsigned int timeoutMs);
+typedef GfnRuntimeError(*gfnStartStreamFn)(StartStreamInput * startStreamInput, StartStreamResponse* response);
+typedef void(*gfnStartStreamAsyncFn)(const StartStreamInput* startStreamInput, StartStreamCallbackSig cb, void* context, unsigned int timeoutMs);
 
 typedef GfnRuntimeError(*gfnStopStreamFn)(void);
 typedef void(*gfnStopStreamAsyncFn)(StopStreamCallbackSig cb, void* context, unsigned int timeoutMs);
@@ -139,6 +140,28 @@ GfnRuntimeError GfnIsRunningInCloud(bool* runningInCloud)
     return gfnSuccess;
 }
 
+GfnRuntimeError GfnFree(const char** data)
+{
+    if (g_gfnSdkModule == NULL)
+    {
+        return gfnAPINotInit;
+    }
+
+    if (!data)
+    {
+        return gfnSuccess;
+    }
+
+    gfnFreeFn fnGfnFree = (gfnFreeFn)GetProcAddress(g_gfnSdkModule, "gfnFree");
+
+    if (fnGfnFree == NULL)
+    {
+        return gfnAPINotFound;
+    }
+
+    return fnGfnFree(data);
+}
+
 GfnRuntimeError GfnGetClientIpV4(const char ** clientIp)
 {
     if (g_gfnSdkModule == NULL)
@@ -210,22 +233,21 @@ GfnRuntimeError GfnGetCustomData(const char** customData)
     return fnGfnGetCustomData(customData);
 }
 
-GfnRuntimeError GfnRequestAccessToken(const char** accessToken)
+GfnRuntimeError GfnGetAuthData(const char** authData)
 {
     if (g_gfnSdkModule == NULL)
     {
         return gfnAPINotInit;
     }
 
-    // API sets the char* to a static-declared string, which means it is not necessary to allocate/free memory
-    gfnRequestGfnAccessTokenFn fnRequestAccessToken = (gfnRequestGfnAccessTokenFn)GetProcAddress(g_gfnSdkModule, "gfnRequestGfnAccessToken");
+    gfnGetAuthDataFn fnGfnGetAuthData = (gfnGetAuthDataFn)GetProcAddress(g_gfnSdkModule, "gfnGetAuthData");
 
-    if (fnRequestAccessToken == NULL)
+    if (fnGfnGetAuthData == NULL)
     {
         return gfnAPINotFound;
     }
 
-    return fnRequestAccessToken(accessToken);
+    return fnGfnGetAuthData(authData);
 }
 
 GfnRuntimeError GfnIsTitleAvailable(const char* platformAppId, bool* isAvailable)
@@ -272,28 +294,6 @@ GfnRuntimeError GfnGetTitlesAvailable(const char** platformAppIds)
     }
 
     return fnGfnGetTitlesAvailable(platformAppIds);
-}
-
-GfnRuntimeError GfnGetTitlesAvailableRelease(const char** ppchPlatformAppIds)
-{
-    if (g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
-
-    if (!ppchPlatformAppIds)
-    {
-        return gfnSuccess;
-    }
-
-    gfnGetTitlesAvailableReleaseFn fnGfnGetTitlesAvailableRelease = (gfnGetTitlesAvailableReleaseFn)GetProcAddress(g_gfnSdkModule, "gfnGetTitlesAvailableRelease");
-
-    if (fnGfnGetTitlesAvailableRelease == NULL)
-    {
-        return gfnAPINotFound;
-    }
-
-    return fnGfnGetTitlesAvailableRelease(ppchPlatformAppIds);
 }
 
 GfnRuntimeError GfnRegisterStreamStatusCallback(StreamStatusCallbackSig streamStatusCallback, void* userContext)
@@ -486,5 +486,4 @@ GfnRuntimeError GfnRegisterSaveCallback(SaveCallbackSig saveCallback, void* user
 
     return fnRegisterSaveCallback(saveCallback, userContext);
 }
-
 #endif //end Win32

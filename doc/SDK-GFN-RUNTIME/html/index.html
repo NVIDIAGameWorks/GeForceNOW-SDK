@@ -89,26 +89,15 @@ Introduction</h1>
 <div class="image">
 <img src="ecosystem.png" alt="ecosystem.png"/>
 </div>
-<p>This document provides details of how to integrate the native APIs of GFN Runtime SDK features into your application and its developer and deployment processes. For more detailed technical information about the architecture, refer to the architecture section later in this document</p>
+<p>This document provides details of how to integrate the native APIs of GFN Runtime SDK features into your application and its developer and deployment processes.</p>
 <h1><a class="anchor" id="overview"></a>
 Overview</h1>
-<div class="image">
-<img src="architecture.png" alt="architecture.png"/>
-</div>
 <p>The GFN Runtime SDK provides a dynamic library with API exports as defined in this document, which is distributed with and loaded by the game/application that utilizes the APIs. The loading of this library should be done in a way that validates the authenticity of the binary via checking for a valid digital signature, and that signature is from NVIDIA Corporation.</p>
 <p>The behavior of the APIs depends on the environment the application is running in; either on a client/user system or in the GeForce NOW (GFN) cloud environment. Each API defines which of the environments it is designed to run in.</p>
 <p>On client systems, this library checks for the presence of the GeForce NOW (GFN) client installation when any of the gfnStartStream API variants is called. If the client is not present, then the library will initiate a download and installation of the latest GFN client, presenting UI to the user for the download and installation process. If the GFN client is present, but out of date, then a similar download and install process to update the client will take place before the streaming session will start.</p>
 <p>Once the GFN client is installed, all API actions are deferred to the GFN client. This design allows the dynamic library to stay as thin as possible in the application, and provides backward and forward compatibility to new GFN client packages.</p>
 <p>On GFN game systems, many of the APIs are no-ops as they apply only to client/end-user systems. In those cases, API calls will return a well-defined error code to denote the call was not applicable to the environment.</p>
-<p>NVIDIA provides a backend IDM Service that application developers can use to validate users and obtain user information from.This provides a seamless flow for users to bypass multiple login steps in streaming a game through GFN.</p>
-<p>A simplified flow diagram of how this functions is shown below:</p>
-<div class="image">
-<img src="authentication.png" alt="authentication.png"/>
-</div>
-<p>Authentication between the Partner IDM and NVIDIA IDM happens using secure HTTPS web API calls, and the account linking flow utilizes standard oauth2 protocol. Once the account link is established the authentication process between Partner and NVIDIA becomes transparent to the user, and gaming streaming can be initiated without requiring any further authentication or manual login.</p>
-<div class="image">
-<img src="account_link_flow.png" alt="account_link_flow.png"/>
-</div>
+<p>Authentication between the Partner IDM and NVIDIA IDM happens using secure HTTPS web API calls, and the account linking flow utilizes standard oauth2 protocol. Once the account link is established the authentication process between Partner and NVIDIA becomes transparent to the user, and gaming streaming can be initiated without requiring any further authentication or manual login. For more information on linking your account system with NVIDIA, please refer to SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf available as part of the documentation section of the SDK's repository.</p>
 <p>After the account link between Partner and NVIDIA has been established, that link can be utilized on the GFN server to facilitate Single Sign-On (SSO) so that the user does not have to manually login again, but all authentication happens transparently and the game launches immediately.</p>
 <div class="image">
 <img src="sso.png" alt="sso.png"/>
@@ -184,6 +173,23 @@ Launcher or Game Specific Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
+<td>C </td><td><a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Determines if calling application is running in GFN environment or not.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to determine whether to enable / disable any GFN cloud environment specific application logic, for example, to block any calls to <a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream()</a>.</dd></dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">true</td><td>- Application is running on a GFN game seat virtual machine in the Geforce NOW cloud. </td></tr>
+    <tr><td class="paramname">false</td><td>- Application is not running in the Geforce NOW cloud or in a Geforce NOW test environment. This value will also be returned if called before <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk()</a>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>This data is also alternatively accessible in the GFN environment without calling this API. Please see the "GFN-SDK-ALTERNATIVE-DATA-ACCESS.pdf" document in the "doc" folder</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
 <td>C </td><td><a class="el" href="group__launcher.html#gaa8b07a70503f2a24b6625fc5a7eef9cb">gfnIsTitleAvailable</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Determines if a specific title is available to launch in current streaming session</dd></dl>
@@ -213,7 +219,7 @@ Launcher or Game Specific Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Use to retrieve a list of all titles available to launch in the current streaming session, for example, to add "Play" buttons to all titles instead of calling gfnIsTitleAvailable on each title.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchPlatformAppIds</td><td>- Comma-delimited list of platform identifiers. Memory is allocated for the list. Call <a class="el" href="group__launcher.html#ga2fc91dd975e23867912604524861cbba">gfnGetTitlesAvailableRelease</a> to free the memory.</td></tr>
+    <tr><td class="paramname">ppchPlatformAppIds</td><td>- Comma-delimited list of platform identifiers. Memory is allocated for the list. Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
   </table>
   </dd>
 </dl>
@@ -225,7 +231,7 @@ Launcher or Game Specific Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga2fc91dd975e23867912604524861cbba">gfnGetTitlesAvailableRelease</a> once done with the list</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the list</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -287,7 +293,7 @@ Launcher or Game Specific Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchClientIp</td><td>- Output IPv4 in string format. Example: "192.168.0.1"</td></tr>
+    <tr><td class="paramname">ppchClientIp</td><td>- Output IPv4 in string format. Example: "192.168.0.1". Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
   </table>
   </dd>
 </dl>
@@ -300,7 +306,9 @@ Launcher or Game Specific Methods</h2>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>The IP data returned by this API can be subject to various privacy laws depending on how the the data is used. To avoid the data being considered Personally Identifiable Information and subject to those laws, the IP should be used for geolocation lookup only and then discarded.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The IP data returned by this API can be subject to various privacy laws depending on how the the data is used. To avoid the data being considered Personally Identifiable Information and subject to those laws, the IP should be used for geolocation lookup only and then discarded. </dd>
+<dd>
+To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the list</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -312,7 +320,7 @@ Launcher or Game Specific Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's language and country settings.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchLanguageCode</td><td>- Language code as a string. Example: "en-US"</td></tr>
+    <tr><td class="paramname">ppchLanguageCode</td><td>- Language code as a string. Example: "en-US". Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
   </table>
   </dd>
 </dl>
@@ -324,7 +332,8 @@ Launcher or Game Specific Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the list</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -336,7 +345,7 @@ Launcher or Game Specific Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's country code.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pchCountryCode</td><td>- Country code as a 2 character string. Example: “US” </td></tr>
+    <tr><td class="paramname">pchCountryCode</td><td>- Country code as a 2 character string. Example: "US". </td></tr>
     <tr><td class="paramname">length</td><td>- Length of pchCountryCode character array, the length should be at least 3</td></tr>
   </table>
   </dd>
@@ -350,32 +359,6 @@ Launcher or Game Specific Methods</h2>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
-<table class="doxtable">
-<tr>
-<th>Language </th><th>API  </th></tr>
-<tr>
-<td>C </td><td><a class="el" href="group__launcher.html#ga21d47131ae3098cc2ee071a49e7502e8">gfnRequestGfnAccessToken</a> </td></tr>
-</table>
-<dl class="section user"><dt>Description</dt><dd>Request to obtain a user-specific access token to allow access to the GFN backend service (IDM endpoint).</dd></dl>
-<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>The access token provided can be used by the application's backend servers to validate the user and obtain user data from the GFN backend service. The GFN backend service provides an OAuth2 interface for validating users and retrieving data. See Account Linking information in the Overview section for more information.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>For security purposes, the access token is provided only to applications registered at <a href="https://devportal.nvgs.nvidia.com,">https://devportal.nvgs.nvidia.com,</a> and have a client and an API key created for them. Contact your NVIDIA partner to have your application registered and assigned these two keys.</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ppchAuthToken</td><td>- Populated with a user specific GFN access token.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="retval"><dt>Return values</dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
-    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>This data is also alternatively accessible in the GFN environment without calling this API. Please see the "GFN-SDK-ALTERNATIVE-DATA-ACCESS.pdf" document in the "doc" folder</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -398,6 +381,7 @@ Launcher or Game Specific Methods</h2>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a cloud environment </td></tr>
     <tr><td class="paramname">gfnStreamFailure</td><td>- Network failure or other error prevented the stream from starting </td></tr>
+    <tr><td class="paramname">gfnCanceled</td><td>- User canceled the download and install of GFN client during stream initialization </td></tr>
   </table>
   </dd>
 </dl>
@@ -467,7 +451,7 @@ Launcher or Game Specific Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve custom data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchCustomData</td><td>- Populated with the custom data.</td></tr>
+    <tr><td class="paramname">ppchCustomData</td><td>- Populated with the custom data. Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
   </table>
   </dd>
 </dl>
@@ -479,7 +463,8 @@ Launcher or Game Specific Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the list</dd></dl>
 <h2><a class="anchor" id="callback_section"></a>
 Callback-related Methods</h2>
 <p><a class="el" href="group__callbacks.html">Client Callback Registration</a></p>

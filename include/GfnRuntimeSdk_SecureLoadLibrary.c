@@ -26,7 +26,7 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
-#include "GfnRuntimeSdk_SecureLoadLibray.h"
+#include "GfnRuntimeSdk_SecureLoadLibrary.h"
 #include <Shlobj.h>
 #include <string.h>
 #include <WinTrust.h>
@@ -979,7 +979,7 @@ static BOOL gfnInternalIsTrustedLocation(LPCWSTR szFilePath)
     DWORD fullPathNameSize = 0;
     DWORD fullPathNameChars = 0;
     LPWSTR fullPathName = NULL;
-    LPWSTR szWhiteListedLocation = NULL;
+    LPWSTR szApprovedLocation = NULL;
     BOOL bResult = FALSE;
     const int nCSIDL_FoldersToCheck[] = { CSIDL_WINDOWS, CSIDL_PROGRAM_FILES, CSIDL_PROGRAM_FILESX86 };
     const int range = _countof(nCSIDL_FoldersToCheck);
@@ -1033,45 +1033,45 @@ static BOOL gfnInternalIsTrustedLocation(LPCWSTR szFilePath)
         if (CSIDL_PROGRAM_FILES == nCSIDL_FoldersToCheck[index])
         {
             DWORD nSize = ExpandEnvironmentStringsW(L"%ProgramW6432%", NULL, 0);
-            if (!nSize || !(szWhiteListedLocation = (LPWSTR)LocalAlloc(LPTR, (nSize + 1) * sizeof(WCHAR))))
+            if (!nSize || !(szApprovedLocation = (LPWSTR)LocalAlloc(LPTR, (nSize + 1) * sizeof(WCHAR))))
             {
                 goto isTrustedLocationDone;
             }
-            else if (nSize != ExpandEnvironmentStringsW(L"%ProgramW6432%", szWhiteListedLocation, nSize))
+            else if (nSize != ExpandEnvironmentStringsW(L"%ProgramW6432%", szApprovedLocation, nSize))
             {
                 goto isTrustedLocationDone;
             }
-            else if (!lstrcmpW(L"%ProgramW6432%", szWhiteListedLocation))
+            else if (!lstrcmpW(L"%ProgramW6432%", szApprovedLocation))
             {
-                SafeLocalFree(szWhiteListedLocation);
-                if (!(szWhiteListedLocation = CreateSHFolderFilePath(nCSIDL_FoldersToCheck[index], L"")))
+                SafeLocalFree(szApprovedLocation);
+                if (!(szApprovedLocation = gfnInternalCreateSHFolderFilePath(nCSIDL_FoldersToCheck[index], L"")))
                 {
                     goto isTrustedLocationDone;
                 }
             }
-            else if (szWhiteListedLocation[nSize - 2] != L'\\')
+            else if (szApprovedLocation[nSize - 2] != L'\\')
             {
-                _my_wcscat_s(szWhiteListedLocation, nSize + 1, L"\\");
+                StringCchCatW(szApprovedLocation, nSize + 1, L"\\");
             }
         }
         else
 #endif
-            if (!(szWhiteListedLocation = gfnInternalCreateSHFolderFilePath(nCSIDL_FoldersToCheck[index], L"")))
+            if (!(szApprovedLocation = gfnInternalCreateSHFolderFilePath(nCSIDL_FoldersToCheck[index], L"")))
             {
                 goto isTrustedLocationDone;
             }
 
-        if (bResult = _wcsnicmp(fullPathName, szWhiteListedLocation, wcslen(szWhiteListedLocation)) ? FALSE : TRUE)
+        if (bResult = _wcsnicmp(fullPathName, szApprovedLocation, wcslen(szApprovedLocation)) ? FALSE : TRUE)
         {
             goto isTrustedLocationDone;
         }
 
-        SafeLocalFree(szWhiteListedLocation);
-        szWhiteListedLocation = NULL;
+        SafeLocalFree(szApprovedLocation);
+        szApprovedLocation = NULL;
     }
 
 isTrustedLocationDone:
-    SafeLocalFree(szWhiteListedLocation);
+    SafeLocalFree(szApprovedLocation);
     SafeLocalFree(fullPathName);
 
     return bResult;

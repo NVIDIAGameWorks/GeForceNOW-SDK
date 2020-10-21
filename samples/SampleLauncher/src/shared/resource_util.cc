@@ -3,13 +3,15 @@
 // can be found in the LICENSE file.
 
 #include "shared/resource_util.h"
+#include "shared/defines.h"
+#include "shared/main.h"
 
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 
 namespace shared {
 
-const char kTestOrigin[] = "https://localhost/";
+const char kTestOrigin[] = "https://localhost";
 
 namespace {
 
@@ -30,7 +32,7 @@ std::string GetResourcePath(const std::string& url) {
     return std::string();
 
   const std::string& url_no_query = GetUrlWithoutQueryOrFragment(url);
-  return url_no_query.substr(sizeof(kTestOrigin) - 1);
+  return url_no_query.substr(sizeof(kTestOrigin) + shared::g_activePort.length() + 1);
 }
 
 // Determine the mime type based on the |file_path| file extension.

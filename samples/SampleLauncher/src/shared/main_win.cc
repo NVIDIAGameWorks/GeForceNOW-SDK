@@ -21,6 +21,8 @@
 namespace shared {
     HANDLE g_gameClosedEvent;
 
+    std::string g_activePort;
+
     // Callback definition used if there is a child game process, and it is closed
     void CALLBACK GameProcessClosedCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
 
