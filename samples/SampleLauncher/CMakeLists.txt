@@ -112,7 +112,7 @@ if (NOT LIBCEF_URL)
         set(PROJECT_ARCH "x86_64")
     endif ()
 
-    set(CURRENT_LIBCEF_URL "http://opensource.spotify.com/cefbuilds/cef_binary_3.3626.1894.g90eb8cc_${OS_STRING}${SAMPLES_ARCH}.tar.bz2")
+    set(CURRENT_LIBCEF_URL "https://cef-builds.spotifycdn.com/cef_binary_3.3626.1894.g90eb8cc_${OS_STRING}${SAMPLES_ARCH}.tar.bz2")
 endif ()
 
 set (EXISTING_CEF_SOURCE_URL "This is not a valid version string")
