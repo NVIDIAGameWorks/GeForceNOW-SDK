@@ -17,5 +17,5 @@ cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..
 popd
 
 echo == You can open the Visual Studio solution with the following command:
-echo start build/GfnRuntimeSdk.sln
+echo start build/GFNSDK.sln
 echo.

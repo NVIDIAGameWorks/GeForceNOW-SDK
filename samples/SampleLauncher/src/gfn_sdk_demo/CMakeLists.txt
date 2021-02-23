@@ -14,7 +14,7 @@ endif()
 
 # Main executable sources.
 set(EXAMPLE_SRCS
-  ${GFN_RUNTIME_SDK_SOURCES}
+  ${GFN_SDK_RUNTIME_SOURCES}
   ../minimal/main_minimal.cc
   app_browser_impl.cc
   client_impl.cc
@@ -182,8 +182,10 @@ if(OS_WINDOWS)
   )
   target_include_directories(${EXAMPLE_TARGET}
     PRIVATE
-      ${GFN_RUNTIME_SDK_DIR}/include
+      ${GFN_SDK_DIST_DIR}/include
+      ${CMAKE_BINARY_DIR}/../include
   )
+  target_compile_definitions(${EXAMPLE_TARGET} PRIVATE GFN_SDK_WRAPPER_LOG=1)
 
 endif()
 

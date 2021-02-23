@@ -272,6 +272,26 @@
             });
         }
 
+        /**
+         * Uses the secure version of the cloud check API to check if running in GFN environment. This
+         * requires the sample application to be launched elevated.
+         */
+        function isRunningInCloudSecure() {
+            return new Promise((resolve, reject) => {
+                window.cefQuery({
+                    request: JSON.stringify({
+                        command: 'GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE'
+                    }),
+                    onSuccess: function (response) {
+                        var data = JSON.parse(response);
+                        setStatus('Secure GFN cloud check result: ' + data.errorMessage);
+                        setStatus('Assurance value of running in GFN cloud environment: ' + data.assurance);
+                        resolve(data.assurance);
+                    }
+                });
+            });
+        }
+
         function getAvailableTitles() {
             return new Promise((resolve, reject) => {
                 window.cefQuery({
@@ -323,12 +343,29 @@
                 if(serverId === '') {
                     throw 'serverId value is not valid';
                 }
-                url = 'https://gfnpc.api.entitlement-prod.nvidiagrid.net/v2/apps?serviceName=gfn_pc&vpcId=' + serverId;
-                return fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
+                // GFN platform provides an App Catalog (LCARS) API to serve content from the other 
+                // microservices to all clients. LCARS is served with a GraphQL interface. SDK Clients can
+                // use this API to specify data they want (e.g. games from a particular GFN vpcId),
+                // and LCARS will build the appropriate response.
+                const GetAppsQuery = (vpcId) =>
+                `{
+                    apps(vpcId: "${vpcId}") {
+                        numberReturned
+                        items {
+                            title
+                            variants {
+                                id
+                                images {
+                                    FEATURE_IMAGE
+                                }
+                                appStore
+                            }
+                        }
                     }
+                }`;
+                var url = 'https://public.games.geforce.com/graphql?query='+ encodeURIComponent(GetAppsQuery(serverId));
+                return fetch(url, {
+                    method: 'GET'
                 })
                 .then(function (response) {
                     if (!response.ok) {
@@ -337,7 +374,7 @@
                     return response.json();
                 })
                 .then(function (responseJson) {
-                    return responseJson.apps;
+                    return responseJson.data.apps.items;
                 })
             })
         }
@@ -416,14 +453,13 @@
                 gameIndex = 0;
             }
 
-            // Most partner applications will have their own artwork for their own dimension needs,
-            // and thus, artwork URLs are not included in the /apps REST endpoint. For this
-            // sample application, we utilize GFN artwork services. If you wish to utilize the
+            // For this sample application, we utilize GFN artwork services. If you wish to utilize the
             // same services, contact NVIDIA for more information on doing so.
             var cover = document.getElementById('cover-art');
 
-            cover.src = 'https://img.nvidiagrid.net/appimg/' + supportedTitlesAsJson[gameIndex].appId + '/ZZ/23';
-            gfnTitleId = supportedTitlesAsJson[gameIndex].appId;
+            gfnTitleId = parseInt(supportedTitlesAsJson[gameIndex].variants[0].id);
+            cover.src = supportedTitlesAsJson[gameIndex].variants[0].images.FEATURE_IMAGE;
+            
             var lastIndex = supportedTitlesAsJson.length - 1;
             setStatus('GFN Game ' + gameIndex + ' of ' + lastIndex + ':  ' + JSON.stringify(supportedTitlesAsJson[gameIndex]));
         }
@@ -640,7 +676,7 @@
             // For simplicity of testing the SDK, make sure the Apollo 11 demo is first in the list
             var apollo11Index = null;
             supportedTitlesAsJson.find(function (entry, index) {
-                if (entry.appId === 16032111) {
+                if (entry.variants[0].id === "16032111") {
                     apollo11Index = index;
                 }
             });
@@ -651,6 +687,13 @@
 
         document.addEventListener("DOMContentLoaded", function (event) {
             initializeSdk().then(function () {
+                // Secure cloud check requires elevation, which is not
+                // the default execution conditions of the sample. We'll
+                // make the call to show behavior, allowing the sample to 
+                // be manually run elevated, but not tie any decisions to
+                // the API's result or returned data.
+                isRunningInCloudSecure();
+
                 // Check if we're running on the game seat to
                 // decide if we should get the supported titles
                 isRunningInCloud().then(function (isCloud) {

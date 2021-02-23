@@ -95,40 +95,46 @@ cmake_policy(SET CMP0074 NEW)
 set(libcef_download_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/libcef_download-src")
 set(CEF_SOURCE_FILE "${CMAKE_BINARY_DIR}/_deps/libcef_source-url.txt")
 
-# Generate libcef URL if not set by cache
-set (LIBCEF_URL ${SAMPLES_CEF_URL})
-if (NOT LIBCEF_URL)
-    if (WIN32)
-        set(OS_STRING windows)
-    elseif (APPLE)
-        message( FATAL_ERROR "MacOS builds are not supported at this time." )
-    elseif (LINUX)
-        message( FATAL_ERROR "Linux builds are not supported at this time." )
-    endif ()
+# Override CEF location when requested
+if (EXISTS ${SAMPLES_CEF_PATH})
+    message("Overriding libcef_download_SOURCE_DIR with SAMPLES_CEF_PATH=${SAMPLES_CEF_PATH}")
+    set(libcef_download_SOURCE_DIR ${SAMPLES_CEF_PATH})
+else ()
+    # Generate libcef URL if not set by cache
+    set (LIBCEF_URL ${SAMPLES_CEF_URL})
+    if (NOT LIBCEF_URL)
+        if (WIN32)
+            set(OS_STRING windows)
+        elseif (APPLE)
+            message( FATAL_ERROR "MacOS builds are not supported at this time." )
+        elseif (LINUX)
+            message( FATAL_ERROR "Linux builds are not supported at this time." )
+        endif ()
 
-    if (SAMPLES_ARCH STREQUAL "32")
-        set(PROJECT_ARCH "x86")
-    else ()
-        set(PROJECT_ARCH "x86_64")
-    endif ()
+        if (SAMPLES_ARCH STREQUAL "32")
+            set(PROJECT_ARCH "x86")
+        else ()
+            set(PROJECT_ARCH "x86_64")
+        endif ()
 
-    set(CURRENT_LIBCEF_URL "https://cef-builds.spotifycdn.com/cef_binary_3.3626.1894.g90eb8cc_${OS_STRING}${SAMPLES_ARCH}.tar.bz2")
+        set(CURRENT_LIBCEF_URL "https://cef-builds.spotifycdn.com/cef_binary_3.3626.1894.g90eb8cc_${OS_STRING}${SAMPLES_ARCH}.tar.bz2")
+    endif ()
+    set (EXISTING_CEF_SOURCE_URL "This is not a valid version string")
+    if (EXISTS ${CEF_SOURCE_FILE})
+        file(READ ${CEF_SOURCE_FILE} EXISTING_CEF_SOURCE_URL)
+    endif()
+    if ((NOT EXISTS ${libcef_download_SOURCE_DIR}) OR (NOT EXISTS ${CEF_SOURCE_FILE}) OR (NOT EXISTING_CEF_SOURCE_URL STREQUAL CURRENT_LIBCEF_URL))
+        # Fetch libcef
+        include(FetchContent)
+        FetchContent_Declare(libcef_download
+        URL ${CURRENT_LIBCEF_URL}
+        )
+        message("Please wait, downloading libcef from ${CURRENT_LIBCEF_URL} to ${libcef_download_SOURCE_DIR}")
+        message("In order to avoid this, download CEF yourself and point cache variable SAMPLES_CEF_PATH to the downloaded location")
+        FetchContent_Populate(libcef_download)
+        file(WRITE ${CEF_SOURCE_FILE} ${CURRENT_LIBCEF_URL})
+    endif()
 endif ()
-
-set (EXISTING_CEF_SOURCE_URL "This is not a valid version string")
-if (EXISTS ${CEF_SOURCE_FILE})
-    file(READ ${CEF_SOURCE_FILE} EXISTING_CEF_SOURCE_URL)
-endif()
-if ((NOT EXISTS ${libcef_download_SOURCE_DIR}) OR (NOT EXISTS ${CEF_SOURCE_FILE}) OR (NOT EXISTING_CEF_SOURCE_URL STREQUAL CURRENT_LIBCEF_URL))
-    # Fetch libcef
-    include(FetchContent)
-    FetchContent_Declare(libcef_download
-      URL ${CURRENT_LIBCEF_URL}
-    )
-    message("Please wait, downloading libcef from ${CURRENT_LIBCEF_URL} to ${libcef_download_SOURCE_DIR}")
-    FetchContent_Populate(libcef_download)
-    file(WRITE ${CEF_SOURCE_FILE} ${CURRENT_LIBCEF_URL})
-endif()
 
 #
 # Include cef package
@@ -151,6 +157,7 @@ string(REPLACE "$<CONFIGURATION>" "$<$<CONFIG:Debug>:Debug>$<$<NOT:$<CONFIG:Debu
 # Comes from the libcef_dll/CMakeLists.txt file in the binary distribution
 # directory.
 add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
+set_target_properties(libcef_dll_wrapper PROPERTIES FOLDER Helpers)
 
 # Include application targets.
 # Comes from the <target>/CMakeLists.txt file in the current directory.

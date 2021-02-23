@@ -1,18 +1,9 @@
 var searchData=
 [
-  ['gfn_5fbg_5fbg',['gfn_bg_BG',['../_gfn_runtime_sdk___c_a_p_i_8h.html#ab6a79fd15fb8eb5f3293444e8572acf2abd81245f3253b12bab48493dae37792c',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnapinotfound',['gfnAPINotFound',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a7a025dda39a30b9965e41f195a075c8b',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnapinotinit',['gfnAPINotInit',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a8071b5184e59885268728c7d992edb1d',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfncallwrongenvironment',['gfnCallWrongEnvironment',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a5563ddcd4cd759b0692958f764aaa1c2',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfncanceled',['gfnCanceled',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a554c41262ba51ec6c82377979597d49c',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnclientdownloadfailed',['gfnClientDownloadFailed',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100aa2b651be0dfd9df1ad9b53bc3c66526c',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfncomerror',['gfnComError',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a613415fd7d786635fcf7f47af703c4ed',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfninitfailure',['gfnInitFailure',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100acebae70b0a5038b2d8c4053ef7e686fb',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfninitsuccessclientonly',['gfnInitSuccessClientOnly',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a8732cdd7f9246e75b0534eea89c90c9c',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfninternalerror',['gfnInternalError',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100aa478708508a202c8306cdcc6fb9ceb07',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnipcfailure',['gfnIPCFailure',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100aa4011dfa4b4c90a3ddb2a1f2d16d4e87',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnlibrarycallfailure',['gfnLibraryCallFailure',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a52aa72e162efa6a6cff2042b1b08976f',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnstreamfailure',['gfnStreamFailure',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100adc518573bb6087e3de0138e564b2ec33',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['gfniscloudhighassurance',['gfnIsCloudHighAssurance',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aecdb9af8ee15731faeebae2fcec76c7ba935315d4f60a762c63a6998eeaa3248f',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['gfniscloudlowassurance',['gfnIsCloudLowAssurance',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aecdb9af8ee15731faeebae2fcec76c7ba86e941caec88f7aba33164ac8a07a293',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['gfniscloudmidassurance',['gfnIsCloudMidAssurance',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aecdb9af8ee15731faeebae2fcec76c7ba374af75e473349457175e563f7159b3b',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['gfnnotcloud',['gfnNotCloud',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aecdb9af8ee15731faeebae2fcec76c7ba1306dc02272509ca563d301026b76b28',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfnstreamstatusdone',['GfnStreamStatusDone',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfbaca2dcdf30a19d40901672ebaf28f6f4d',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfnstreamstatuserror',['GfnStreamStatusError',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfba0dd4d6aefd992e79b0d5df69aecea0a0',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfnstreamstatusgotinputfocus',['GfnStreamStatusGotInputFocus',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfba345bc2679f4eb82f1d0ea2e19e610cbe',1,'GfnRuntimeSdk_CAPI.h']]],
@@ -20,8 +11,5 @@ var searchData=
   ['gfnstreamstatusloading',['GfnStreamStatusLoading',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfba1d2054cf59755f9fdca58acd24b3c280',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfnstreamstatuslostinputfocus',['GfnStreamStatusLostInputFocus',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfbaeab3d155355dde7e0ec87278900a5905',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfnstreamstatusnetworktest',['GfnStreamStatusNetworkTest',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfba7646f53fe2ec54e75b706dc5b1899fa3',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnstreamstatusstreaming',['GfnStreamStatusStreaming',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfbafd8a7d7d7f9aebaa0d8b54090b8248c0',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnstreamstopfailure',['gfnStreamStopFailure',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a0ee5d1e21ee2ebb8da6e91ec349118ff',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnunhandledexception',['gfnUnhandledException',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a5f0a8dab9ffbddcdffa45ba872bd025a',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['gfnwebapifailed',['gfnWebApiFailed',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a446d35a7188d5fb0588e33bcccb7f100a566fb9a0cb932ab665b76b945d13db23',1,'GfnRuntimeSdk_CAPI.h']]]
+  ['gfnstreamstatusstreaming',['GfnStreamStatusStreaming',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfbafd8a7d7d7f9aebaa0d8b54090b8248c0',1,'GfnRuntimeSdk_CAPI.h']]]
 ];

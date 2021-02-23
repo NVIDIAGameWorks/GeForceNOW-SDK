@@ -96,7 +96,7 @@ Overview</h1>
 <p>The behavior of the APIs depends on the environment the application is running in; either on a client/user system or in the GeForce NOW (GFN) cloud environment. Each API defines which of the environments it is designed to run in.</p>
 <p>On client systems, this library checks for the presence of the GeForce NOW (GFN) client installation when any of the gfnStartStream API variants is called. If the client is not present, then the library will initiate a download and installation of the latest GFN client, presenting UI to the user for the download and installation process. If the GFN client is present, but out of date, then a similar download and install process to update the client will take place before the streaming session will start.</p>
 <p>Once the GFN client is installed, all API actions are deferred to the GFN client. This design allows the dynamic library to stay as thin as possible in the application, and provides backward and forward compatibility to new GFN client packages.</p>
-<p>On GFN game systems, many of the APIs are no-ops as they apply only to client/end-user systems. In those cases, API calls will return a well-defined error code to denote the call was not applicable to the environment.</p>
+<p>Many of the APIs are no-ops depending on the environment they apply to only to either local client or GFN cloud environments. In those cases, API calls will return a well-defined error code to denote the call was not applicable to the environment.</p>
 <p>Authentication between the Partner IDM and NVIDIA IDM happens using secure HTTPS web API calls, and the account linking flow utilizes standard oauth2 protocol. Once the account link is established the authentication process between Partner and NVIDIA becomes transparent to the user, and gaming streaming can be initiated without requiring any further authentication or manual login. For more information on linking your account system with NVIDIA, please refer to SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf available as part of the documentation section of the SDK's repository.</p>
 <p>After the account link between Partner and NVIDIA has been established, that link can be utilized on the GFN server to facilitate Single Sign-On (SSO) so that the user does not have to manually login again, but all authentication happens transparently and the game launches immediately.</p>
 <div class="image">
@@ -158,9 +158,10 @@ Launcher or Game Specific Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__launcher.html#ga3b33985a46d6bd20fdea2c4865dc6a0f">gfnIsRunningInCloud</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Determines if calling application is running in GFN environment or not.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Quickly determines if the calling application is running in GFN environment or not with a low security assurance, and without requiring process elevation.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use to determine whether to enable / disable any GFN cloud environment specific application logic, for example, to block any calls to <a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream()</a>.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to quickly determine whether to enable / disable any low-value GFN cloud environment specific application logic, for example, to block any calls to <a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream()</a> to avoid an error, or to know if <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a> can be called without an error.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This API is meant to fill the need to quickly determine if the call looks to be in the GFN cloud environment. It purposefully trades off resource-intensive checks for fast response. Do not tie any logic or features of value to this API as the call stack could be tampered with. For that purpose, use <a class="el" href="group__launcher.html#gaf5ab33bd8cd24cb26cda5bacf1764e3f">gfnIsRunningInCloudSecure</a>.</dd></dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">true</td><td>- Application is running on a GFN game seat virtual machine in the Geforce NOW cloud. </td></tr>
@@ -168,24 +169,52 @@ Launcher or Game Specific Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>This data is also alternatively accessible in the GFN environment without calling this API. Please see the "GFN-SDK-ALTERNATIVE-DATA-ACCESS.pdf" document in the "doc" folder</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__launcher.html#gaf5ab33bd8cd24cb26cda5bacf1764e3f">gfnIsRunningInCloudSecure</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Determines if calling application is running in GFN environment or not, and what degree of security assurance is assigned to the result.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud and Client Elevated Process</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call from an elevated process to securely determine whether running in GFN cloud, and use the GfnIsRunningInCloudAssurance value to decide the risk to enable any application specific logic for that environment.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This API must be called from a high-integrity elevated process, or it will fail by design. To prevent man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance to decide if the check was certain enough without tampering to enable the logic or feature associated with the API call.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">assurance</td><td>- Level of assurance that API is running in GFN cloud environment</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnElevationRequired</td><td>- Was called from non-elevated process</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
 <td>C </td><td><a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Determines if calling application is running in GFN environment or not.</dd></dl>
-<dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use to determine whether to enable / disable any GFN cloud environment specific application logic, for example, to block any calls to <a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream()</a>.</dd></dl>
-<dl class="retval"><dt>Return values</dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">true</td><td>- Application is running on a GFN game seat virtual machine in the Geforce NOW cloud. </td></tr>
-    <tr><td class="paramname">false</td><td>- Application is not running in the Geforce NOW cloud or in a Geforce NOW test environment. This value will also be returned if called before <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk()</a>.</td></tr>
+<dl class="section user"><dt>Description</dt><dd>Releases memory allocated by Get functions such as, but not limited to, <a class="el" href="group__launcher.html#ga42dc59d2f01f931c4741054b3842a061">gfnGetAuthData</a>, <a class="el" href="group__launcher.html#ga64fe02420ecb734722359277caa57350">gfnGetCustomData</a>, or <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a></dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to release memory after a call to a memory-allocated function and you are finished with the data</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ppchData</td><td>- Pointer to allocated string memmory</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>This data is also alternatively accessible in the GFN environment without calling this API. Please see the "GFN-SDK-ALTERNATIVE-DATA-ACCESS.pdf" document in the "doc" folder</dd></dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in</td></tr>
+  </table>
+  </dd>
+</dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -465,6 +494,29 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the list</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__launcher.html#ga2fa481d6d0cd9218425d0dbc3175b68e">gfnAppReady</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Notifies GFN that an application is ready to be displayed.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to notify GFN that your application is ready to be displayed.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">success</td><td>- True if startup has succeeded </td></tr>
+    <tr><td class="paramname">status</td><td>- Optional status of startup operations</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment</td></tr>
+  </table>
+  </dd>
+</dl>
 <h2><a class="anchor" id="callback_section"></a>
 Callback-related Methods</h2>
 <p><a class="el" href="group__callbacks.html">Client Callback Registration</a></p>
@@ -547,7 +599,7 @@ Callback-related Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
-<td>C </td><td><a class="el" href="group__callbacks.html#ga63f79659507415464e65d3feb96ba15a">gfnRegisterStreamStatusCallback</a> </td></tr>
+<td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a63f79659507415464e65d3feb96ba15a">gfnRegisterStreamStatusCallback</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Register a callback that gets called on the user's PC when the streaming session state changes</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>

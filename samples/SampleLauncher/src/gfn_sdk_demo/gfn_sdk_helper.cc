@@ -1,10 +1,29 @@
-// Copyright (c) 2019, NVIDIA CORPORATION.  All rights reserved.
+// This code contains NVIDIA Confidential Information and is disclosed to you
+// under a form of NVIDIA software license agreement provided separately to you.
 //
-// NVIDIA CORPORATION and its licensors retain all intellectual property
-// and proprietary rights in and to this software, related documentation
-// and any modifications thereto.  Any use, reproduction, disclosure or
+// Notice
+// NVIDIA Corporation and its licensors retain all intellectual property and
+// proprietary rights in and to this software and related documentation and
+// any modifications thereto. Any use, reproduction, disclosure, or
 // distribution of this software and related documentation without an express
-// license agreement from NVIDIA CORPORATION is strictly prohibited.
+// license agreement from NVIDIA Corporation is strictly prohibited.
+//
+// ALL NVIDIA DESIGN SPECIFICATIONS, CODE ARE PROVIDED "AS IS.". NVIDIA MAKES
+// NO WARRANTIES, EXPRESSED, IMPLIED, STATUTORY, OR OTHERWISE WITH RESPECT TO
+// THE MATERIALS, AND EXPRESSLY DISCLAIMS ALL IMPLIED WARRANTIES OF NONINFRINGEMENT,
+// MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE.
+//
+// Information and code furnished is believed to be accurate and reliable.
+// However, NVIDIA Corporation assumes no responsibility for the consequences of use of such
+// information or for any infringement of patents or other rights of third parties that may
+// result from its use. No license is granted by implication or otherwise under any patent
+// or patent rights of NVIDIA Corporation. Details are subject to change without notice.
+// This code supersedes and replaces all information previously supplied.
+// NVIDIA Corporation products are not authorized for use as critical
+// components in life support devices or systems without express written approval of
+// NVIDIA Corporation.
+//
+// Copyright (c) 2020-2021 NVIDIA Corporation. All rights reserved.
 
 #include "gfn_sdk_demo/gfn_sdk_helper.h"
 
@@ -19,6 +38,7 @@
 CefString GFN_SDK_INIT = "GFN_SDK_INIT";
 CefString GFN_SDK_STREAM_ACTION = "GFN_SDK_STREAM_ACTION";
 CefString GFN_SDK_IS_RUNNING_IN_CLOUD = "GFN_SDK_IS_RUNNING_IN_CLOUD";
+CefString GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE = "GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE";
 CefString GFN_SDK_GET_CLIENT_IP = "GFN_SDK_GET_CLIENT_IP";
 CefString GFN_SDK_GET_CLIENT_COUNTRY_CODE = "GFN_SDK_GET_CLIENT_COUNTRY_CODE";
 CefString GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK = "GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK";
@@ -34,30 +54,32 @@ static CefString DictToJson(CefRefPtr<CefDictionaryValue> dict)
     return CefWriteJSON(json, JSON_WRITER_DEFAULT);
 }
 
-static CefString GfnRuntimeErrorToString(GfnRuntimeError err)
+static CefString GfnErrorToString(GfnError err)
 {
     switch (err)
     {
-    case GfnRuntimeError::gfnSuccess: return "Success";
-    case GfnRuntimeError::gfnInitSuccessClientOnly: return "SDK initialization successful, but only client-side functionality available";
-    case GfnRuntimeError::gfnInitFailure: return "SDK initialization failure";
-    case GfnRuntimeError::gfnDllNotPresent: return "DLL Not Present";
-    case GfnRuntimeError::gfnComError: return "Com Error";
-    case GfnRuntimeError::gfnLibraryCallFailure: return "Error Calling Library Function";
-    case GfnRuntimeError::gfnIncompatibleVersion: return "Incompatible Version";
-    case GfnRuntimeError::gfnUnableToAllocateMemory: return "Unable To Allocate Memory";
-    case GfnRuntimeError::gfnInvalidParameter: return "Invalid Parameter";
-    case GfnRuntimeError::gfnInternalError: return "Internal Error";
-    case GfnRuntimeError::gfnUnsupportedAPICall: return "Unsupported API Call";
-    case GfnRuntimeError::gfnInvalidToken: return "Invalid Token";
-    case GfnRuntimeError::gfnTimedOut: return "Timed Out";
-    case GfnRuntimeError::gfnClientDownloadFailed: return "GFN Client download failed";
-    case GfnRuntimeError::gfnWebApiFailed: return "NVIDIA Web API returned invalid data";
-    case GfnRuntimeError::gfnStreamFailure: return "GFN Streamer hit a failure while starting a stream";
-    case GfnRuntimeError::gfnAPINotFound: return "GFN SDK API not found";
-    case GfnRuntimeError::gfnAPINotInit: return "GFN SDK API not initialized";
-    case GfnRuntimeError::gfnStreamStopFailure: return "GFN SDK failed to stop active streaming session";
-    case GfnRuntimeError::gfnCanceled: return "GFN SDK action was canceled";
+    case GfnError::gfnSuccess: return "Success";
+    case GfnError::gfnInitSuccessClientOnly: return "SDK initialization successful, but only client-side functionality available";
+    case GfnError::gfnInitFailure: return "SDK initialization failure";
+    case GfnError::gfnDllNotPresent: return "DLL Not Present";
+    case GfnError::gfnComError: return "Com Error";
+    case GfnError::gfnLibraryCallFailure: return "Error Calling Library Function";
+    case GfnError::gfnIncompatibleVersion: return "Incompatible Version";
+    case GfnError::gfnUnableToAllocateMemory: return "Unable To Allocate Memory";
+    case GfnError::gfnInvalidParameter: return "Invalid Parameter";
+    case GfnError::gfnInternalError: return "Internal Error";
+    case GfnError::gfnUnsupportedAPICall: return "Unsupported API Call";
+    case GfnError::gfnInvalidToken: return "Invalid Token";
+    case GfnError::gfnTimedOut: return "Timed Out";
+    case GfnError::gfnClientDownloadFailed: return "GFN Client download failed";
+    case GfnError::gfnCallWrongEnvironment: return "Invalid cloud environment";
+    case GfnError::gfnWebApiFailed: return "NVIDIA Web API returned invalid data";
+    case GfnError::gfnStreamFailure: return "GFN Streamer hit a failure while starting a stream";
+    case GfnError::gfnAPINotFound: return "GFN SDK API not found";
+    case GfnError::gfnAPINotInit: return "GFN SDK API not initialized";
+    case GfnError::gfnStreamStopFailure: return "GFN SDK failed to stop active streaming session";
+    case GfnError::gfnCanceled: return "GFN SDK action was canceled";
+    case GfnError::gfnElevationRequired: return "GFN SDK API requires process elevation";
     default: return "Unknown Error";
     }
 }
@@ -93,20 +115,20 @@ static void logGfnSdkData()
 static void __stdcall handleStreamStatusCallback(GfnStreamStatus status, void* context);
 static CefMessageRouterBrowserSide::Callback* s_registerStreamStatusCallback = nullptr;
 
-static GfnRuntimeError initGFN()
+static GfnError initGFN()
 {
-    GfnRuntimeError err = GfnInitializeSdk(GfnDisplayLanguage::gfnDefaultLanguage);
+    GfnError err = GfnInitializeSdk(GfnDisplayLanguage::gfnDefaultLanguage);
     switch (err)
     {
-    case GfnRuntimeError::gfnSuccess:
+    case GfnError::gfnSuccess:
         LOG(INFO) << "succeeded at initializing GFNRuntime SDK";
         logGfnSdkData();
         break;
-    case GfnRuntimeError::gfnInitSuccessClientOnly:
+    case GfnError::gfnInitSuccessClientOnly:
         LOG(INFO) << "succeeded at initializing client-only GFNRuntime SDK";
         break;
     default:
-        LOG(ERROR) << "error initializing: " << GfnRuntimeErrorToString(err);
+        LOG(ERROR) << "error initializing: " << GfnErrorToString(err);
     }
 
     return err;
@@ -130,11 +152,11 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
      */
     if (command == GFN_SDK_INIT)
     {
-        GfnRuntimeError err = initGFN();
+        GfnError err = initGFN();
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         // gfnInitSuccessClientOnly is also success, and needs to be treated as such
-        response_dict->SetBool("success", (err == GfnRuntimeError::gfnSuccess || err == GfnRuntimeError::gfnInitSuccessClientOnly));
-        response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
+        response_dict->SetBool("success", (err == GfnError::gfnSuccess || err == GfnError::gfnInitSuccessClientOnly));
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
 
         CefString response(DictToJson(response_dict));
         callback->Success(response);
@@ -147,8 +169,8 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     else if (command == GFN_SDK_IS_RUNNING_IN_CLOUD)
     {
         bool enabled = false;
-        GfnRuntimeError err = GfnIsRunningInCloud(&enabled);
-        if (err != GfnRuntimeError::gfnSuccess)
+        GfnError err = GfnIsRunningInCloud(&enabled);
+        if (err != GfnError::gfnSuccess)
         {
             LOG(ERROR) << "Failed to get if running in cloud. Error: " << err;
             return true;
@@ -158,6 +180,39 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         response_dict->SetBool("enabled", enabled);
+
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
+
+        return true;
+    }
+    /**
+    * Calls into GFN SDK securely to determine whether the sample launcher is being executed inside
+    * an NVIDIA GeForce NOW game seat. Call will only succeed if the sample launcher was executed
+    * as an elevated process. In a real-world implementation, this would be called via a separate
+    * OS-based/elevated process via an IPC mechanism.
+    */
+    else if (command == GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE)
+    {
+        GfnIsRunningInCloudAssurance assurance = GfnIsRunningInCloudAssurance::gfnNotCloud;
+        GfnError err = GfnIsRunningInCloudSecure(&assurance);
+        if (err != GfnError::gfnSuccess)
+        {
+            if (err == GfnError::gfnElevationRequired)
+            {
+                LOG(ERROR) << "GfnIsRunningInCloudSecure required elevation. Re-run elevated";
+            }
+            else
+            {
+                LOG(ERROR) << "Failed to get if running in cloud. Error: " << err;
+            }
+        }
+
+        LOG(INFO) << "Cloud environment assurance value: " << assurance;
+
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        response_dict->SetInt("assurance", assurance);
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
 
         CefString response(DictToJson(response_dict));
         callback->Success(response);
@@ -175,10 +230,10 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         {
             std::string pchappId = dict->GetString("appId").ToString();
             bool available = false;
-            GfnRuntimeError err = GfnIsTitleAvailable(pchappId.c_str(), &available);
-            if (err != GfnRuntimeError::gfnSuccess)
+            GfnError err = GfnIsTitleAvailable(pchappId.c_str(), &available);
+            if (err != GfnError::gfnSuccess)
             {
-                LOG(ERROR) << "is title available error: " << GfnRuntimeErrorToString(err);
+                LOG(ERROR) << "is title available error: " << GfnErrorToString(err);
             }
             else
             {
@@ -205,10 +260,10 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     {
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         char const* appIds = nullptr;
-        GfnRuntimeError err = GfnGetTitlesAvailable(&appIds);
-        if (err != GfnRuntimeError::gfnSuccess)
+        GfnError err = GfnGetTitlesAvailable(&appIds);
+        if (err != GfnError::gfnSuccess)
         {
-            LOG(ERROR) << "get available titles error: " << GfnRuntimeErrorToString(err);
+            LOG(ERROR) << "get available titles error: " << GfnErrorToString(err);
             response_dict->SetString("titles", "");
         }
         else
@@ -217,7 +272,7 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
             GfnFree(&appIds);
         }
 
-        response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
         CefString response(DictToJson(response_dict));
         callback->Success(response);
 
@@ -266,9 +321,9 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
                 {
                     startStreamInput.pchCustomData = "This is example custom data";
 
-                    GfnRuntimeError err = GfnStartStream(&startStreamInput, &response);
-                    msg = "gfnStartStream = " + std::string(GfnRuntimeErrorToString(err));
-                    if (err != GfnRuntimeError::gfnSuccess)
+                    GfnError err = GfnStartStream(&startStreamInput, &response);
+                    msg = "gfnStartStream = " + std::string(GfnErrorToString(err));
+                    if (err != GfnError::gfnSuccess)
                     {
                         LOG(ERROR) << "launch game error: " << msg;
                     }
@@ -292,9 +347,9 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         else
         {
             LOG(INFO) << "Received request to stop a session";
-            GfnRuntimeError err = GfnStopStream();
-            msg = "gfnStopStream = " + std::string(GfnRuntimeErrorToString(err));
-            if (err != GfnRuntimeError::gfnSuccess)
+            GfnError err = GfnStopStream();
+            msg = "gfnStopStream = " + std::string(GfnErrorToString(err));
+            if (err != GfnError::gfnSuccess)
             {
                 LOG(ERROR) << "Stream stop error: " << msg;
             }
@@ -322,10 +377,10 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     else if (command == GFN_SDK_GET_CLIENT_IP)
     {
         char const* clientIp = nullptr;
-        GfnRuntimeError err = GfnGetClientIpV4(&clientIp);
-        if (err != GfnRuntimeError::gfnSuccess)
+        GfnError err = GfnGetClientIpV4(&clientIp);
+        if (err != GfnError::gfnSuccess)
         {
-            LOG(ERROR) << "get client IP error: " << GfnRuntimeErrorToString(err);
+            LOG(ERROR) << "get client IP error: " << GfnErrorToString(err);
         }
         else
         {
@@ -334,7 +389,7 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         response_dict->SetString("clientIp", clientIp);
-        response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
 
         CefString response(DictToJson(response_dict));
         callback->Success(response);
@@ -349,10 +404,10 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     else if (command == GFN_SDK_GET_CLIENT_COUNTRY_CODE)
     {
         char clientCountryCode[3] = { 0 };
-        GfnRuntimeError err = GfnGetClientCountryCode(clientCountryCode, 3);
-        if (err != GfnRuntimeError::gfnSuccess)
+        GfnError err = GfnGetClientCountryCode(clientCountryCode, 3);
+        if (err != GfnError::gfnSuccess)
         {
-            LOG(ERROR) << "get client country code error: " << GfnRuntimeErrorToString(err);
+            LOG(ERROR) << "get client country code error: " << GfnErrorToString(err);
         }
         else
         {
@@ -361,7 +416,7 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         response_dict->SetString("clientCountryCode", clientCountryCode);
-        response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
 
         CefString response(DictToJson(response_dict));
         callback->Success(response);
@@ -374,10 +429,10 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     {
         s_registerStreamStatusCallback = callback;
 
-        GfnRuntimeError err = GfnRegisterStreamStatusCallback(reinterpret_cast<StreamStatusCallbackSig>(&handleStreamStatusCallback), nullptr);
-        if (err != GfnRuntimeError::gfnSuccess)
+        GfnError err = GfnRegisterStreamStatusCallback(reinterpret_cast<StreamStatusCallbackSig>(&handleStreamStatusCallback), nullptr);
+        if (err != GfnError::gfnSuccess)
         {
-            LOG(ERROR) << "Failed to register Stream Status Callback: " << GfnRuntimeErrorToString(err);
+            LOG(ERROR) << "Failed to register Stream Status Callback: " << GfnErrorToString(err);
         }
         return true;
     }
@@ -389,11 +444,11 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     {
         char const* authData = nullptr;
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
-        GfnRuntimeError err = GfnGetAuthData(&authData);
-        response_dict->SetString("errorMessage", GfnRuntimeErrorToString(err));
-        if (err != GfnRuntimeError::gfnSuccess)
+        GfnError err = GfnGetAuthData(&authData);
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
+        if (err != GfnError::gfnSuccess)
         {
-            LOG(ERROR) << "get authorization data error: " << GfnRuntimeErrorToString(err);
+            LOG(ERROR) << "get authorization data error: " << GfnErrorToString(err);
             response_dict->SetString("authData", "");
         }
         else
