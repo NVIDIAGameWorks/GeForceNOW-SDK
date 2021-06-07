@@ -643,10 +643,40 @@ Wrapper Methods</h2>
     <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
   </table>
   </dd>
 </dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga1d0b3d941ab0d2127282d79df49a9130">GfnSetActionZone</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Sends Active zone coordinates to GFN Client</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>- Populated with relevant GfnActionType </td></tr>
+    <tr><td class="paramname">id</td><td>- unique unsigned int type identifier for this event </td></tr>
+    <tr><td class="paramname">zone</td><td>- Optional zone coordinates relevant to type specified</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
+    <tr><td class="paramname">gfnInputExpected</td><td>- Expected zone to have a value </td></tr>
+    <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
+    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
+    <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.12-->
 <!-- start footer part -->

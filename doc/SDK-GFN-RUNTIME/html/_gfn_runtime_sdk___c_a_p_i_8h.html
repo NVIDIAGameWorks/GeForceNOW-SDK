@@ -167,6 +167,10 @@ typedef struct <a class="el" href="struct_title_installation_information.html">T
 typedef enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfb">GfnStreamStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#af75af9b7645d8c549d1b4406045ea70b">GfnStreamStatus</a></td></tr>
 <tr class="memdesc:af75af9b7645d8c549d1b4406045ea70b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Possible states of the client streamer. <br /></td></tr>
 <tr class="separator:af75af9b7645d8c549d1b4406045ea70b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3bb7495dbb48372578922529c2eaeebb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3bb7495dbb48372578922529c2eaeebb"></a>
+typedef enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">GfnActionType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a3bb7495dbb48372578922529c2eaeebb">GfnActionType</a></td></tr>
+<tr class="memdesc:a3bb7495dbb48372578922529c2eaeebb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the action in GfnSetActionZone API. <br /></td></tr>
+<tr class="separator:a3bb7495dbb48372578922529c2eaeebb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b7de2891a1a633769c97cf118f32240"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1b7de2891a1a633769c97cf118f32240"></a>
 typedef <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a9c7df068710138e6a6f0162f758ff38d">GfnApplicationCallbackResult</a>(GFN_CALLBACK *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a1b7de2891a1a633769c97cf118f32240">ExitCallbackSig</a>) (void *pUserContext)</td></tr>
 <tr class="memdesc:a1b7de2891a1a633769c97cf118f32240"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for notification when a game should exit. Register via gfnRegisterExitCallback API. <br /></td></tr>
@@ -220,6 +224,12 @@ Enumerations</h2></td></tr>
  }<tr class="memdesc:a89051c2556587dd00a8810cb65bcccfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Possible states of the client streamer.  <a href="_gfn_runtime_sdk___c_a_p_i_8h.html#a89051c2556587dd00a8810cb65bcccfb">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a89051c2556587dd00a8810cb65bcccfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d3eb8f4bb9195f7777ea5286ec2be46"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">GfnActionType</a> { <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46ab2049297bc7117c0ec33df8896b8b2ed">gfnActionNone</a> = 0, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46aa8b5443ab19935e587484072a801d74b">gfnEditBox</a> = 1, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46a1dbf72b343442ce1af559eebc4b72321">gfnActionMAX</a>
+ }<tr class="memdesc:a4d3eb8f4bb9195f7777ea5286ec2be46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the action in GfnSetActionZone API.  <a href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">More...</a><br /></td></tr>
+</td></tr>
+<tr class="separator:a4d3eb8f4bb9195f7777ea5286ec2be46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -277,10 +287,37 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:ga53e5ad8a2d21ed82928466a096a08e6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2fa481d6d0cd9218425d0dbc3175b68e"><td class="memItemLeft" align="right" valign="top">NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga2fa481d6d0cd9218425d0dbc3175b68e">gfnAppReady</a> (bool success, const char *status)</td></tr>
 <tr class="separator:ga2fa481d6d0cd9218425d0dbc3175b68e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa5e1081ccd6b903f12a6b9f05b11bf03"><td class="memItemLeft" align="right" valign="top">NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gaa5e1081ccd6b903f12a6b9f05b11bf03">gfnSetActionZone</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">GfnActionType</a> type, unsigned int id, GfnRect *zone)</td></tr>
+<tr class="separator:gaa5e1081ccd6b903f12a6b9f05b11bf03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>API definitions </p>
 </div><h2 class="groupheader">Enumeration Type Documentation</h2>
+<a class="anchor" id="a4d3eb8f4bb9195f7777ea5286ec2be46"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">GfnActionType</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Specifies the action in GfnSetActionZone API. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="a4d3eb8f4bb9195f7777ea5286ec2be46ab2049297bc7117c0ec33df8896b8b2ed"></a>gfnActionNone&#160;</td><td class="fielddoc">
+<p>No event. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a4d3eb8f4bb9195f7777ea5286ec2be46aa8b5443ab19935e587484072a801d74b"></a>gfnEditBox&#160;</td><td class="fielddoc">
+<p>Action to specify an editable text box rect on screen. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a4d3eb8f4bb9195f7777ea5286ec2be46a1dbf72b343442ce1af559eebc4b72321"></a>gfnActionMAX&#160;</td><td class="fielddoc">
+<p>Sentinel value, do not use. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a class="anchor" id="a9c7df068710138e6a6f0162f758ff38d"></a>
 <div class="memitem">
 <div class="memproto">

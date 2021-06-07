@@ -122,6 +122,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga53e5ad8a2d21ed82928466a096a08e6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2fa481d6d0cd9218425d0dbc3175b68e"><td class="memItemLeft" align="right" valign="top">NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga2fa481d6d0cd9218425d0dbc3175b68e">gfnAppReady</a> (bool success, const char *status)</td></tr>
 <tr class="separator:ga2fa481d6d0cd9218425d0dbc3175b68e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa5e1081ccd6b903f12a6b9f05b11bf03"><td class="memItemLeft" align="right" valign="top">NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gaa5e1081ccd6b903f12a6b9f05b11bf03">gfnSetActionZone</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">GfnActionType</a> type, unsigned int id, GfnRect *zone)</td></tr>
+<tr class="separator:gaa5e1081ccd6b903f12a6b9f05b11bf03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>The functions is this section are called from a launcher in either the appropriate cloud or client environment. </p>
@@ -511,6 +513,62 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="gaa5e1081ccd6b903f12a6b9f05b11bf03"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnSetActionZone </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">GfnActionType</a>&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">GfnRect *&#160;</td>
+          <td class="paramname"><em>zone</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Defines active zone coordinates for GFN to interact with.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>- Populated with relevant GfnActionType </td></tr>
+    <tr><td class="paramname">id</td><td>- unique unsigned int type identifier for this action zone </td></tr>
+    <tr><td class="paramname">zone</td><td>- To enable action zone set this parameter to GfnRect coordinates of the zone, to disable action zone set this parameter to NULL</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
+    <tr><td class="paramname">gfnInputExpected</td><td>- Expected zone to have a value </td></tr>
+    <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
+    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
+    <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
 
 </div>
 </div>

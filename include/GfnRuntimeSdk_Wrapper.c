@@ -72,7 +72,7 @@ typedef void (GFN_CALLBACK* _cb)(int, void* pOptionalData, void* pContext);
 typedef GfnRuntimeError(*gfnInitializeRuntimeSdkFn)(GfnDisplayLanguage language);
 typedef void(*gfnShutdownRuntimeSdkFn)(void);
 typedef bool (*gfnIsInitializedFn)();
-typedef GfnRuntimeError(*gfnCloudInitializeRuntimeSdkFn)();
+typedef GfnRuntimeError(*gfnCloudInitializeRuntimeSdkFn)(float libVersion);
 typedef void(*gfnCloudShutdownRuntimeSdkFn)(void);
 typedef bool(*gfnIsRunningInCloudFn)(void);
 typedef GfnRuntimeError(*gfnIsRunningInCloudSecureFn)(GfnIsRunningInCloudAssurance* assurance);
@@ -98,6 +98,7 @@ typedef GfnRuntimeError(*gfnSetupTitleFn)(const char* platformAppId);
 typedef GfnRuntimeError(*gfnTitleExitedFn)(const char* platformId, const char* platformAppId);
 typedef GfnRuntimeError(*gfnRegisterCallbackFn)(_cb callback, void* userContext);
 typedef GfnRuntimeError(*gfnAppReadyFn)(bool success, const char* status);
+typedef GfnRuntimeError (*gfnSetActionZoneFn)(GfnActionType type, unsigned int id, GfnRect* zone);
 
 typedef struct GfnSdkCloudLibrary_t
 {
@@ -123,6 +124,7 @@ typedef struct GfnSdkCloudLibrary_t
     gfnGetAuthDataFn GetAuthData;
     gfnFreeFn Free;
     gfnAppReadyFn AppReady;
+    gfnSetActionZoneFn SetActionZone;
 } GfnSdkCloudLibrary;
 GfnSdkCloudLibrary* g_pCloudLibrary = NULL;
 GfnRuntimeError g_cloudLibraryStatus = gfnAPINotInit;
@@ -204,11 +206,14 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     if (pCloudLibrary == NULL)
     {
         GFN_SDK_LOG("ERROR: Unable to allocate memory to hold GFN function pointers");
+#ifdef _WIN32
+        FreeLibrary(library);
+#endif
         return gfnUnableToAllocateMemory;
     }
 
     pCloudLibrary->handle = library;
-    pCloudLibrary->InitializeRuntimeSdk = (gfnCloudInitializeRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnInitializeRuntimeSdk");
+    pCloudLibrary->InitializeRuntimeSdk = (gfnCloudInitializeRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnInitializeRuntimeSdk2");
     pCloudLibrary->ShutdownRuntimeSdk = (gfnCloudShutdownRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnShutdownRuntimeSdk");
     pCloudLibrary->IsInitialized = (gfnIsInitializedFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsInitialized");
     pCloudLibrary->IsRunningInCloud = (gfnIsRunningInCloudFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsRunningInCloud");
@@ -224,7 +229,7 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     pCloudLibrary->GetAuthData = (gfnGetAuthDataFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetAuthData");
     pCloudLibrary->Free = (gfnFreeFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnFree");
     pCloudLibrary->AppReady = (gfnAppReadyFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnAppReady");
-
+    pCloudLibrary->SetActionZone = (gfnSetActionZoneFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnSetActionZone");
     pCloudLibrary->RegisterExitCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterExitCallback");
     pCloudLibrary->RegisterPauseCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterPauseCallback");
     pCloudLibrary->RegisterInstallCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterInstallCallback");
@@ -254,7 +259,8 @@ GfnRuntimeError gfnInitializeCloudOnlySdk(void)
         return g_cloudLibraryStatus;
     }
 
-    return gfnTranslateCloudStatus(g_pCloudLibrary->InitializeRuntimeSdk());
+    int result = g_pCloudLibrary->InitializeRuntimeSdk((float)(NVGFNSDK_VERSION_SHORT));
+    return gfnTranslateCloudStatus(result);
 }
 
 // Load the cloud library if not already done, and check to see if the runtime object has already been created
@@ -302,18 +308,7 @@ typedef struct _gfnUserContextCallbackWrapper
 
 GfnRuntimeError GfnInitializeSdk(GfnDisplayLanguage language)
 {
-    GFN_SDK_INIT_LOGGING();
-
-    GfnRuntimeError cloudStatus = gfnInitializeCloudOnlySdk();
-
-    GFN_SDK_LOG("Initializing the GfnSdk");
-    if (g_gfnSdkModule != NULL)
-    {
-        GFN_SDK_LOG("Already initialized, no need to initialize again");
-        return gfnSuccess;
-    }
-
-    wchar_t * filename = (wchar_t*)malloc(sizeof(wchar_t) * MAX_PATH);
+    wchar_t* filename = (wchar_t*)malloc(sizeof(wchar_t) * MAX_PATH);
     if (!filename)
     {
         return gfnInternalError;
@@ -336,6 +331,7 @@ GfnRuntimeError GfnInitializeSdk(GfnDisplayLanguage language)
     wchar_t* dllPath = (wchar_t*)malloc(sizeof(wchar_t) * dllPathLength);
     if (!dllPath)
     {
+        free(filename);
         return gfnInternalError;
     }
     wcsncpy_s(dllPath, dllPathLength, filename, _TRUNCATE);
@@ -344,20 +340,83 @@ GfnRuntimeError GfnInitializeSdk(GfnDisplayLanguage language)
     free(filename);
     wcsncat_s(dllPath, dllPathLength, L"GfnRuntimeSdk.dll", 17);
 
+    char* sdkLibPath = (char*)malloc(dllPathLength *sizeof(char));
+    if (!sdkLibPath)
+    {
+        free(dllPath);
+        return gfnInternalError;
+    }
+    int outSize = (int) dllPathLength * sizeof(char);
+    if (!GfnWideToUtf8(dllPath, sdkLibPath, outSize))
+    {
+        GFN_SDK_LOG("Invalid dll path");
+        free(sdkLibPath);
+        free(dllPath);
+        return gfnInternalError;
+    }
+    GfnRuntimeError result = GfnInitializeSdkFromPath(language, sdkLibPath);
+    free(sdkLibPath);
+    free(dllPath);
+    return result;
+}
+
+GfnRuntimeError GfnInitializeSdkFromPath(GfnDisplayLanguage language, const char* sdkLibraryPath)
+{
+    GFN_SDK_INIT_LOGGING();
+
+    if (sdkLibraryPath == NULL)
+    {
+        GFN_SDK_LOG("Invalid dll path");
+        return gfnInternalError;
+    }
+
+    size_t libPathSize = strlen(sdkLibraryPath) + 1;
+    wchar_t* wSdkLibraryPath = (wchar_t*)malloc(libPathSize*sizeof(wchar_t));
+    if (!wSdkLibraryPath)
+    {
+        return gfnInternalError;
+    }
+    int outSize = (int)libPathSize * sizeof(wchar_t);
+    if (!GfnUtf8ToWide(sdkLibraryPath, wSdkLibraryPath, outSize))
+    {
+        GFN_SDK_LOG("Invalid dll path");
+        free(wSdkLibraryPath);
+        return gfnInternalError;
+    }
+    wchar_t* lastBackSepPos = wcsrchr(wSdkLibraryPath, L'\\');
+    wchar_t* lastForeSepPos = wcsrchr(wSdkLibraryPath, L'/');
+    wchar_t* lastSepPos = (lastBackSepPos != NULL && lastBackSepPos > lastForeSepPos ) ? lastBackSepPos : lastForeSepPos;
+    if(_wcsicmp(lastSepPos+1, L"GfnRuntimeSdk.dll") != 0)
+    {
+        GFN_SDK_LOG("Invalid dll name");
+        free(wSdkLibraryPath);
+        return gfnInternalError;
+    }
+
+    GfnRuntimeError cloudStatus = gfnInitializeCloudOnlySdk();
+
+    GFN_SDK_LOG("Initializing the GfnSdk");
+    if (g_gfnSdkModule != NULL)
+    {
+        GFN_SDK_LOG("Already initialized, no need to initialize again");
+        free(wSdkLibraryPath);
+        return gfnSuccess;
+    }
+
     // For security reasons, it is preferred to check the digital signature before loading the DLL.
     // Such code is not provided here to reduce code complexity and library size, and in favor of
     // any internal libraries built for this purpose.
 #ifdef _DEBUG
-    g_gfnSdkModule = LoadLibraryW(dllPath);
+    g_gfnSdkModule = LoadLibraryW(wSdkLibraryPath);
 #else
-    g_gfnSdkModule = gfnSecureLoadClientLibraryW(dllPath, 0);
+    g_gfnSdkModule = gfnSecureLoadClientLibrary(wSdkLibraryPath, 0);
 #endif
+
+    free(wSdkLibraryPath);
     if (g_gfnSdkModule == NULL)
     {
         GFN_SDK_LOG("Not able to load client library. LastError=0x%08X", GetLastError());
     }
-
-    free(dllPath);
 
     GfnRuntimeError clientStatus = gfnDllNotPresent;
     if (g_gfnSdkModule != NULL)
@@ -634,6 +693,11 @@ GfnRuntimeError GfnAppReady(bool success, const char* status)
 {
     CHECK_CLOUD_ENVIRONMENT();
     DELEGATE_TO_CLOUD_LIBRARY(AppReady, success, status);
+}
+
+GfnRuntimeError GfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* zone) {
+    CHECK_CLOUD_ENVIRONMENT();
+    DELEGATE_TO_CLOUD_LIBRARY(SetActionZone, type, id, zone);
 }
 
 static void GFN_CALLBACK _gfnExitCallbackWrapper(int status, void* pUnused, void* pContext)

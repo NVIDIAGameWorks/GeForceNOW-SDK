@@ -32,6 +32,8 @@
 //
 // ===============================================================================================
 
+
+
 #ifndef GFN_SDK_CAPI_H
 #define GFN_SDK_CAPI_H
 
@@ -46,6 +48,7 @@
 #   define GFN_CALLBACK __stdcall
 #   define NVGFNSDK_EXPORT __declspec(dllexport)
 #   define NVGFNSDKApi __cdecl
+#   include <shlwapi.h>
 #else
 // Support to be added in a later release
 /// Future support
@@ -65,8 +68,16 @@ typedef char bool;
 #define true 1
 #endif
 
-/// Version of the GeForce NOW SDK
-#define GFN_RUNTIME_SDK_VERSION 1.5
+// Version info
+#define NVGFNSDK_VERSION_MAJOR 1
+#define NVGFNSDK_VERSION_MINOR 6
+#define NVGFNSDK_VERSION_SHORT 1.6
+
+#define NVGFNSDK_VERSION_PATCH 3004
+#define NVGFNSDK_VERSION_BUILD 0364
+#define NVGFNSDK_VERSION_LONG 1.6.3004.0364
+
+#define NVGFNSDK_VERSION_STR   "1.6.3004.0364"
 
 #ifdef __cplusplus
     extern "C"
@@ -104,6 +115,8 @@ typedef char bool;
             gfnIPCFailure = -21, ///< Messagebus IPC failures
             gfnCanceled = -22, ///< Activity was canceled, for example, user canceled the download of GFN client
             gfnElevationRequired = -23, ///< API call required to be run from an elevated process
+            gfnThrottled = -24, ///< API call throttled
+            gfnInputExpected = -25 ///< API call was expecting input param to have a value
         } GfnError;
 
         ///
@@ -176,6 +189,69 @@ typedef char bool;
             gfn_da_DK = 32,
             gfnMaxLanguage = gfn_da_DK
         } GfnDisplayLanguage;
+
+        /// @brief Formats to specify a rect with top-left as origin
+        typedef enum GfnRectFormat
+        {
+            /// value1 : Left
+            /// value2 : Top
+            /// value3 : Right
+            /// value4 : Bottom
+            gfnRectLTRB = 0,
+
+            /// value1 : Top Left Corner's X coordinate
+            /// value2 : Top Left Corner's Y coordinate
+            /// value3 : Width
+            /// value4 : Height
+            gfnRectXYWH,
+
+            /// Sentinel value, do not use
+            gfnRectMAX
+        } GfnRectFormat;
+
+        /// @brief struct to reference a rect
+        typedef struct GfnRect
+        {
+            float value1;         ///< value1 as per format
+            float value2;         ///< value2 as per format
+            float value3;         ///< value3 as per format
+            float value4;         ///< value4 as per format
+            bool normalized;      ///< true : coordinates are normalized between 0.0-1.0, false : absolute coordinates
+            GfnRectFormat format; ///< rect format as listed in GfnRectFormat
+        } GfnRect;
+
+#ifdef _WIN32
+        inline bool GfnUtf8ToWide(const char* in, wchar_t* out, int outSize)
+        {
+            int result = MultiByteToWideChar(CP_UTF8, 0, in, -1, NULL, 0);
+            if (result <= 0 || outSize < result)
+            {
+                return false;
+            }
+
+            result = MultiByteToWideChar(CP_UTF8, 0, in, -1, out, outSize);
+            if (result <= 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        inline bool GfnWideToUtf8(const wchar_t* in, char* out, int outSize)
+        {
+            int length = WideCharToMultiByte(CP_UTF8, 0, in, -1, NULL, 0, NULL, NULL);
+            if (length <= 0 || outSize < length)
+            {
+                return false;
+            }
+            length = WideCharToMultiByte(CP_UTF8, 0, in, -1, out, outSize, NULL, NULL);
+            if (length <= 0)
+            {
+                return false;
+            }
+            return true;
+        }
+#endif
 
 #ifdef __cplusplus
     } // extern "C"

@@ -72,26 +72,13 @@
 /// the dynamic library to stay as thin as possible in the application, and provides backward and forward
 /// compatibility to new GFN client packages.
 ///
-/// On GFN game systems, many of the APIs are no-ops as they apply only to client/end-user
-/// systems. In those cases, API calls will return a well-defined error code to denote the call
-/// was not applicable to the environment.
+/// Many of the APIs are no-ops depending on the environment they apply to only to either local client or
+/// GFN cloud environments. In those cases, API calls will return a well-defined error code to denote the
+/// call was not applicable to the environment.
 ///
-/// Authentication between the Partner IDM and NVIDIA IDM happens using secure
-/// HTTPS web API calls, and the account linking flow utilizes standard oauth2
-/// protocol. Once the account link is established the authentication process
-/// between Partner and NVIDIA becomes transparent to the user, and gaming
-/// streaming can be initiated without requiring any further authentication or
-/// manual login.
-/// For more information on linking your account system with NVIDIA, please refer
-/// to SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf available as part of the
-/// documentation section of the SDK's repository.
-///
-/// After the account link between Partner and NVIDIA has been established, that
-/// link can be utilized on the GFN server to facilitate Single Sign-On (SSO) so
-/// that the user does not have to manually login again, but all authentication
-/// happens transparently and the game launches immediately.
-///
-/// @image html sso.png
+/// Some of the APIs are used solely for authentication purposes in Account Linking and 
+/// Single Sign-On scenarios. For more information about NVIDIA's Account Linking and Single Sign-On
+/// model, please refer to the SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf document in the /doc folder.
 ///
 /// For additional high-level overview, please refer to the SDK primer available as part of the
 /// documentation section of the SDK's repository.
@@ -253,7 +240,12 @@
 /// C        | @ref gfnRegisterStreamStatusCallback
 ///
 /// @copydoc gfnRegisterStreamStatusCallback
-
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnSetActionZone
+///
+/// @copydoc gfnSetActionZone
 
 #ifndef GFN_SDK_RUNTIME_CAPI_H
 #define GFN_SDK_RUNTIME_CAPI_H
@@ -291,10 +283,10 @@
          */
         typedef enum GfnIsRunningInCloudAssurance
         {
-            gfnNotCloud = 0,                  ///< Not considered to be running GFN cloud, as it looks like a client/local system.
-            gfnIsCloudLowAssurance = 1,       ///< Considered to be running in GFN Cloud, using software hieristics that are not guaranteed against circumvention.
-            gfnIsCloudMidAssurance = 2,       ///< Considered to be running in GFN Cloud, using software and network hieristics that are difficult to circumvent.
-            gfnIsCloudHighAssurance = 3       ///< Considered to be running in GFN Cloud, using software and hardware hieristics that are near impossible to circumvent.
+            gfnNotCloud = 0,                  ///< Not considered to be running in GFN cloud, as it looks like a client/local system.
+            gfnIsCloudLowAssurance = 1,       ///< Considered to be running in GFN Cloud, using software heuristics that are not guaranteed against circumvention.
+            gfnIsCloudMidAssurance = 2,       ///< Considered to be running in GFN Cloud, using software and network heuristics that are difficult to circumvent.
+            gfnIsCloudHighAssurance = 3       ///< Considered to be running in GFN Cloud, using software and hardware heuristics that are near impossible to circumvent.
         } GfnIsRunningInCloudAssurance;
 
         /// @brief Output response when streaming has started
@@ -360,6 +352,14 @@
             return "Unknown GfnStreamStatus";
         }
 
+
+        /// @brief Specifies the action in GfnSetActionZone API
+        typedef enum GfnActionType
+        {
+            gfnActionNone = 0,    ///< No event
+            gfnEditBox = 1,       ///< Action to specify an editable text box rect on screen
+            gfnActionMAX          ///< Sentinel value, do not use
+        } GfnActionType;
 
         // ============================================================================================
         // Callback signatures
@@ -608,7 +608,7 @@
         ///
         /// @par Usage
         /// Call from an elevated process to securely determine whether running in GFN cloud, and use the
-        /// GfnIsRunningInCloudAssurance value to decide the reisj to enable any application specific logic
+        /// GfnIsRunningInCloudAssurance value to decide the risk to enable any application specific logic
         /// for that environment.
         ///
         /// @warning
@@ -935,6 +935,29 @@
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnAppReady(bool success, const char * status);
 
+        ///
+        /// @par Description
+        /// Defines active zone coordinates for GFN to interact with.
+        ///
+        /// @par Environment
+        /// Cloud
+        ///
+        /// @par Usage
+        /// Use to invoke special events on the client from the GFN cloud environment
+        ///
+        /// @param type                 - Populated with relevant GfnActionType
+        /// @param id                   - unique unsigned int type identifier for this action zone
+        /// @param zone                 - To enable action zone set this parameter to GfnRect coordinates of the zone, to disable action zone set this parameter to NULL
+        ///
+        /// @retval gfnSuccess              - Call was successful
+        /// @retval gfnInputExpected        - Expected zone to have a value
+        /// @retval gfnComError             - There was SDK internal communication error
+        /// @retval gfnInitFailure          - SDK was not initialized
+        /// @retval gfnInvalidParameter     - Invalid parameters provided
+        /// @retval gfnThrottled            - API call was throttled for exceeding limit
+        /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
+        /// @return Otherwise, appropriate error code
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* zone);
         /// @}
 
 #ifdef __cplusplus

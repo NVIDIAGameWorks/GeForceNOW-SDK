@@ -1,5 +1,8 @@
 var searchData=
 [
+  ['gfnactionmax',['gfnActionMAX',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46a1dbf72b343442ce1af559eebc4b72321',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['gfnactionnone',['gfnActionNone',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46ab2049297bc7117c0ec33df8896b8b2ed',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['gfneditbox',['gfnEditBox',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46aa8b5443ab19935e587484072a801d74b',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfniscloudhighassurance',['gfnIsCloudHighAssurance',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aecdb9af8ee15731faeebae2fcec76c7ba935315d4f60a762c63a6998eeaa3248f',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfniscloudlowassurance',['gfnIsCloudLowAssurance',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aecdb9af8ee15731faeebae2fcec76c7ba86e941caec88f7aba33164ac8a07a293',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfniscloudmidassurance',['gfnIsCloudMidAssurance',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aecdb9af8ee15731faeebae2fcec76c7ba374af75e473349457175e563f7159b3b',1,'GfnRuntimeSdk_CAPI.h']]],

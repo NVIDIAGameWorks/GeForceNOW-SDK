@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2020-2021 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2019-2021 NVIDIA Corporation. All rights reserved.
 
 #ifndef GFN_SDK_HELPER_H_
 #define GFN_SDK_HELPER_H_

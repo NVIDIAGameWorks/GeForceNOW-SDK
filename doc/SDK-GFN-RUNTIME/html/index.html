@@ -97,11 +97,7 @@ Overview</h1>
 <p>On client systems, this library checks for the presence of the GeForce NOW (GFN) client installation when any of the gfnStartStream API variants is called. If the client is not present, then the library will initiate a download and installation of the latest GFN client, presenting UI to the user for the download and installation process. If the GFN client is present, but out of date, then a similar download and install process to update the client will take place before the streaming session will start.</p>
 <p>Once the GFN client is installed, all API actions are deferred to the GFN client. This design allows the dynamic library to stay as thin as possible in the application, and provides backward and forward compatibility to new GFN client packages.</p>
 <p>Many of the APIs are no-ops depending on the environment they apply to only to either local client or GFN cloud environments. In those cases, API calls will return a well-defined error code to denote the call was not applicable to the environment.</p>
-<p>Authentication between the Partner IDM and NVIDIA IDM happens using secure HTTPS web API calls, and the account linking flow utilizes standard oauth2 protocol. Once the account link is established the authentication process between Partner and NVIDIA becomes transparent to the user, and gaming streaming can be initiated without requiring any further authentication or manual login. For more information on linking your account system with NVIDIA, please refer to SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf available as part of the documentation section of the SDK's repository.</p>
-<p>After the account link between Partner and NVIDIA has been established, that link can be utilized on the GFN server to facilitate Single Sign-On (SSO) so that the user does not have to manually login again, but all authentication happens transparently and the game launches immediately.</p>
-<div class="image">
-<img src="sso.png" alt="sso.png"/>
-</div>
+<p>Some of the APIs are used solely for authentication purposes in Account Linking and Single Sign-On scenarios. For more information about NVIDIA's Account Linking and Single Sign-On model, please refer to the SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf document in the /doc folder.</p>
 <p>For additional high-level overview, please refer to the SDK primer available as part of the documentation section of the SDK's repository.</p>
 <h1><a class="anchor" id="keyconcepts"></a>
 Key Concepts</h1>
@@ -614,10 +610,40 @@ Callback-related Methods</h2>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success, when running on the client PC </td></tr>
-    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a client execution environment </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a client execution environment</td></tr>
   </table>
   </dd>
 </dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__launcher.html#gaa5e1081ccd6b903f12a6b9f05b11bf03">gfnSetActionZone</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Defines active zone coordinates for GFN to interact with.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>- Populated with relevant GfnActionType </td></tr>
+    <tr><td class="paramname">id</td><td>- unique unsigned int type identifier for this action zone </td></tr>
+    <tr><td class="paramname">zone</td><td>- To enable action zone set this parameter to GfnRect coordinates of the zone, to disable action zone set this parameter to NULL</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
+    <tr><td class="paramname">gfnInputExpected</td><td>- Expected zone to have a value </td></tr>
+    <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
+    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
+    <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.12-->
 <!-- start footer part -->

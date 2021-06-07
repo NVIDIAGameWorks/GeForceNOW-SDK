@@ -90,6 +90,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Functions</h2></td></tr>
 <tr class="memitem:ga9792e6f512b08afcc301da5450af896c"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga9792e6f512b08afcc301da5450af896c">GfnInitializeSdk</a> (GfnDisplayLanguage language)</td></tr>
 <tr class="separator:ga9792e6f512b08afcc301da5450af896c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga55d8d9798ad608273b18cf332440dd56"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga55d8d9798ad608273b18cf332440dd56">GfnInitializeSdkFromPath</a> (GfnDisplayLanguage language, const char *sdkLibraryPath)</td></tr>
+<tr class="separator:ga55d8d9798ad608273b18cf332440dd56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3f9e4989832c06a2e431f997848732ac"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga3f9e4989832c06a2e431f997848732ac">GfnShutdownSdk</a> (void)</td></tr>
 <tr class="separator:ga3f9e4989832c06a2e431f997848732ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa109bc7e726c5991c2efcbce8e4c0f64"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#gaa109bc7e726c5991c2efcbce8e4c0f64">GfnIsRunningInCloud</a> (bool *runningInCloud)</td></tr>
@@ -138,6 +140,8 @@ Functions</h2></td></tr>
 <tr class="separator:gaa77104628b2a2779673e27dd52f0bfa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6095bb54551cc3f04ff74c362640f8a6"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga6095bb54551cc3f04ff74c362640f8a6">GfnAppReady</a> (bool success, const char *status)</td></tr>
 <tr class="separator:ga6095bb54551cc3f04ff74c362640f8a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1d0b3d941ab0d2127282d79df49a9130"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga1d0b3d941ab0d2127282d79df49a9130">GfnSetActionZone</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">GfnActionType</a> type, unsigned int id, GfnRect *zone)</td></tr>
+<tr class="separator:ga1d0b3d941ab0d2127282d79df49a9130"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <h2 class="groupheader">Function Documentation</h2>
@@ -465,6 +469,51 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">language</td><td>- Language to use for any UI, such as GFN download and install progress dialogs. Defaults to system language if not defined. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- If the SDK was initialized and all SDK features are available. </td></tr>
+    <tr><td class="paramname">gfnInitSuccessClientOnly</td><td>- If the SDK was initialized, but only client-side functionality is available, such as calls to gfnStartStream. By definition, gfnIsRunningInCloud is expected to return false in this scenario. </td></tr>
+    <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ga55d8d9798ad608273b18cf332440dd56"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GfnRuntimeError GfnInitializeSdkFromPath </td>
+          <td>(</td>
+          <td class="paramtype">GfnDisplayLanguage&#160;</td>
+          <td class="paramname"><em>language</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>sdkLibraryPath</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Loads the GFN SDK dynamic library from the given path and calls <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk</a>.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call as soon as possible during application startup.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">language</td><td>- Language to use for any UI, such as GFN download and install progress dialogs. Defaults to system language if not defined. </td></tr>
+    <tr><td class="paramname">sdkLibraryPath</td><td>- Fully-quantified path to GFN SDK Library including the name GfnRuntimeSdk.dll, note that dll cannot be renamed to any other string. </td></tr>
   </table>
   </dd>
 </dl>
@@ -864,6 +913,62 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="ga1d0b3d941ab0d2127282d79df49a9130"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GfnRuntimeError GfnSetActionZone </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">GfnActionType</a>&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">GfnRect *&#160;</td>
+          <td class="paramname"><em>zone</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Sends Active zone coordinates to GFN Client</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>- Populated with relevant GfnActionType </td></tr>
+    <tr><td class="paramname">id</td><td>- unique unsigned int type identifier for this event </td></tr>
+    <tr><td class="paramname">zone</td><td>- Optional zone coordinates relevant to type specified</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
+    <tr><td class="paramname">gfnInputExpected</td><td>- Expected zone to have a value </td></tr>
+    <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
+    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
+    <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
 
 </div>
 </div>
