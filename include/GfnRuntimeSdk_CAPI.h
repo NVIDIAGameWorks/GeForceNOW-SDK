@@ -180,6 +180,12 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
+/// C        | @ref gfnGetClientInfo
+///
+/// @copydoc gfnGetClientInfo
+///
+/// Language | API
+/// -------- | -------------------------------------
 /// C        | @ref gfnStartStream
 ///
 /// @copydoc gfnStartStream
@@ -246,6 +252,13 @@
 /// C        | @ref gfnSetActionZone
 ///
 /// @copydoc gfnSetActionZone
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnRegisterClientInfoCallback
+///
+/// @copydoc gfnRegisterClientInfoCallback
+///
 
 #ifndef GFN_SDK_RUNTIME_CAPI_H
 #define GFN_SDK_RUNTIME_CAPI_H
@@ -361,6 +374,58 @@
             gfnActionMAX          ///< Sentinel value, do not use
         } GfnActionType;
 
+
+    #define GfnClientInfoVersion    (1)
+    #define IP_V4_SIZE			    (17)	// INET_ADDRSTRLEN + NULL
+    #define CC_SIZE			        (3)	// ISO 3166-1 Alpha-2
+    #define LOCALE_SIZE		        (6)	// ISO 639-1 Alpha-2
+
+        /// @brief Types of operating systems that can be reported by the SDK
+        typedef enum GfnOsType
+        {
+            gfnUnknownOs = 0,
+            gfnWindows = 1,
+            gfnMacOs = 2,
+            gfnShield = 3,
+            gfnAndroid = 4,
+            gfnIOs = 5,
+            gfnIPadOs = 6,
+            gfnChromeOs = 7,
+            gfnLinux = 8,
+            gfnTizen = 9,
+            gfnWebOs = 10,
+            gfnTvOs = 11,
+            gfnOsTypeMax = 11
+        } GfnOsType;
+
+        /// @brief Client info blob
+        typedef struct
+        {
+            unsigned int version;  // GfnClientInfoVersion
+            GfnOsType osType;
+            char ipV4[IP_V4_SIZE];  // ”192.168.0.1”
+            char country[CC_SIZE];  // ”us”
+            char locale[LOCALE_SIZE];   // ”en-us”
+        } GfnClientInfo;
+
+        /// @brief Type of data which changed. This enum will be expanded over time
+        typedef enum GfnClientInfoChangeType
+        {
+            gfnOs = 0,
+            gfnClientDataChangeTypeMax = 0
+        } GfnClientDataChangeType;
+
+        /// @brief An update notification for a piece of client info data
+        typedef struct GfnClientInfoUpdateData
+        {
+            unsigned int version;
+            GfnClientDataChangeType updateType;
+            union
+            {
+                GfnOsType osType;
+            } data;
+        } GfnClientInfoUpdateData;
+
         // ============================================================================================
         // Callback signatures
         // ============================================================================================
@@ -380,6 +445,9 @@
         /// @brief Callback function for notifications when a game should continue late-stage initialization. Register via gfnRegisterSessionInitCallback API.
         /// Function should consume or copy the passed-in partnerInfoMutable string
         typedef GfnApplicationCallbackResult(GFN_CALLBACK* SessionInitCallbackSig)(const char* partnerInfoMutable, void* pUserContext);
+        /// @brief Callback function for notifications on client info changes. Register via gfnRegisterClientInfoCallback API.
+        typedef GfnApplicationCallbackResult(GFN_CALLBACK* ClientInfoCallbackSig)(GfnClientInfoUpdateData* pUpdate, const void* pUserContext);
+
         // ============================================================================================
         // C API
         // ============================================================================================
@@ -559,6 +627,24 @@
         /// @retval gfnAPINotFound              - If the API was not found in the GFN SDK Library
         /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterSessionInitCallback(SessionInitCallbackSig sessionInitCallback, void* pUserContext);
+        /// @}
+        ///
+        /// @par Description
+        /// Register an application callback with GFN to be called when certain client info that is part of @ref GetClientInfo API changes
+        ///
+        /// @par Usage
+        /// Register an application function to call when a the client information from the GFN user's client system has changed
+        ///
+        /// @param clientInfoCallback           - Function pointer to application code to call when client information has changed
+        /// @param pUserContext                 - Pointer to user context, which will be passed unmodified to the
+        ///                                       callback specified. Can be NULL.
+        ///
+        /// @retval gfnSuccess                  - On success when running in a GFN environment
+        /// @retval gfnInvalidParameter         - If callback was NULL
+        /// @retval gfnDllNotPresent            - If the on-seat dll was not present (Usually due to not running on a seat)
+        /// @retval gfnAPINotFound              - If the API was not found in the GFN SDK Library
+        /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterClientInfoCallback(ClientInfoCallbackSig clientInfoCallback, void* pUserContext);
         /// @}
 
 
@@ -787,7 +873,25 @@
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetClientCountryCode(char* pchCountryCode, unsigned int length);
+        ///
+        /// @par Description
+        /// Gets various information about the local client system and environment
+        ///
+        /// @par Environment
+        /// Cloud
+        ///
+        /// @par Usage
+        /// Call this during application start or from the platform client in order to get
+        /// various information about the client that launched the streaming session.
+        ///
+        /// @param clientInfo                - Pointer to a GfnClientInfo struct.
 
+        ///
+        /// @retval gfnSuccess               - On success
+        /// @retval gfnInvalidParameter      - NULL pointer passed in or buffer length is too small
+        /// @retval gfnCallWrongEnvironment  - If called in a client environment
+        /// @return Otherwise, appropriate error code
+        NVGFNSDK_EXPORT GfnRuntimeError gfnGetClientInfo(GfnClientInfo* clientInfo);
         ///
         /// @par Description
         /// Requests GFN client to start a streamed session of an application in an asynchronous fashion

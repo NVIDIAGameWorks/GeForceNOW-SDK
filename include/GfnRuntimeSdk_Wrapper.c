@@ -52,6 +52,7 @@
 #   define GFN_SDK_DEINIT_LOGGING()
 #   define GFN_SDK_LOG(fmt, ...)
 #endif
+bool g_LoggingInitialized = false;
 
 #ifdef _WIN32
 #   include <ShlObj.h>
@@ -61,7 +62,7 @@
 #   else
 #       define GFN_DLL L"GFN32.dll"
 #   endif
-#   define GFN_DLL_SUBPATH L"\\NVIDIA Corporation\\GeForceNOW\\" GFN_DLL
+#   define GFN_DLL_SUBPATH L"\\NVIDIA Corporation\\GeForceNOW\\SDK\\" GFN_DLL
 
 HMODULE g_gfnSdkModule;
 
@@ -79,6 +80,10 @@ typedef GfnRuntimeError(*gfnIsRunningInCloudSecureFn)(GfnIsRunningInCloudAssuran
 typedef GfnRuntimeError(*gfnGetClientIpFn)(const char** cientIp);
 typedef GfnRuntimeError(*gfnGetClientLanguageCodeFn)(const char** clientLanguageCode);
 typedef GfnRuntimeError(*gfnGetClientCountryCodeFn)(char* clientCountryCode, unsigned int length);
+
+typedef GfnRuntimeError(*gfnGetClientInfoFn)(GfnClientInfo* clientInfo);
+typedef GfnRuntimeError(*gfnRegisterClientInfoCallbackFn)(ClientInfoCallbackSig clientInfoCallback, void* pUserContext);
+
 typedef GfnRuntimeError(*gfnGetCustomDataFn)(const char** customData);
 typedef GfnRuntimeError(*gfnGetAuthDataFn)(const char** authData);
 
@@ -97,6 +102,7 @@ typedef void(*gfnStopStreamAsyncFn)(StopStreamCallbackSig cb, void* context, uns
 typedef GfnRuntimeError(*gfnSetupTitleFn)(const char* platformAppId);
 typedef GfnRuntimeError(*gfnTitleExitedFn)(const char* platformId, const char* platformAppId);
 typedef GfnRuntimeError(*gfnRegisterCallbackFn)(_cb callback, void* userContext);
+typedef GfnRuntimeError(*gfnRegisteCallbackFnWithUIntParam)(_cb callback, unsigned int param, void* userContext);
 typedef GfnRuntimeError(*gfnAppReadyFn)(bool success, const char* status);
 typedef GfnRuntimeError (*gfnSetActionZoneFn)(GfnActionType type, unsigned int id, GfnRect* zone);
 
@@ -125,8 +131,13 @@ typedef struct GfnSdkCloudLibrary_t
     gfnFreeFn Free;
     gfnAppReadyFn AppReady;
     gfnSetActionZoneFn SetActionZone;
+
+    gfnGetClientInfoFn GetClientInfo;
+    gfnRegisterCallbackFn RegisterClientInfoCallback;
+
 } GfnSdkCloudLibrary;
 GfnSdkCloudLibrary* g_pCloudLibrary = NULL;
+wchar_t g_cloudDllPath[MAX_PATH];
 GfnRuntimeError g_cloudLibraryStatus = gfnAPINotInit;
 
 static void gfnFreeCloudLibrary(GfnSdkCloudLibrary* pCloudLibrary)
@@ -167,8 +178,6 @@ GfnRuntimeError gfnShutDownCloudOnlySdk(void)
 
 GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
 {
-    *ppCloudLibrary = NULL;
-
     // If we've already attempted to load this, return the previous results and library
     if (g_cloudLibraryStatus != gfnAPINotInit)
     {
@@ -176,24 +185,33 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
         return g_cloudLibraryStatus;
     }
 
+    *ppCloudLibrary = NULL;
+
 #ifdef _WIN32
-    wchar_t cloudDllPath[MAX_PATH] = { L"" };
-    if (SHGetSpecialFolderPathW(NULL, cloudDllPath, CSIDL_COMMON_APPDATA, false) == TRUE)
+    if (SHGetSpecialFolderPathW(NULL, g_cloudDllPath, CSIDL_PROGRAM_FILES, false) == TRUE)
     {
-        size_t pos = wcslen(cloudDllPath);
-        wcsncpy_s(&cloudDllPath[pos], sizeof(GFN_DLL_SUBPATH), GFN_DLL_SUBPATH, MAX_PATH - pos);
+        if (wcscat_s(g_cloudDllPath, MAX_PATH, GFN_DLL_SUBPATH) != 0)
+        {
+            GFN_SDK_LOG("FAIL: Unable to concatenate path to Runtime SDK binaries");
+            return gfnInitFailure;
+        }
+    }
+    else
+    {
+        GFN_SDK_LOG("FAIL: Unable to get path to Runtime SDK binaries");
+        return gfnInitFailure;
     }
 
-    if (PathFileExistsW(cloudDllPath) == FALSE)
+    if (PathFileExistsW(g_cloudDllPath) == FALSE)
     {
         GFN_SDK_LOG("SUCCESS: Cloud library does not exist, this is running on the user client");
         return gfnInitSuccessClientOnly;
     }
 
 #ifdef _DEBUG
-    HMODULE library = LoadLibraryW(cloudDllPath);
+    HMODULE library = LoadLibraryW(g_cloudDllPath);
 #else
-    HMODULE library = gfnSecureLoadCloudLibraryW(cloudDllPath, 0);
+    HMODULE library = gfnSecureLoadCloudLibraryW(g_cloudDllPath, 0);
 #endif
 
     if (!library)
@@ -214,7 +232,7 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
 
     pCloudLibrary->handle = library;
     pCloudLibrary->InitializeRuntimeSdk = (gfnCloudInitializeRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnInitializeRuntimeSdk2");
-    pCloudLibrary->ShutdownRuntimeSdk = (gfnCloudShutdownRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnShutdownRuntimeSdk");
+    pCloudLibrary->ShutdownRuntimeSdk = (gfnCloudShutdownRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnShutdownRuntimeSdk2");
     pCloudLibrary->IsInitialized = (gfnIsInitializedFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsInitialized");
     pCloudLibrary->IsRunningInCloud = (gfnIsRunningInCloudFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsRunningInCloud");
     pCloudLibrary->IsRunningInCloudSecure = (gfnIsRunningInCloudSecureFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsRunningInCloudSecure");
@@ -236,6 +254,9 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     pCloudLibrary->RegisterSaveCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterSaveCallback");
     pCloudLibrary->RegisterSessionInitCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterSessionInitCallback");
 
+    pCloudLibrary->GetClientInfo = (gfnGetClientInfoFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientInfo");
+    pCloudLibrary->RegisterClientInfoCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterClientInfoCallback");
+
     GFN_SDK_LOG("Successfully loaded cloud libary");
 
     if (pCloudLibrary->InitializeRuntimeSdk == NULL)
@@ -253,13 +274,29 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
 
 GfnRuntimeError gfnInitializeCloudOnlySdk(void)
 {
+    // Already initialized, no need to re-initialize
+    if (g_pCloudLibrary != NULL)
+    {
+        return g_cloudLibraryStatus;
+    }
+
     g_cloudLibraryStatus = gfnLoadCloudLibrary(&g_pCloudLibrary);
     if (g_cloudLibraryStatus != gfnSuccess)
     {
         return g_cloudLibraryStatus;
     }
 
-    int result = g_pCloudLibrary->InitializeRuntimeSdk((float)(NVGFNSDK_VERSION_SHORT));
+    GfnRuntimeError result = g_pCloudLibrary->InitializeRuntimeSdk((float)(NVGFNSDK_VERSION_SHORT));
+    if (GFNSDK_FAILED(result))
+    {
+        GFN_SDK_LOG("Call to cloud InitializeRuntimeSdk failed: %d", result);
+        // If init fails, we shouldn't force the host application to hold a loaded reference to the cloud DLL.
+        // Instead we will unload to make sure SDK is in a clean state in case the application tried to call
+        // the Initialize API again.
+        gfnFreeCloudLibrary(g_pCloudLibrary);
+        g_pCloudLibrary = NULL;
+        g_cloudLibraryStatus = gfnAPINotInit;
+    }
     return gfnTranslateCloudStatus(result);
 }
 
@@ -280,22 +317,36 @@ typedef struct _gfnUserContextCallbackWrapper
     void* pOrigUserContext;
 } _gfnUserContextCallbackWrapper;
 
+enum IsCloud{IsCloud_Unknown,IsCloud_Yes,IsCloud_No};
+static enum IsCloud g_isCloud = IsCloud_Unknown;
+
 #define CHECK_NULL_PARAM(param)         \
     if (!param)                         \
     {                                   \
         return gfnInvalidParameter;     \
     }
-#define CHECK_CLOUD_ENVIRONMENT()                                                           \
-    if (!g_pCloudLibrary)                                                                   \
+#define CHECK_CLOUD_ENVIRONMENT_IMPL(bUseCache)                                             \
+    if(g_isCloud == IsCloud_Unknown || !bUseCache)                                          \
     {                                                                                       \
-        GFN_SDK_LOG("Cloud library not present");                                           \
-        return gfnDllNotPresent;                                                            \
+        if (!g_pCloudLibrary)                                                               \
+        {                                                                                   \
+            GFN_SDK_LOG("Cloud library not present");                                       \
+            return gfnDllNotPresent;                                                        \
+        }                                                                                   \
+        if (!g_pCloudLibrary->IsRunningInCloud)                                             \
+        {                                                                                   \
+            GFN_SDK_LOG("Cannot call cloud function: Wrong environment");                   \
+            return gfnCallWrongEnvironment;                                                 \
+        }                                                                                   \
+        g_isCloud = ((bool)g_pCloudLibrary->IsRunningInCloud()) ? IsCloud_Yes : IsCloud_No; \
     }                                                                                       \
-    if (g_pCloudLibrary->IsRunningInCloud == NULL || !g_pCloudLibrary->IsRunningInCloud())  \
+    if (g_isCloud == IsCloud_No)                                                            \
     {                                                                                       \
         GFN_SDK_LOG("Cannot call cloud function: Wrong environment");                       \
         return gfnCallWrongEnvironment;                                                     \
     }
+#define CHECK_CLOUD_ENVIRONMENT() CHECK_CLOUD_ENVIRONMENT_IMPL(true)
+#define RECHECK_CLOUD_ENVIRONMENT() CHECK_CLOUD_ENVIRONMENT_IMPL(false)
 #define CHECK_CLOUD_API_AVAILABLE(Fn)                                       \
     if (g_pCloudLibrary->Fn == NULL)                                        \
     {                                                                       \
@@ -308,139 +359,188 @@ typedef struct _gfnUserContextCallbackWrapper
 
 GfnRuntimeError GfnInitializeSdk(GfnDisplayLanguage language)
 {
-    wchar_t* filename = (wchar_t*)malloc(sizeof(wchar_t) * MAX_PATH);
-    if (!filename)
+    // If "client" SDK is already initialized, then we're good to go.
+    // "server" SDK may or may not be initialized depending on mode.
+    GfnRuntimeError clientStatus = gfnSuccess;
+
+    if (!g_LoggingInitialized)
     {
-        return gfnInternalError;
+        GFN_SDK_INIT_LOGGING();
+        g_LoggingInitialized = true;
     }
-    DWORD pathSize = GetModuleFileNameW(NULL, filename, MAX_PATH);
-    if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+
+
+    if (g_gfnSdkModule != NULL)
     {
-        free(filename);
-        filename = (wchar_t*)malloc(sizeof(wchar_t) * (pathSize + 1)); //Room for \0
+        GFN_SDK_LOG("Client library already initialized, no need to initialize again");
+    }
+    else
+    {
+        wchar_t* filename = (wchar_t*)malloc(sizeof(wchar_t) * MAX_PATH);
         if (!filename)
         {
             return gfnInternalError;
         }
-        pathSize = GetModuleFileNameW(NULL, filename, pathSize + 1);
-    }
+        DWORD pathSize = GetModuleFileNameW(NULL, filename, MAX_PATH);
+        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+        {
+            free(filename);
+            filename = (wchar_t*)malloc(sizeof(wchar_t) * (pathSize + 1)); //Room for \0
+            if (!filename)
+            {
+                return gfnInternalError;
+            }
+            pathSize = GetModuleFileNameW(NULL, filename, pathSize + 1);
+        }
 
-    wchar_t* lastSepPos = wcsrchr(filename, L'\\');
-    size_t pathLength = lastSepPos - filename + 1;
-    size_t dllPathLength = pathLength + 18; // "GfnRuntimeSdk.dll\0"
-    wchar_t* dllPath = (wchar_t*)malloc(sizeof(wchar_t) * dllPathLength);
-    if (!dllPath)
-    {
+        wchar_t* lastSepPos = wcsrchr(filename, L'\\');
+        size_t pathLength = lastSepPos - filename + 1;
+        size_t dllPathLength = pathLength + 18; // "GfnRuntimeSdk.dll\0"
+        wchar_t* dllPath = (wchar_t*)malloc(sizeof(wchar_t) * dllPathLength);
+        if (!dllPath)
+        {
+            free(filename);
+            return gfnInternalError;
+        }
+        wcsncpy_s(dllPath, dllPathLength, filename, _TRUNCATE);
+
+        dllPath[pathLength] = L'\0';
         free(filename);
-        return gfnInternalError;
-    }
-    wcsncpy_s(dllPath, dllPathLength, filename, _TRUNCATE);
+        wcsncat_s(dllPath, dllPathLength, L"GfnRuntimeSdk.dll", 17);
 
-    dllPath[pathLength] = L'\0';
-    free(filename);
-    wcsncat_s(dllPath, dllPathLength, L"GfnRuntimeSdk.dll", 17);
-
-    char* sdkLibPath = (char*)malloc(dllPathLength *sizeof(char));
-    if (!sdkLibPath)
-    {
-        free(dllPath);
-        return gfnInternalError;
-    }
-    int outSize = (int) dllPathLength * sizeof(char);
-    if (!GfnWideToUtf8(dllPath, sdkLibPath, outSize))
-    {
-        GFN_SDK_LOG("Invalid dll path");
+        char* sdkLibPath = (char*)malloc(dllPathLength * sizeof(char));
+        if (!sdkLibPath)
+        {
+            free(dllPath);
+            return gfnInternalError;
+        }
+        int outSize = (int)dllPathLength * sizeof(char);
+        if (!GfnWideToUtf8(dllPath, sdkLibPath, outSize))
+        {
+            GFN_SDK_LOG("Invalid client library path");
+            free(sdkLibPath);
+            free(dllPath);
+            return gfnInternalError;
+        }
+        clientStatus = GfnInitializeSdkFromPath(language, sdkLibPath);
         free(sdkLibPath);
         free(dllPath);
-        return gfnInternalError;
     }
-    GfnRuntimeError result = GfnInitializeSdkFromPath(language, sdkLibPath);
-    free(sdkLibPath);
-    free(dllPath);
-    return result;
+
+    if (GFNSDK_FAILED(clientStatus))
+    {
+        GFN_SDK_LOG("Initialization failed: %d", clientStatus);
+        GfnShutdownSdk();
+    }
+
+    return clientStatus;
 }
 
 GfnRuntimeError GfnInitializeSdkFromPath(GfnDisplayLanguage language, const char* sdkLibraryPath)
 {
-    GFN_SDK_INIT_LOGGING();
-
-    if (sdkLibraryPath == NULL)
-    {
-        GFN_SDK_LOG("Invalid dll path");
-        return gfnInternalError;
-    }
-
-    size_t libPathSize = strlen(sdkLibraryPath) + 1;
-    wchar_t* wSdkLibraryPath = (wchar_t*)malloc(libPathSize*sizeof(wchar_t));
-    if (!wSdkLibraryPath)
-    {
-        return gfnInternalError;
-    }
-    int outSize = (int)libPathSize * sizeof(wchar_t);
-    if (!GfnUtf8ToWide(sdkLibraryPath, wSdkLibraryPath, outSize))
-    {
-        GFN_SDK_LOG("Invalid dll path");
-        free(wSdkLibraryPath);
-        return gfnInternalError;
-    }
-    wchar_t* lastBackSepPos = wcsrchr(wSdkLibraryPath, L'\\');
-    wchar_t* lastForeSepPos = wcsrchr(wSdkLibraryPath, L'/');
-    wchar_t* lastSepPos = (lastBackSepPos != NULL && lastBackSepPos > lastForeSepPos ) ? lastBackSepPos : lastForeSepPos;
-    if(_wcsicmp(lastSepPos+1, L"GfnRuntimeSdk.dll") != 0)
-    {
-        GFN_SDK_LOG("Invalid dll name");
-        free(wSdkLibraryPath);
-        return gfnInternalError;
-    }
-
-    GfnRuntimeError cloudStatus = gfnInitializeCloudOnlySdk();
-
-    GFN_SDK_LOG("Initializing the GfnSdk");
-    if (g_gfnSdkModule != NULL)
-    {
-        GFN_SDK_LOG("Already initialized, no need to initialize again");
-        free(wSdkLibraryPath);
-        return gfnSuccess;
-    }
-
-    // For security reasons, it is preferred to check the digital signature before loading the DLL.
-    // Such code is not provided here to reduce code complexity and library size, and in favor of
-    // any internal libraries built for this purpose.
-#ifdef _DEBUG
-    g_gfnSdkModule = LoadLibraryW(wSdkLibraryPath);
-#else
-    g_gfnSdkModule = gfnSecureLoadClientLibrary(wSdkLibraryPath, 0);
-#endif
-
-    free(wSdkLibraryPath);
-    if (g_gfnSdkModule == NULL)
-    {
-        GFN_SDK_LOG("Not able to load client library. LastError=0x%08X", GetLastError());
-    }
-
+    // If "client" library is already initialized, then we're good to go.
     GfnRuntimeError clientStatus = gfnDllNotPresent;
     if (g_gfnSdkModule != NULL)
     {
-        gfnInitializeRuntimeSdkFn fnGfnInitializeRuntimeSdk = (gfnInitializeRuntimeSdkFn)GetProcAddress(g_gfnSdkModule, "gfnInitializeRuntimeSdk");
-        if (fnGfnInitializeRuntimeSdk == NULL)
+        GFN_SDK_LOG("Client library already initialized, no need to initialize again");
+    }
+    else
+    {
+        if (!g_LoggingInitialized)
         {
-            clientStatus = gfnAPINotFound;
+            GFN_SDK_INIT_LOGGING();
+            g_LoggingInitialized = true;
         }
-        else
+
+        if (sdkLibraryPath == NULL)
         {
-            clientStatus = (fnGfnInitializeRuntimeSdk)(language);
+            GFN_SDK_LOG("Invalid dll path");
+            return gfnInternalError;
+        }
+
+        size_t libPathSize = strlen(sdkLibraryPath) + 1;
+        wchar_t* wSdkLibraryPath = (wchar_t*)malloc(libPathSize * sizeof(wchar_t));
+        if (!wSdkLibraryPath)
+        {
+            return gfnInternalError;
+        }
+        int outSize = (int)libPathSize * sizeof(wchar_t);
+        if (!GfnUtf8ToWide(sdkLibraryPath, wSdkLibraryPath, outSize))
+        {
+            GFN_SDK_LOG("Invalid dll path");
+            free(wSdkLibraryPath);
+            return gfnInternalError;
+        }
+        wchar_t* lastBackSepPos = wcsrchr(wSdkLibraryPath, L'\\');
+        wchar_t* lastForeSepPos = wcsrchr(wSdkLibraryPath, L'/');
+        wchar_t* lastSepPos = (lastBackSepPos != NULL && lastBackSepPos > lastForeSepPos) ? lastBackSepPos : lastForeSepPos;
+        if (_wcsicmp(lastSepPos + 1, L"GfnRuntimeSdk.dll") != 0)
+        {
+            GFN_SDK_LOG("Invalid dll name");
+            free(wSdkLibraryPath);
+            return gfnInternalError;
+        }
+
+        GFN_SDK_LOG("Initializing the GfnSdk");
+        // For security reasons, it is preferred to check the digital signature before loading the DLL.
+        // Such code is not provided here to reduce code complexity and library size, and in favor of
+        // any internal libraries built for this purpose.
+#ifdef _DEBUG
+        g_gfnSdkModule = LoadLibraryW(wSdkLibraryPath);
+#else
+        g_gfnSdkModule = gfnSecureLoadClientLibraryW(wSdkLibraryPath, 0);
+#endif
+
+        free(wSdkLibraryPath);
+        if (g_gfnSdkModule == NULL)
+        {
+            GFN_SDK_LOG("Not able to load client library. LastError=0x%08X", GetLastError());
+        }
+
+        if (g_gfnSdkModule != NULL)
+        {
+            gfnInitializeRuntimeSdkFn fnGfnInitializeRuntimeSdk = (gfnInitializeRuntimeSdkFn)GetProcAddress(g_gfnSdkModule, "gfnInitializeRuntimeSdk");
+            if (fnGfnInitializeRuntimeSdk == NULL)
+            {
+                clientStatus = gfnAPINotFound;
+            }
+            else
+            {
+                clientStatus = (fnGfnInitializeRuntimeSdk)(language);
+            }
+        }
+        GFN_SDK_LOG("Client status=%d library=%p", clientStatus, g_gfnSdkModule);
+        if (GFNSDK_FAILED(clientStatus))
+        {
+            GFN_SDK_LOG("Client library load failed: %d", clientStatus);
         }
     }
-    GFN_SDK_LOG("Client status=%d library=%p", clientStatus, g_gfnSdkModule);
 
-    // gfnDllNotPresent is allowed, indicating that this is running on the user client machine.
-    // All other errors are not allowed
+    // With the client library loaded attempt to load the cloud Sdk library if available (inside GFN only) in order to use it directly for all cloud
+    GfnRuntimeError cloudStatus = gfnInitializeCloudOnlySdk();
+
+    // return client status in Client only mode
     if (cloudStatus == gfnInitSuccessClientOnly)
     {
+        if (GFNSDK_FAILED(clientStatus))
+        {
+            GFN_SDK_LOG("Client Only Mode : Client init failed with %d", clientStatus);
+            GfnShutdownSdk();
+        }
         return clientStatus;
     }
 
-    return cloudStatus;
+    if (GFNSDK_SUCCEEDED(cloudStatus))
+    {
+        return cloudStatus;
+    }
+    else
+    {
+        GFN_SDK_LOG("Unloading client library as cloud library found in bad state: %d", cloudStatus);
+        // To avoid mismatch/bad state and wierd errors, if we failed to load the cloud library, we unload the client library
+        GfnShutdownSdk();
+        return cloudStatus;
+    }
 }
 
 GfnRuntimeError GfnShutdownSdk(void)
@@ -460,6 +560,9 @@ GfnRuntimeError GfnShutdownSdk(void)
     }
 
     fnGfnShutdownRuntimeSdk();
+
+    FreeLibrary(g_gfnSdkModule);
+    g_gfnSdkModule = NULL;
 
     GFN_SDK_DEINIT_LOGGING();
     return gfnSuccess;
@@ -493,13 +596,25 @@ GfnRuntimeError GfnIsRunningInCloudSecure(GfnIsRunningInCloudAssurance* assuranc
     CHECK_NULL_PARAM(assurance);
     *assurance = gfnNotCloud;
 
+    if (wcslen(g_cloudDllPath) == 0)
+    {
+        GFN_SDK_LOG("Cloud library path not defined, which denotes an API call without Initialize succeeding, treating as not in cloud");
+        return gfnSuccess;
+    }
+
+    if (gfnCheckLibraryGfnSignatureW(g_cloudDllPath) == FALSE)
+    {
+        GFN_SDK_LOG("Cloud library path does not have valid GFN signing, treating as not in cloud");
+        return gfnSuccess;
+    }
+
     if (g_pCloudLibrary == NULL)
     {
         GFN_SDK_LOG("No cloud library present, call succeeds");
         return gfnSuccess;
     }
 
-    if (g_pCloudLibrary->IsRunningInCloud == NULL)
+    if (g_pCloudLibrary->IsRunningInCloudSecure == NULL)
     {
         GFN_SDK_LOG("API Not Found");
         return gfnAPINotFound;
@@ -575,6 +690,46 @@ GfnRuntimeError GfnGetTitlesAvailable(const char** platformAppIds)
     DELEGATE_TO_CLOUD_LIBRARY(GetTitlesAvailable, platformAppIds);
 }
 
+
+GfnRuntimeError GfnGetClientInfo(GfnClientInfo* clientInfo)
+{
+    GFN_SDK_LOG("Calling GfnGetClientInfo");
+    CHECK_NULL_PARAM(clientInfo);
+    CHECK_CLOUD_ENVIRONMENT();
+    clientInfo->version = GfnClientInfoVersion;
+    DELEGATE_TO_CLOUD_LIBRARY(GetClientInfo, clientInfo);
+}
+
+static void GFN_CALLBACK _gfnClientInfoCallbackWrapper(int status, void* updateData, void* pData)
+{
+    (void)status;
+    GFN_SDK_LOG("ClientInfo update received");
+
+    _gfnUserContextCallbackWrapper* pWrappedContext = (_gfnUserContextCallbackWrapper*)(pData);
+    if (pWrappedContext == NULL || pWrappedContext->fnCallback == NULL)
+    {
+        GFN_SDK_LOG("Wrapped context was null or had no callback. Ignoring");
+        return;
+    }
+    ClientInfoCallbackSig cb = (ClientInfoCallbackSig)(pWrappedContext->fnCallback);
+    if (cb == NULL)
+    {
+        GFN_SDK_LOG("Callback was NULL, ignoring");
+        return;
+    }
+    cb(updateData, pWrappedContext->pOrigUserContext);
+}
+
+GfnRuntimeError GfnRegisterClientInfoCallback(ClientInfoCallbackSig clientInfoCallback, void* pUserContext)
+{
+    CHECK_NULL_PARAM(clientInfoCallback);
+    CHECK_CLOUD_ENVIRONMENT();
+    GFN_SDK_LOG("Registering for ClientInfo updates");
+    _gfnUserContextCallbackWrapper* pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
+    pWrappedContext->fnCallback = (void*)clientInfoCallback;
+    pWrappedContext->pOrigUserContext = pUserContext;
+    DELEGATE_TO_CLOUD_LIBRARY(RegisterClientInfoCallback, &_gfnClientInfoCallbackWrapper, (void*)(pWrappedContext));
+}
 
 GfnRuntimeError GfnRegisterStreamStatusCallback(StreamStatusCallbackSig streamStatusCallback, void* userContext)
 {
@@ -695,7 +850,8 @@ GfnRuntimeError GfnAppReady(bool success, const char* status)
     DELEGATE_TO_CLOUD_LIBRARY(AppReady, success, status);
 }
 
-GfnRuntimeError GfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* zone) {
+GfnRuntimeError GfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* zone)
+{
     CHECK_CLOUD_ENVIRONMENT();
     DELEGATE_TO_CLOUD_LIBRARY(SetActionZone, type, id, zone);
 }
@@ -833,8 +989,8 @@ void gfnInitLogging()
         return;
     }
 
-    wcscat(localAppDataPath, L"\\NVIDIA Corporation\\GfnRuntimeSdk\\GfnRuntimeSdkWrapper.log");
-    s_logfile = _wfopen(localAppDataPath, L"w+");
+    wcscat_s(localAppDataPath, 1024, L"\\NVIDIA Corporation\\GfnRuntimeSdk\\GfnRuntimeSdkWrapper.log");
+    _wfopen_s(&s_logfile, localAppDataPath, L"w+");
 }
 
 void gfnDeinitLogging()

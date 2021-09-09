@@ -32,10 +32,11 @@
 #include "shared/defines.h"
 #include "shared/main.h"
 #include "GfnRuntimeSdk_Wrapper.h"  //Helper functions that wrap Library-based APIs
-
+#include "shellapi.h"
 #include <fstream>
 
 CefString GFN_SDK_INIT = "GFN_SDK_INIT";
+CefString GFN_SDK_SHUTDOWN = "GFN_SDK_SHUTDOWN";
 CefString GFN_SDK_STREAM_ACTION = "GFN_SDK_STREAM_ACTION";
 CefString GFN_SDK_IS_RUNNING_IN_CLOUD = "GFN_SDK_IS_RUNNING_IN_CLOUD";
 CefString GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE = "GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE";
@@ -46,6 +47,9 @@ CefString GFN_SDK_IS_TITLE_AVAILABLE = "GFN_SDK_IS_TITLE_AVAILABLE";
 CefString GFN_SDK_GET_AVAILABLE_TITLES = "GFN_SDK_GET_AVAILABLE_TITLES";
 CefString GFN_SDK_REQUEST_ACCESS_TOKEN = "GFN_SDK_REQUEST_ACCESS_TOKEN";
 CefString GET_TCP_PORT = "GET_TCP_PORT";
+CefString GET_CLIENT_INFO = "GFN_SDK_GET_CLIENT_INFO";
+CefString GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK = "GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK";
+CefString GET_OVERRIDE_URI = "GET_OVERRIDE_URI";
 
 static CefString DictToJson(CefRefPtr<CefDictionaryValue> dict)
 {
@@ -80,6 +84,7 @@ static CefString GfnErrorToString(GfnError err)
     case GfnError::gfnStreamStopFailure: return "GFN SDK failed to stop active streaming session";
     case GfnError::gfnCanceled: return "GFN SDK action was canceled";
     case GfnError::gfnElevationRequired: return "GFN SDK API requires process elevation";
+    case GfnError::gfnThrottled: return "GFN SDK API cannot be called in rapid succession";
     default: return "Unknown Error";
     }
 }
@@ -113,7 +118,10 @@ static void logGfnSdkData()
 
 // Callback function for handling stream status callbacks
 static void __stdcall handleStreamStatusCallback(GfnStreamStatus status, void* context);
+static void __stdcall handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, void* context);
 static CefMessageRouterBrowserSide::Callback* s_registerStreamStatusCallback = nullptr;
+static CefMessageRouterBrowserSide::Callback* s_registerNetworkStatusCallback = nullptr;
+static CefMessageRouterBrowserSide::Callback* s_registerClientInfoCallback = nullptr;
 
 static GfnError initGFN()
 {
@@ -156,6 +164,21 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         // gfnInitSuccessClientOnly is also success, and needs to be treated as such
         response_dict->SetBool("success", (err == GfnError::gfnSuccess || err == GfnError::gfnInitSuccessClientOnly));
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
+
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
+        return true;
+    }
+    /**
+     * Query command for shutting down the GFN SDK. Should be called once the SDK is no longer needed.
+     * Manually wire up into gfn_sdk.html where you want shutdown to occur.
+     */
+    if (command == GFN_SDK_SHUTDOWN)
+    {
+        GfnError err = GfnShutdownSdk();
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        response_dict->SetBool("success", (err == GfnError::gfnSuccess));
         response_dict->SetString("errorMessage", GfnErrorToString(err));
 
         CefString response(DictToJson(response_dict));
@@ -472,6 +495,73 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
 
         return true;
     }
+    else if (command == GET_CLIENT_INFO)
+    {
+        LOG(INFO) << "Calling GfnGetClientInfo...";
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        GfnClientInfo clientInfo = { 0 };
+        GfnError error = GfnError::gfnSuccess;
+        error = GfnGetClientInfo(&clientInfo);
+        LOG(INFO) << "GfnGetClientInfo error result: " << error;
+        response_dict->SetString("errorMessage", GfnErrorToString(error));
+        if (error != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "get client info data error: " << GfnErrorToString(error);
+            response_dict->SetString("clientInfo", "");
+        }
+        else
+        {
+            response_dict->SetInt("apiVersion", clientInfo.version);
+            response_dict->SetString("country", clientInfo.country);
+            response_dict->SetString("ipV4", clientInfo.ipV4);
+            response_dict->SetString("locale", clientInfo.locale);
+            response_dict->SetInt("osType", clientInfo.osType);
+        }
+        CefString response(DictToJson(response_dict));
+        LOG(INFO) << "GfnGetClientInfo data: " << response.ToString();
+        callback->Success(response);
+        return true;
+    }
+    /**
+     * Registers for callback notifications for on-seat client info updates
+     */
+    else if (command == GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK)
+    {
+        s_registerClientInfoCallback = callback;
+
+        GfnError err = GfnRegisterClientInfoCallback(reinterpret_cast<ClientInfoCallbackSig>(&handleClientInfoCallback), nullptr);
+        if (err != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "Failed to register Client Info Callback: " << GfnErrorToString(err);
+        }
+        return true;
+    }
+    else if (command == GET_OVERRIDE_URI)
+    {
+        int argc = 0;
+        LPWSTR* cmdLine = CommandLineToArgvW(GetCommandLineW(), &argc);
+        LPWSTR override_uri = L"";
+        for (int i = 0; i < argc; i++)
+        {
+            if (wcscmp(cmdLine[i], L"--override_uri") == 0)
+            {
+                if (i + 1 < argc)
+                {
+                    override_uri = cmdLine[i + 1];
+                }
+                break;
+            }
+        }
+
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        response_dict->SetString("overrideURI", override_uri);
+
+        CefString response(DictToJson(response_dict));
+        LOG(INFO) << "Override URI: " << response.ToString();
+        callback->Success(response);
+        return true;
+    }
+    LOG(ERROR) << "Unknown command value: " << command;
 
     return false;
 }
@@ -485,5 +575,28 @@ void __stdcall handleStreamStatusCallback(GfnStreamStatus status, void* context)
 
         CefString response(DictToJson(response_dict));
         s_registerStreamStatusCallback->Success(response);
+    }
+}
+
+void __stdcall handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, void* context)
+{
+    if (!pClientUpdate)
+    {
+        return;
+    }
+    if (s_registerClientInfoCallback)
+    {
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        switch (pClientUpdate->updateType)
+        {
+        case gfnOs:
+            response_dict->SetInt("os", pClientUpdate->data.osType);
+            break;
+        default:
+            return;
+        }
+
+        CefString response(DictToJson(response_dict));
+        s_registerClientInfoCallback->Success(response);
     }
 }

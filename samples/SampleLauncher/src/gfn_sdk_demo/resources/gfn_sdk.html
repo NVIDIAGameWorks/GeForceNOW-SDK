@@ -231,9 +231,23 @@
                         updateStreamButton();
                     }
 
-                    var streamStatusDiv = document.getElementById('stream-status');
                     var streamStatusValue = document.getElementById('stream-status-value');
                     streamStatusValue.innerHTML = data.status;
+                }
+            });
+        }
+
+        /**
+         * Requests a callback when on-seat client info changes
+         */
+        function registerClientInfoCallback() {
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK'
+                }),
+                persistent: true,
+                onSuccess: function (response) {
+                    setStatus('Client info update: ' + response);
                 }
             });
         }
@@ -259,6 +273,8 @@
                             getClientIp();
                             // Get current client country code
                             getClientCountryCode();
+                            // Get all the available client info
+                            getClientInfo();
                             // Get streamable status about a specific title
                             isTitleAvailable();
                             // Get all titles available to stream in the current GFN game seat
@@ -363,7 +379,7 @@
                         }
                     }
                 }`;
-                var url = 'https://public.games.geforce.com/graphql?query='+ encodeURIComponent(GetAppsQuery(serverId));
+                var url = 'https://public.games.geforce.com/graphql?query=' + encodeURIComponent(GetAppsQuery(serverId));
                 return fetch(url, {
                     method: 'GET'
                 })
@@ -526,6 +542,29 @@
         }
 
         /**
+         * Calls into GFN SDK to get the user's client info. This is meant to be
+         * called while running on the GeForce NOW game seat to make decisions based on client settings,
+         * such as changing the application UI if the user's input is a game controller or touchscreen 
+         * versus using a keyboard and mouse.
+         */
+        function getClientInfo() {
+            setStatus('Getting Client Info...');
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GFN_SDK_GET_CLIENT_INFO'
+                }),
+                onSuccess: function (response) {
+                    var data = JSON.parse(response);
+                    clientCountryCode = data.clientCountryCode;
+                    setStatus('Got client info: ' + response);
+                },
+                onFailure: function (response) {
+                    setStatus('Failed to get Client Info: ' + JSON.stringify(response));
+                }
+            });
+        }
+
+        /**
          * Opens a popup window that displays the NVIDIA Identity Services login website to
          * facilitate authentication with a new or existing NVIDIA account. This is part of
          * the Account Linking flow, or can be used as a one-time authentication operation.
@@ -555,17 +594,38 @@
                     var nonce = 'gfnsdksamplelauncher_' + Math.random().toString(18).slice(2);
                     setStatus('login TCP Port: ' + tcpPort + ', nonce: ' + nonce);
 
-                    oauthWindow = window.open('https://login.nvidia.com/authorize?' +
-                        'response_type=id_token%20token&' +
-                        'client_id=' + sampleLauncherClientId + '&' +
-                        'redirect_uri=https%3A%2F%2Flocalhost%3A' + tcpPort + '%2Fredirect.html&' +
-                        'scope=openid%20email%20consent%20preferred_username&' +
-                        'device_id=' + sampleLauncherDeviceId + '&' +
-                        'nonce=' + nonce,
-                        'app_oauthWindow', 'toolbar=0,location=0,menubar=0,status=0,titlebar=0,' +
-                        // Absolute coordinates that match the size/location of the underlying element
-                        'left=' + popupX + ',top=' + popupY + ',width=' + popupWidth +
-                        ',height=' + popupHeight);
+                    window.cefQuery({
+                        request: JSON.stringify({
+                            command: 'GET_OVERRIDE_URI'
+                        }),
+                        onSuccess: function (response) {
+                            var data = JSON.parse(response);
+                            overrideURI = data.overrideURI;
+                            var oAuthUrlBase = 'https://login.nvidia.com/authorize?';
+                            var clientIdStr = 'client_id=' + sampleLauncherClientId + '&';
+                            if (overrideURI && overrideURI.length > 0) {
+                                setStatus('Logging in with override uri ' + overrideURI);
+                                oAuthUrlBase = overrideURI;
+                                clientIdStr = '';
+                            }
+
+                            oauthWindow = window.open(oAuthUrlBase +
+                                clientIdStr +
+                                'response_type=id_token%20token&' +
+                                'redirect_uri=https%3A%2F%2Flocalhost%3A' + tcpPort + '%2Fredirect.html&' +
+                                'scope=openid%20email%20consent&' +
+                                'device_id=' + sampleLauncherDeviceId + '&' +
+                                'nonce=' + nonce,
+                                'app_oauthWindow', 'toolbar=0,location=0,menubar=0,status=0,titlebar=0,' +
+                                // Absolute coordinates that match the size/location of the underlying element
+                                'left=' + popupX + ',top=' + popupY + ',width=' + popupWidth +
+                                ',height=' + popupHeight);
+                                
+                        },
+                        onFailure: function (response) {
+                            setStatus('Failed to check staging override from command line');
+                        }
+                    });
                 },
                 onFailure: function (response) {
                     setStatus('Failed to get TCP port: ' + JSON.stringify(response));
@@ -700,7 +760,15 @@
                     if (!isCloud) {
                         registerStreamStatusCallback();
                         getSupportedTitles().then(function (titles) {
-                            supportedTitlesAsJson = titles;
+                            // Some titles may not have cmsids assigned
+                            supportedTitlesAsJson = []
+                            for (title of titles) {
+                                if (title.variants.length >= 1) {
+                                    supportedTitlesAsJson.push(title);
+                                } else {
+                                    setStatus('removing title ' + JSON.stringify(title));
+                                }
+                            }
                             surfaceDemoTitle();
                             nextGame(0);
                             enableButtons(true);
@@ -710,6 +778,7 @@
                     }
                     else {
                         setStatus('Running in GFN Cloud, skipping getting Supported Titles');
+                        registerClientInfoCallback();
                     }
                 });
             }, function (error) {

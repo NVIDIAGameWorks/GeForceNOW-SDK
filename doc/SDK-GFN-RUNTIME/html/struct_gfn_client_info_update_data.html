@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>GfnSdkDevelopment: _out/build/x86-v142-release/docs Directory Reference</title>
+<title>GfnSdkDevelopment: GfnClientInfoUpdateData Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -43,8 +43,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="annotated.html"><span>Classes</span></a></li>
-      <li class="current"><a href="files.html"><span>Files</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
+      <li><a href="files.html"><span>Files</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -65,8 +65,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
-      <li class="current"><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
+      <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 <!-- window showing the filter options -->
@@ -83,20 +84,42 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="dir_f92a6e80c54f08c61222eed434e6fab9.html">_out</a></li><li class="navelem"><a class="el" href="dir_6b7317c81c9a2ef713b4601e17f18bc0.html">build</a></li><li class="navelem"><a class="el" href="dir_3ced1c6cae6f6d256f8926ebde7aecd7.html">x86-v142-release</a></li><li class="navelem"><a class="el" href="dir_de06db2b1b2ae2e685991a273d32a19a.html">docs</a></li>  </ul>
-</div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="struct_gfn_client_info_update_data-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">docs Directory Reference</div>  </div>
+<div class="title">GfnClientInfoUpdateData Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>An update notification for a piece of client info data.  
+ <a href="struct_gfn_client_info_update_data.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h_source.html">GfnRuntimeSdk_CAPI.h</a>&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="subdirs"></a>
-Directories</h2></td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a13b1c3fb75957cfeb0dcd5709b0c7ee4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a13b1c3fb75957cfeb0dcd5709b0c7ee4"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>version</b></td></tr>
+<tr class="separator:a13b1c3fb75957cfeb0dcd5709b0c7ee4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8eb00d33c3bde2c67e6d58251a25c10d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8eb00d33c3bde2c67e6d58251a25c10d"></a>
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a954ec271aebbdf93440fd9841f0eb8fc">GfnClientDataChangeType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>updateType</b></td></tr>
+<tr class="separator:a8eb00d33c3bde2c67e6d58251a25c10d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16d6af6526e02eb1705bc484b90658ac"><td class="memItemLeft" ><a class="anchor" id="a16d6af6526e02eb1705bc484b90658ac"></a>
+union {</td></tr>
+<tr class="memitem:a9ab77a66b4838d5b26249dd2bea95290"><td class="memItemLeft" >
+&#160;&#160;&#160;<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a1f78681ce77a7884cf0ffe98fedc7734">GfnOsType</a>&#160;&#160;&#160;<b>osType</b></td></tr>
+<tr class="separator:a9ab77a66b4838d5b26249dd2bea95290"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16d6af6526e02eb1705bc484b90658ac"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><b>data</b></td></tr>
+<tr class="separator:a16d6af6526e02eb1705bc484b90658ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>An update notification for a piece of client info data. </p>
+</div><hr/>The documentation for this struct was generated from the following file:<ul>
+<li><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h_source.html">GfnRuntimeSdk_CAPI.h</a></li>
+</ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.12-->
 <!-- start footer part -->

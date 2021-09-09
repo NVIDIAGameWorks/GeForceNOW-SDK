@@ -37,3 +37,4 @@ extern GfnApplicationCallbackResult GFN_CALLBACK PauseApp(void* pContext);
 extern GfnApplicationCallbackResult GFN_CALLBACK InstallApp(const TitleInstallationInformation* pInfo, void* pContext);
 extern GfnApplicationCallbackResult GFN_CALLBACK AutoSave(void* pContext);
 extern GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* pContext);
+extern GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoUpdateData* data, const void* pContext);

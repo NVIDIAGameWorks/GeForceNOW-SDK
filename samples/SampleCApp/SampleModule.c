@@ -66,3 +66,23 @@ GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* 
     printf("SessionInit: %s\n", params);
     return crCallbackSuccess;
 }
+
+GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoUpdateData* pUpdate, const void* pContext)
+{
+    if (!pUpdate)
+    {
+        printf("Client info callback received invalid data\n");
+        return crCallbackFailure;
+    }
+
+    switch (pUpdate->updateType)
+    {
+    case gfnOs:
+        printf("OS changed: %d\n", pUpdate->data.osType);
+        break;
+    default:
+        printf("Unknown client data change type %d\n", pUpdate->updateType);
+        break;
+    }
+    return crCallbackSuccess;
+}

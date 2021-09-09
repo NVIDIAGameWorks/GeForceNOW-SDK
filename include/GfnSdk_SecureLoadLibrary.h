@@ -88,12 +88,24 @@ HMODULE gfnSecureLoadClientLibraryA(LPCSTR filePath, DWORD dwFlags);
 HMODULE gfnSecureLoadCloudLibraryW(LPCWSTR filePath, DWORD dwFlags);
 HMODULE gfnSecureLoadCloudLibraryA(LPCSTR filePath, DWORD dwFlags);
 
+// TODO: Documentation block
+BOOL gfnCheckLibraryGfnSignatureW(LPCWSTR filePath);
+BOOL gfnCheckLibraryGfnSignatureA(LPCSTR filePath);
+
+// TODO: Documentation block
+BOOL gfnCheckLibraryNvSignatureW(LPCWSTR filePath);
+BOOL gfnCheckLibraryNvSignatureA(LPCSTR filePath);
+
 #ifdef UNICODE
 #define gfnSecureLoadClientLibrary gfnSecureLoadClientLibraryW
 #define gfnSecureLoadCloudLibrary gfnSecureLoadCloudLibraryW
+#define gfnCheckLibraryGfnSignature gfnCheckLibraryGfnSignatureW
+#define gfnCheckLibraryNvSignature gfnCheckLibraryNvSignatureW
 #else
 #define gfnSecureLoadClientLibrary gfnSecureLoadClientLibraryA
 #define gfnSecureLoadCloudLibrary gfnSecureLoadCloudLibraryA
+#define gfnCheckLibraryGfnSignature gfnCheckLibraryGfnSignatureA
+#define gfnCheckLibraryNvSignature gfnCheckLibraryNvSignatureA
 #endif /* !UNICODE */
 
 #ifdef __cplusplus

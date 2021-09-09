@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['titleinstallationinformation',['TitleInstallationInformation',['../struct_title_installation_information.html',1,'']]]
+  ['startstreaminput',['StartStreamInput',['../struct_start_stream_input.html',1,'']]],
+  ['startstreamresponse',['StartStreamResponse',['../struct_start_stream_response.html',1,'']]]
 ];

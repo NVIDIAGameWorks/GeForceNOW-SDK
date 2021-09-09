@@ -32,6 +32,12 @@
 //
 // ===============================================================================================
 
+/**
+* @file GfnSdk.h
+*
+* Common declarations for GFN SDK APIs
+*/
+
 
 
 #ifndef GFN_SDK_CAPI_H
@@ -60,24 +66,34 @@
 #endif
 
 #ifndef __cplusplus
-/// Simple aliasing for bool support
+/// @brief Simple aliasing for bool support
 typedef char bool;
-/// Simple aliasing for Boolean false
+/// @brief Simple aliasing for Boolean false
 #define false 0
-/// Simple aliasing for Boolean true
+/// @brief Simple aliasing for Boolean true
 #define true 1
 #endif
 
-// Version info
+/// @brief GFN SDK Major Version
 #define NVGFNSDK_VERSION_MAJOR 1
-#define NVGFNSDK_VERSION_MINOR 6
-#define NVGFNSDK_VERSION_SHORT 1.6
 
-#define NVGFNSDK_VERSION_PATCH 3004
-#define NVGFNSDK_VERSION_BUILD 0364
-#define NVGFNSDK_VERSION_LONG 1.6.3004.0364
+/// @brief GFN SDK Minor Version
+#define NVGFNSDK_VERSION_MINOR 7
 
-#define NVGFNSDK_VERSION_STR   "1.6.3004.0364"
+/// @brief GFN SDK Version
+#define NVGFNSDK_VERSION_SHORT 1.7
+
+/// @brief GFN SDK Patch Version
+#define NVGFNSDK_VERSION_PATCH 3039
+
+/// @brief GFN SDK Build Version
+#define NVGFNSDK_VERSION_BUILD 5783
+
+/// @brief GFN SDK Version
+#define NVGFNSDK_VERSION_LONG 1.7.3039.5783
+
+/// @brief GFN SDK Version string
+#define NVGFNSDK_VERSION_STR   "1.7.3039.5783"
 
 #ifdef __cplusplus
     extern "C"
@@ -90,20 +106,20 @@ typedef char bool;
         /// @brief Returned by InitializeGfnRuntime and GfnRuntime API methods
         typedef enum GfnError
         {
-            gfnSuccess = 0,
+            gfnSuccess = 0, ///< Success
             gfnInitSuccessClientOnly = 1, ///< SDK initialized, but only cloud independent functionality available (such as gfnStartStream).
             gfnInitFailure = -1, ///< SDK initialization failure for any reason other than memory allocation failure.
-            gfnDllNotPresent = -2,
+            gfnDllNotPresent = -2, ///< DLL is not present
             gfnComError = -3, ///< Geforce NOW SDK internal component communication error.
             gfnLibraryCallFailure = -4, ///< Geforce NOW SDK components were reachable, but could not serve the request.
-            gfnIncompatibleVersion = -5,
-            gfnUnableToAllocateMemory = -6,
-            gfnInvalidParameter = -7,
+            gfnIncompatibleVersion = -5, ///< Incompatible version
+            gfnUnableToAllocateMemory = -6, ///< Unable to allocate memory
+            gfnInvalidParameter = -7, ///< Invalid parameter
             gfnInternalError = -8, ///< Generic Geforce NOW SDK internal error.
-            gfnUnsupportedAPICall = -9,
-            gfnInvalidToken = -10,
-            gfnTimedOut = -11,
-            gfnSetupTitleFailure = -12,
+            gfnUnsupportedAPICall = -9, ///< API Call is not supported
+            gfnInvalidToken = -10, ///< Invalid token
+            gfnTimedOut = -11, ///< Operation timed out
+            gfnSetupTitleFailure = -12, ///< Failed to setup title
             gfnClientDownloadFailed = -13, ///< Failed to download the Geforce NOW client.
             gfnCallWrongEnvironment = -14, ///< Function limited to specific environment called in wrong environment
             gfnWebApiFailed = -15, ///< A call to a NVIDIA Web API failed to return valid data
@@ -126,13 +142,13 @@ typedef char bool;
         /// @par Usage
         /// Use to determine if GfnRuntimeError value translates to success
         ///
-        /// @param r      - GfnRuntimeError type value
+        /// @param code - GfnRuntimeError type value
         ///
-        /// @retval true  - GfnRuntimeError value indicates success
+        /// @retval true - GfnRuntimeError value indicates success
         /// @retval false - GfnRuntimeError value indicates failure
-        inline bool GFNSDK_SUCCEEDED(GfnError r)
+        inline bool GFNSDK_SUCCEEDED(GfnError code)
         {
-            return r >= 0;
+            return code >= 0;
         }
 
         ///
@@ -142,52 +158,52 @@ typedef char bool;
         /// @par Usage
         /// Use to determine if GfnRuntimeError value translates to failure
         ///
-        /// @param r      - GfnRuntimeError type value
+        /// @param code - GfnRuntimeError type value
         ///
-        /// @retval true  - GfnRuntimeError value indicates failure
+        /// @retval true - GfnRuntimeError value indicates failure
         /// @retval false - GfnRuntimeError value indicates success
-        inline bool GFNSDK_FAILED(GfnError r)
+        inline bool GFNSDK_FAILED(GfnError code)
         {
-            return r < 0;
+            return code < 0;
         }
 
         /// @brief Values for languages supported by the GFN SDK, used to define which language any SDK dialogs should be displayed in.
         typedef enum GfnDisplayLanguage
         {
-            gfnDefaultLanguage = 0,         /// Uses the default system language
-            gfn_bg_BG = 1,
-            gfn_cs_CZ = 2,
-            gfn_nl_NL = 3,
-            gfn_de_DE = 4,
-            gfn_el_GR = 5,
-            gfn_en_US = 6,
-            gfn_en_UK = 7,
-            gfn_es_ES = 8,
-            gfn_es_MX = 9,
-            gfn_fi_FI = 10,
-            gfn_fr_FR = 11,
-            gfn_hu_HU = 12,
-            gfn_it_IT = 13,
-            gfn_ja_JP = 14,
-            gfn_ko_KR = 15,
-            gfn_nb_NO = 16,
-            gfn_po_PO = 17,
-            gfn_pt_BR = 18,
-            gfn_pt_PT = 19,
-            gfn_ro_RO = 20,
-            gfn_ru_RU = 21,
-            gfn_sv_SE = 22,
-            gfn_th_TH = 23,
-            gfn_tr_TR = 24,
-            gfn_uk_UA = 25,
-            gfn_zh_CN = 26,
-            gfn_zh_TW = 27,
-            gfn_en_GB = 28,
-            gfn_hr_HR = 29,
-            gfn_sk_SK = 30,
-            gfn_sl_SI = 31,
-            gfn_da_DK = 32,
-            gfnMaxLanguage = gfn_da_DK
+            gfnDefaultLanguage = 0, ///< Uses the default system language
+            gfn_bg_BG = 1, ///< Bulgarian (Bulgaria)
+            gfn_cs_CZ = 2, ///< Czech (Czech Republic)
+            gfn_nl_NL = 3, ///< Dutch (Neatherlands)
+            gfn_de_DE = 4, ///< German (Germany)
+            gfn_el_GR = 5, ///< Greek (Greece)
+            gfn_en_US = 6, ///< English (US)
+            gfn_en_UK = 7, ///< English (Great Britain)
+            gfn_es_ES = 8, ///< Spanish (Spain)
+            gfn_es_MX = 9, ///< Spanish (Mexico)
+            gfn_fi_FI = 10, ///< Finnish (Finland)
+            gfn_fr_FR = 11, ///< French (France)
+            gfn_hu_HU = 12, ///< Hungarian (Hungary)
+            gfn_it_IT = 13, ///< Italian (Italy)
+            gfn_ja_JP = 14, ///< Japanese (Japan)
+            gfn_ko_KR = 15, ///< Korean (Korea)
+            gfn_nb_NO = 16, ///< Norwegian - Bokmål (Norway)
+            gfn_po_PO = 17, ///< Polish (Poland)
+            gfn_pt_BR = 18, ///< Portuguese (Brazil)
+            gfn_pt_PT = 19, ///< Portuguese (Portugal)
+            gfn_ro_RO = 20, ///< Romanian (Romania)
+            gfn_ru_RU = 21, ///< Russian (Russia)
+            gfn_sv_SE = 22, ///< Swedish (Sweden)
+            gfn_th_TH = 23, ///< Thai (Thailand)
+            gfn_tr_TR = 24, ///< Turkish (Turkey)
+            gfn_uk_UA = 25, ///< Ukrainian (Ukraine)
+            gfn_zh_CN = 26, ///< Chinese (China)
+            gfn_zh_TW = 27, ///< Chinese (Taiwan)
+            gfn_en_GB = 28, ///< English (Great Britain)
+            gfn_hr_HR = 29, ///< Croatian (Croatia)
+            gfn_sk_SK = 30, ///< Slovak (Slovakia)
+            gfn_sl_SI = 31, ///< Slovenian (Slovenia)
+            gfn_da_DK = 32, ///< Danish (Denmark)
+            gfnMaxLanguage = gfn_da_DK  ///< Last Supported Locale (Sentinel Value)
         } GfnDisplayLanguage;
 
         /// @brief Formats to specify a rect with top-left as origin
@@ -221,6 +237,7 @@ typedef char bool;
         } GfnRect;
 
 #ifdef _WIN32
+        /// @brief Utility for converting UTF8 string to wide char
         inline bool GfnUtf8ToWide(const char* in, wchar_t* out, int outSize)
         {
             int result = MultiByteToWideChar(CP_UTF8, 0, in, -1, NULL, 0);
@@ -237,6 +254,7 @@ typedef char bool;
             return true;
         }
 
+        /// @brief Utility for converting wide char string to UTF8
         inline bool GfnWideToUtf8(const wchar_t* in, char* out, int outSize)
         {
             int length = WideCharToMultiByte(CP_UTF8, 0, in, -1, NULL, 0, NULL, NULL);

@@ -44,6 +44,7 @@ void ApplicationInitialize()
         printf("Error initializing the sdk: %d\n", err);
     }
 
+
     // Register any implemented callbacks capable of serving requests from the SDK.
     err = GfnRegisterExitCallback(ExitApp, NULL);
     if (err != gfnSuccess)
@@ -70,6 +71,11 @@ void ApplicationInitialize()
     {
         printf("Error registering SessionInit callback: %d\n", err);
     }
+    err = GfnRegisterClientInfoCallback(HandleClientDataChanges, NULL);
+    if (err != gfnSuccess)
+    {
+        printf("Error registering clientInfo callback: %d\n", err);
+    }
     // Application Initialization...
 }
 
@@ -78,12 +84,12 @@ void ApplicationShutdown()
 {
     printf("\n\nApplication: Shutting down...\n");
 
-    // Application Shutdown...
 
     // Shut down the Geforce NOW Runtime SDK. Note that it's safe to call
     // gfnShutdownRuntimeSdk even if the SDK was not initialized.
     GfnShutdownSdk();
 }
+
 
 // Example application main
 int _tmain(int argc, _TCHAR* argv[])
@@ -132,6 +138,23 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("Failed to retrieve Geforce NOW client Country code. GfnError: %d\n", (int)runtimeError);
         }
 
+        GfnClientInfo info;
+        runtimeError = GfnGetClientInfo(&info);
+        if (runtimeError == gfnSuccess)
+        {
+            printf("GetClientInfo returned: { version: %d, osType: %d, ipV4: %s, "
+                "country: %s, locale:%s"
+                " }\n",
+                info.version, info.osType, info.ipV4,
+                info.country, info.locale
+            );
+        }
+        else
+        {
+            printf("Failed to retrieve client info. GfnError: %d\n", (int)runtimeError);
+        }
+
+
         // Try "setting up" a title!
         runtimeError = GfnSetupTitle("Sample C App");
         if (runtimeError == gfnSuccess)
@@ -163,8 +186,10 @@ int _tmain(int argc, _TCHAR* argv[])
         }
     }
 
+
     // Application main loop
     printf("\n\nApplication: In main application loop; Press space bar to exit...\n\n");
+    GetAsyncKeyState(' '); // Clear space bar change bit
     while (!g_MainDone)
     {
         // Do application stuff here..

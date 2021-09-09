@@ -388,6 +388,30 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
+<td>C </td><td><a class="el" href="group__launcher.html#ga0a78ef87b1164626048c7c88b9de3284">gfnGetClientInfo</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Gets various information about the local client system and environment</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get various information about the client that launched the streaming session.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">clientInfo</td><td>- Pointer to a <a class="el" href="struct_gfn_client_info.html" title="Client info blob. ">GfnClientInfo</a> struct. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in or buffer length is too small </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
 <td>C </td><td><a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Requests GFN client to start a streamed session of an application in a synchronous (blocking) fashion.</dd></dl>
@@ -627,7 +651,7 @@ Callback-related Methods</h2>
   <table class="params">
     <tr><td class="paramname">type</td><td>- Populated with relevant GfnActionType </td></tr>
     <tr><td class="paramname">id</td><td>- unique unsigned int type identifier for this action zone </td></tr>
-    <tr><td class="paramname">zone</td><td>- To enable action zone set this parameter to GfnRect coordinates of the zone, to disable action zone set this parameter to NULL</td></tr>
+    <tr><td class="paramname">zone</td><td>- To enable action zone set this parameter to <a class="el" href="struct_gfn_rect.html" title="struct to reference a rect ">GfnRect</a> coordinates of the zone, to disable action zone set this parameter to NULL</td></tr>
   </table>
   </dd>
 </dl>
@@ -643,7 +667,32 @@ Callback-related Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#abae3540f316b5bbd5e72b0071d3f3d5a">gfnRegisterClientInfoCallback</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when certain client info that is part of GetClientInfo API changes</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a the client information from the GFN user's client system has changed</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">clientInfoCallback</td><td>- Function pointer to application code to call when client information has changed </td></tr>
+    <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
+    <tr><td class="paramname">gfnDllNotPresent</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
+  </table>
+  </dd>
+</dl>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.12-->
 <!-- start footer part -->

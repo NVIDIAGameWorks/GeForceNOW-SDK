@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.6
+# NVIDIA GeForce NOW SDK Release 1.7
 
 ## At a Glance
 
@@ -10,14 +10,15 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* Adds a [Guide to Account Linking and Single Sign-On](./doc/SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf)
-* Adds new GfnSetActionZone API
-  * Lets game specify regions of interest where specific actions are required on the GFN client
-  * Action zone of type gfnEditBox lets client monitor editable textbox regions to auto-invoke keyboard on touch devices (iOS & iPad at present)
-  * More Action Types to follow in later releases!
-* Fix for consecutive session timeout issue
-* Fixes for SecureLoadLibrary issues
-* Several minor bug and crash fixes
+* Adds version 1 of GfnGetClientInfo API
+  * Provides Operating System information about the user's client system
+  * Collapses several other GetClient APIs into this single API
+  * Provides callback support when the client changes during a streaming session (Example: user starts session on PC, then resumes on a mobile device)
+  * Future SDK releases will include additional client information
+* Fix for potential crash after GfnShutdownSDK API is called
+* Fix for SDK failure when SDK is initialized more than once in a single process
+* Fix in GfnStartStream if the GFN streamer fails to stop a previous streaming session gracefully
+* Various API optimizations
 
 ## Developer Content Portal
 

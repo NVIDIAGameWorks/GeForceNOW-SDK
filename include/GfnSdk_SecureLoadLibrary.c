@@ -84,13 +84,62 @@ HMODULE gfnSecureLoadClientLibraryA(LPCSTR filePath, DWORD dwFlags)
 
 HMODULE gfnSecureLoadCloudLibraryW(LPCWSTR filePath, DWORD dwFlags)
 {
-    return gfnInternalSecureLoadLibraryW(filePath, dwFlags, SignatureTypeGfn);
+    return gfnInternalSecureLoadLibraryW(filePath, dwFlags, SignatureTypeNvidia);
 }
 
 HMODULE gfnSecureLoadCloudLibraryA(LPCSTR filePath, DWORD dwFlags)
 {
-    return gfnInternalSecureLoadLibraryA(filePath, dwFlags, SignatureTypeGfn);
+    return gfnInternalSecureLoadLibraryA(filePath, dwFlags, SignatureTypeNvidia);
 }
+
+BOOL gfnCheckLibraryGfnSignatureW(LPCWSTR filePath)
+{
+    return gfnInternalVerifyFileSignature(filePath, SignatureTypeGfn);
+}
+
+BOOL gfnCheckLibraryGfnSignatureA(LPCSTR filePath)
+{
+    BOOL isSigned = FALSE;
+    LPWSTR unicodeFilePath = NULL;
+    if (!filePath)
+    {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+    unicodeFilePath = gfnInternalCreateUnicodeStringFromAscii(filePath);
+    if (!!unicodeFilePath)
+    {
+        isSigned = gfnInternalVerifyFileSignature(unicodeFilePath, SignatureTypeGfn);
+    }
+    SafeLocalFree(unicodeFilePath);
+
+    return isSigned;
+}
+
+BOOL gfnCheckLibraryNvSignatureW(LPCWSTR filePath)
+{
+    return gfnInternalVerifyFileSignature(filePath, SignatureTypeNvidia);
+}
+
+BOOL gfnCheckLibraryNvSignatureA(LPCSTR filePath)
+{
+    BOOL isSigned = FALSE;
+    LPWSTR unicodeFilePath = NULL;
+    if (!filePath)
+    {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+    unicodeFilePath = gfnInternalCreateUnicodeStringFromAscii(filePath);
+    if (!!unicodeFilePath)
+    {
+        isSigned = gfnInternalVerifyFileSignature(unicodeFilePath, SignatureTypeNvidia);
+    }
+    SafeLocalFree(unicodeFilePath);
+
+    return isSigned;
+}
+
 
 // ===================================================================
 // Internal functions defined below. Do not use directly.

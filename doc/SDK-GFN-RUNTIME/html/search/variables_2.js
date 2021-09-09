@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tokentype',['tokenType',['../struct_start_stream_input.html#abaaa079b12040eaaca900ef1bf2fc1f5',1,'StartStreamInput']]]
+  ['normalized',['normalized',['../struct_gfn_rect.html#a2fb4ff627b633d23a7395d4eed88966e',1,'GfnRect']]]
 ];

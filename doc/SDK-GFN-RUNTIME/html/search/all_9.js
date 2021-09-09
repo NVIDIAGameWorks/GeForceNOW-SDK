@@ -1,10 +1,15 @@
 var searchData=
 [
-  ['savecallbacksig',['SaveCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aec727814832c039259304e7c7537ea16',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['sessioninitcallbacksig',['SessionInitCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aaf8c09b9174894c91b980a790c105008',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['startstreamcallbacksig',['StartStreamCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#adec3b60c6f670217c8067f1f0311d92e',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['startstreaminput',['StartStreamInput',['../struct_start_stream_input.html',1,'StartStreamInput'],['../_gfn_runtime_sdk___c_a_p_i_8h.html#afd7de910963e8113f6595708bf5e8b2b',1,'StartStreamInput():&#160;GfnRuntimeSdk_CAPI.h']]],
-  ['startstreamresponse',['StartStreamResponse',['../struct_start_stream_response.html',1,'StartStreamResponse'],['../_gfn_runtime_sdk___c_a_p_i_8h.html#a1c8fd6acfeaf81aec3f6198e27450b8a',1,'StartStreamResponse():&#160;GfnRuntimeSdk_CAPI.h']]],
-  ['stopstreamcallbacksig',['StopStreamCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a19851a66182321b10f714e395fcb4737',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['streamstatuscallbacksig',['StreamStatusCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#acbb9a59546e24d337ba84b6f61984d3e',1,'GfnRuntimeSdk_CAPI.h']]]
+  ['native_20runtime_20api_20reference',['Native Runtime API Reference',['../index.html',1,'']]],
+  ['normalized',['normalized',['../struct_gfn_rect.html#a2fb4ff627b633d23a7395d4eed88966e',1,'GfnRect']]],
+  ['nvgfnsdk_5fexport',['NVGFNSDK_EXPORT',['../_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae',1,'GfnSdk.h']]],
+  ['nvgfnsdk_5fversion_5fbuild',['NVGFNSDK_VERSION_BUILD',['../_gfn_sdk_8h.html#a68ee89a9d83ad9be38e85b244266d616',1,'GfnSdk.h']]],
+  ['nvgfnsdk_5fversion_5flong',['NVGFNSDK_VERSION_LONG',['../_gfn_sdk_8h.html#a03aac63521881472fe76bdd1c79bd7cb',1,'GfnSdk.h']]],
+  ['nvgfnsdk_5fversion_5fmajor',['NVGFNSDK_VERSION_MAJOR',['../_gfn_sdk_8h.html#a9aa29280fe4f9aacd9ad25ffbcedd854',1,'GfnSdk.h']]],
+  ['nvgfnsdk_5fversion_5fminor',['NVGFNSDK_VERSION_MINOR',['../_gfn_sdk_8h.html#a36f9286155f18f70725b6c0cbba4b966',1,'GfnSdk.h']]],
+  ['nvgfnsdk_5fversion_5fpatch',['NVGFNSDK_VERSION_PATCH',['../_gfn_sdk_8h.html#ae3d6fee7aa89956d23257d5cca655b65',1,'GfnSdk.h']]],
+  ['nvgfnsdk_5fversion_5fshort',['NVGFNSDK_VERSION_SHORT',['../_gfn_sdk_8h.html#a45a66dd5a42989cb2e2903a91e1f5996',1,'GfnSdk.h']]],
+  ['nvgfnsdk_5fversion_5fstr',['NVGFNSDK_VERSION_STR',['../_gfn_sdk_8h.html#ac693d90ad6ba31c11dc77310915a0b95',1,'GfnSdk.h']]],
+  ['nvgfnsdkapi',['NVGFNSDKApi',['../_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905',1,'GfnSdk.h']]],
+  ['native_20runtime_20api_20export_20wrapper_20reference',['Native Runtime API Export Wrapper Reference',['../wrapper_apis.html',1,'']]]
 ];

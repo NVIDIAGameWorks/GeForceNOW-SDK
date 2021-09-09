@@ -124,6 +124,12 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
+/// C        | @ref GfnGetClientInfo
+///
+/// @copydoc GfnGetClientInfo
+///
+/// Language | API
+/// -------- | -------------------------------------
 /// C        | @ref GfnRegisterStreamStatusCallback
 ///
 /// @copydoc GfnRegisterStreamStatusCallback
@@ -193,6 +199,19 @@
 /// C        | @ref GfnSetActionZone
 ///
 /// @copydoc GfnSetActionZone
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref GfnRegisterClientInfoCallback
+///
+/// @copydoc GfnRegisterClientInfoCallback
+/// 
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref GfnRegisterNetworkStatusCallback
+///
+/// @copydoc GfnRegisterNetworkStatusCallback
+/// 
 
 #include "GfnRuntimeSdk_CAPI.h"
 
@@ -373,7 +392,7 @@ extern "C"
 
     ///
     /// @par Description
-    /// Gets user’s client country code using ISO 3166-1 Alpha-2 country code.
+    /// Gets user's client country code using ISO 3166-1 Alpha-2 country code.
     ///
     /// @par Environment
     /// Cloud
@@ -392,6 +411,25 @@ extern "C"
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
     GfnRuntimeError GfnGetClientCountryCode(char* countryCode, unsigned int length);
 
+    ///
+    /// @par Description
+    /// Gets user's client data.
+    ///
+    /// @par Environment
+    /// Cloud
+    ///
+    /// @par Usage
+    /// Call this during application start or from the platform client in order to get
+    /// the data on the user's client.
+    ///
+    /// @param[out] clientInfo           - A structure to hold clientInfo data
+    ///
+    /// @retval gfnSuccess               - On success
+    /// @retval gfnInvalidParameter      - NULL pointer passed in
+    /// @retval gfnCallWrongEnvironment  - If called in a client environment
+    /// @retval gfnDllNotPresent         - GFN SDK Library could not be found.
+    /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
+        GfnRuntimeError GfnGetClientInfo(GfnClientInfo* clientInfo);
     ///
     /// @par Description
     /// Calls @ref GfnGetCustomData to retrieves custom data passed in by the client in the
@@ -771,6 +809,17 @@ extern "C"
     /// @retval gfnCallWrongEnvironment - The on-seat dll detected that it was not on a game seat
     GfnRuntimeError GfnRegisterSessionInitCallback(SessionInitCallbackSig sessionInitCallback, void* userContext);
 
+
+    ///
+    /// @par Description
+    /// Registers an application callback with GFN to be called when client info changes
+    ///
+    /// @param clientInfoCallback       - Function pointer to application code to call when GFN client data changes
+    ///
+    /// @retval gfnSuccess              - On success when running in a GFN environment
+    /// @retval gfnDllNotPresent        - GFN SDK Library could not be found.
+    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    GfnRuntimeError GfnRegisterClientInfoCallback(ClientInfoCallbackSig clientInfoCallback, void* userContext);
 
     ///
     /// @par Description

@@ -367,6 +367,31 @@ Wrapper Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga85103db7a6fc1dded77a1119ca182ddd">GfnGetClientInfo</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Gets user's client data.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the data on the user's client.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">clientInfo</td><td>- A structure to hold clientInfo data</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+    <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+  </table>
+  </dd>
+</dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#ga658250f0c2178a8181bdc62b332c5aaf">GfnRegisterStreamStatusCallback</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a63f79659507415464e65d3feb96ba15a">gfnRegisterStreamStatusCallback</a> to register a callback that gets called on the user's PC when the streaming session state changes.</dd></dl>
@@ -676,7 +701,34 @@ Wrapper Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga5999e9e8f42d975ac1b13537c5f44497">GfnRegisterClientInfoCallback</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Registers an application callback with GFN to be called when client info changes</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">clientInfoCallback</td><td>- Function pointer to application code to call when GFN client data changes</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnDllNotPresent</td><td>- GFN SDK Library could not be found. </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+  </table>
+  </dd>
+</dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td>GfnRegisterNetworkStatusCallback </td></tr>
+</table>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.12-->
 <!-- start footer part -->

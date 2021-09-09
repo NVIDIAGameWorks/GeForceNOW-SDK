@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['exitcallbacksig',['ExitCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a1b7de2891a1a633769c97cf118f32240',1,'GfnRuntimeSdk_CAPI.h']]]
+  ['bool',['bool',['../_gfn_sdk_8h.html#ad5c9d4ba3dc37783a528b0925dc981a0',1,'GfnSdk.h']]]
 ];

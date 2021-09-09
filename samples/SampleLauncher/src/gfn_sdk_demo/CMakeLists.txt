@@ -185,7 +185,7 @@ if(OS_WINDOWS)
       ${GFN_SDK_DIST_DIR}/include
       ${CMAKE_BINARY_DIR}/../include
   )
-  target_compile_definitions(${EXAMPLE_TARGET} PRIVATE GFN_SDK_WRAPPER_LOG=1)
+  target_compile_definitions(${EXAMPLE_TARGET} PRIVATE GFN_SDK_WRAPPER_LOG=1 FEATURECONFIG_HEADER)
 
 endif()
 
