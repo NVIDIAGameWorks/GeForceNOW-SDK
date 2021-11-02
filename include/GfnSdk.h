@@ -84,16 +84,23 @@ typedef char bool;
 #define NVGFNSDK_VERSION_SHORT 1.7
 
 /// @brief GFN SDK Patch Version
-#define NVGFNSDK_VERSION_PATCH 3039
+#define NVGFNSDK_VERSION_PATCH 1
 
 /// @brief GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 5783
+#define NVGFNSDK_VERSION_BUILD 30567518
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 1.7.3039.5783
+#define NVGFNSDK_VERSION_LONG 1.7.1.30567518
 
 /// @brief GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "1.7.3039.5783"
+#define NVGFNSDK_VERSION_STR   "1.7.1.30567518"
+#define NVGFNSDK_VERSION_STR_PROD "1.7.1"
+
+/// @brief GFN SDK Build CL
+#define NVGFNSDK_VERSION_BUILDCL 30567518
+#define NVGFNSDK_VERSION_BUILDH 3056
+#define NVGFNSDK_VERSION_BUILDL 7518
+
 
 #ifdef __cplusplus
     extern "C"
@@ -108,6 +115,7 @@ typedef char bool;
         {
             gfnSuccess = 0, ///< Success
             gfnInitSuccessClientOnly = 1, ///< SDK initialized, but only cloud independent functionality available (such as gfnStartStream).
+            gfnInitSuccessCloudOnly = 2, ///< SDK initialized, but only cloud functionality is available
             gfnInitFailure = -1, ///< SDK initialization failure for any reason other than memory allocation failure.
             gfnDllNotPresent = -2, ///< DLL is not present
             gfnComError = -3, ///< Geforce NOW SDK internal component communication error.

@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.7
+# NVIDIA GeForce NOW SDK Release 1.7.1
 
 ## At a Glance
 
@@ -10,15 +10,7 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* Adds version 1 of GfnGetClientInfo API
-  * Provides Operating System information about the user's client system
-  * Collapses several other GetClient APIs into this single API
-  * Provides callback support when the client changes during a streaming session (Example: user starts session on PC, then resumes on a mobile device)
-  * Future SDK releases will include additional client information
-* Fix for potential crash after GfnShutdownSDK API is called
-* Fix for SDK failure when SDK is initialized more than once in a single process
-* Fix in GfnStartStream if the GFN streamer fails to stop a previous streaming session gracefully
-* Various API optimizations
+* Fixes an issue with the gfnInitializeRuntimeSdk and gfnIsRunningInCloud APIs returning incorrect values if called as export functions from the SDK DLL when not using the wrapper sources.
 
 ## Developer Content Portal
 
@@ -80,8 +72,3 @@ The distribution is laid out as below:
 ### Identity management
 
 * For Account and IDM-related APIs, please refer to the document /doc/SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf
-
-### Additional Documentation Online
-
-In addition to the documents included in /doc in this repository, there are online documentation resources for some of the features.
-* For game catalog APIs, please refer to the [GFN Application Catalog Query API Help](https://games.geforce.com/help/).

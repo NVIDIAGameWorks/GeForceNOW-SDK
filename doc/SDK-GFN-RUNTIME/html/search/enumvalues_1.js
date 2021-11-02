@@ -47,6 +47,7 @@ var searchData=
   ['gfnincompatibleversion',['gfnIncompatibleVersion',['../_gfn_sdk_8h.html#a1b7d39d60da8754a0e1ed6bec951faa2afc7165ab43d69218077fe7cd65c746f6',1,'GfnSdk.h']]],
   ['gfninitfailure',['gfnInitFailure',['../_gfn_sdk_8h.html#a1b7d39d60da8754a0e1ed6bec951faa2acebae70b0a5038b2d8c4053ef7e686fb',1,'GfnSdk.h']]],
   ['gfninitsuccessclientonly',['gfnInitSuccessClientOnly',['../_gfn_sdk_8h.html#a1b7d39d60da8754a0e1ed6bec951faa2a8732cdd7f9246e75b0534eea89c90c9c',1,'GfnSdk.h']]],
+  ['gfninitsuccesscloudonly',['gfnInitSuccessCloudOnly',['../_gfn_sdk_8h.html#a1b7d39d60da8754a0e1ed6bec951faa2a9a9ef2c32be6f17ad92217ae07664e1a',1,'GfnSdk.h']]],
   ['gfninputexpected',['gfnInputExpected',['../_gfn_sdk_8h.html#a1b7d39d60da8754a0e1ed6bec951faa2ac41e467a0dbcffc5e35a04f45143bc49',1,'GfnSdk.h']]],
   ['gfninternalerror',['gfnInternalError',['../_gfn_sdk_8h.html#a1b7d39d60da8754a0e1ed6bec951faa2aa478708508a202c8306cdcc6fb9ceb07',1,'GfnSdk.h']]],
   ['gfninvalidparameter',['gfnInvalidParameter',['../_gfn_sdk_8h.html#a1b7d39d60da8754a0e1ed6bec951faa2a6dde22c72d9e28c54731e4466a8a727d',1,'GfnSdk.h']]],

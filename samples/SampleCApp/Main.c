@@ -37,46 +37,59 @@ int g_pause_call_counter = 0;
 // Application callbacks are registered with the SDK after it is initialized.
 void ApplicationInitialize()
 {
+    printf("\n\nApplication: Initializing...\n");
+    
     // Initialize the Geforce NOW Runtime SDK using the C calling convention.
     GfnRuntimeError err = GfnInitializeSdk(gfnDefaultLanguage);
-    if (err != gfnSuccess)
+    if (GFNSDK_FAILED(err))
     {
+        // Initialization errors generally indicate a flawed environment. Check error code for details.
+        // See GfnError in GfnSdk.h for error codes.
         printf("Error initializing the sdk: %d\n", err);
     }
+    else
+    {
+        // If we're running in the cloud environment, initialize cloud callbacks so we can 
+        // receive events from the server. These are not used in client only mode.
+        bool bIsCloudEnvironment = false;
+        GfnIsRunningInCloud(&bIsCloudEnvironment);
+        if (bIsCloudEnvironment)
+        {
+            // Register any implemented callbacks capable of serving requests from the SDK.
+            err = GfnRegisterExitCallback(ExitApp, NULL);
+            if (err != gfnSuccess)
+            {
+                printf("Error registering ExitApp callback: %d\n", err);
+            }
+            err = GfnRegisterPauseCallback(PauseApp, &g_pause_call_counter);
+            if (err != gfnSuccess)
+            {
+                printf("Error registering PauseApp callback: %d\n", err);
+            }
+            err = GfnRegisterInstallCallback(InstallApp, NULL);
+            if (err != gfnSuccess)
+            {
+                printf("Error registering InstallApp callback: %d\n", err);
+            }
+            err = GfnRegisterSaveCallback(AutoSave, NULL);
+            if (err != gfnSuccess)
+            {
+                printf("Error registering AutoSave callback: %d\n", err);
+            }
+            err = GfnRegisterSessionInitCallback(SessionInit, NULL);
+            if (err != gfnSuccess)
+            {
+                printf("Error registering SessionInit callback: %d\n", err);
+            }
+            err = GfnRegisterClientInfoCallback(HandleClientDataChanges, NULL);
+            if (err != gfnSuccess)
+            {
+                printf("Error registering clientInfo callback: %d\n", err);
+            }
+        }
+    }
 
-
-    // Register any implemented callbacks capable of serving requests from the SDK.
-    err = GfnRegisterExitCallback(ExitApp, NULL);
-    if (err != gfnSuccess)
-    {
-        printf("Error registering ExitApp callback: %d\n", err);
-    }
-    err = GfnRegisterPauseCallback(PauseApp, &g_pause_call_counter);
-    if (err != gfnSuccess)
-    {
-        printf("Error registering PauseApp callback: %d\n", err);
-    }
-    err = GfnRegisterInstallCallback(InstallApp, NULL);
-    if (err != gfnSuccess)
-    {
-        printf("Error registering InstallApp callback: %d\n", err);
-    }
-    err = GfnRegisterSaveCallback(AutoSave, NULL);
-    if (err != gfnSuccess)
-    {
-        printf("Error registering AutoSave callback: %d\n", err);
-    }
-    err = GfnRegisterSessionInitCallback(SessionInit, NULL);
-    if (err != gfnSuccess)
-    {
-        printf("Error registering SessionInit callback: %d\n", err);
-    }
-    err = GfnRegisterClientInfoCallback(HandleClientDataChanges, NULL);
-    if (err != gfnSuccess)
-    {
-        printf("Error registering clientInfo callback: %d\n", err);
-    }
-    // Application Initialization...
+    // Application Initialization here
 }
 
 // Example application shutdown method with a call to shut down the Geforce NOW Runtime SDK

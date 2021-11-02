@@ -1,4 +1,4 @@
-// This code contains NVIDIA Confidential Information and is disclosed to you
+﻿// This code contains NVIDIA Confidential Information and is disclosed to you
 // under a form of NVIDIA software license agreement provided separately to you.
 //
 // Notice
@@ -73,7 +73,8 @@ typedef void (GFN_CALLBACK* _cb)(int, void* pOptionalData, void* pContext);
 typedef GfnRuntimeError(*gfnInitializeRuntimeSdkFn)(GfnDisplayLanguage language);
 typedef void(*gfnShutdownRuntimeSdkFn)(void);
 typedef bool (*gfnIsInitializedFn)();
-typedef GfnRuntimeError(*gfnCloudInitializeRuntimeSdkFn)(float libVersion);
+typedef GfnRuntimeError(*gfnCloudInitializeRuntimeSdkFn)(float libVersion);   // Old Initialization method. Deprecate when all libraries have updated to 1.7.1 or greater.
+typedef GfnRuntimeError(*gfnCloudInitializeRuntimeSdkV3Fn)(char* strLibVersion);
 typedef void(*gfnCloudShutdownRuntimeSdkFn)(void);
 typedef bool(*gfnIsRunningInCloudFn)(void);
 typedef GfnRuntimeError(*gfnIsRunningInCloudSecureFn)(GfnIsRunningInCloudAssurance* assurance);
@@ -109,7 +110,8 @@ typedef GfnRuntimeError (*gfnSetActionZoneFn)(GfnActionType type, unsigned int i
 typedef struct GfnSdkCloudLibrary_t
 {
     void* handle;
-    gfnCloudInitializeRuntimeSdkFn InitializeRuntimeSdk;
+    gfnCloudInitializeRuntimeSdkFn InitializeRuntimeSdk;            // Old Initialization method. Deprecate when all libraries have updated to 1.7.1 or greater.
+    gfnCloudInitializeRuntimeSdkV3Fn InitializeRuntimeSdkV3;
     gfnCloudShutdownRuntimeSdkFn ShutdownRuntimeSdk;
     gfnIsInitializedFn IsInitialized;
     gfnIsRunningInCloudFn IsRunningInCloud;
@@ -159,7 +161,7 @@ static GfnRuntimeError gfnTranslateCloudStatus(int status)
     return (GfnRuntimeError)status;
 }
 
-GfnRuntimeError gfnShutDownCloudOnlySdk(void)
+GfnRuntimeError gfnShutDownCloudSdk(void)
 {
     if (g_pCloudLibrary != NULL)
     {
@@ -205,7 +207,7 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     if (PathFileExistsW(g_cloudDllPath) == FALSE)
     {
         GFN_SDK_LOG("SUCCESS: Cloud library does not exist, this is running on the user client");
-        return gfnInitSuccessClientOnly;
+        return gfnDllNotPresent;
     }
 
 #ifdef _DEBUG
@@ -231,7 +233,9 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     }
 
     pCloudLibrary->handle = library;
+    // Old Initialization method. Deprecate when all libraries have updated to 1.7.1 or greater.
     pCloudLibrary->InitializeRuntimeSdk = (gfnCloudInitializeRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnInitializeRuntimeSdk2");
+    pCloudLibrary->InitializeRuntimeSdkV3 = (gfnCloudInitializeRuntimeSdkV3Fn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnInitializeRuntimeSdk3");
     pCloudLibrary->ShutdownRuntimeSdk = (gfnCloudShutdownRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnShutdownRuntimeSdk2");
     pCloudLibrary->IsInitialized = (gfnIsInitializedFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsInitialized");
     pCloudLibrary->IsRunningInCloud = (gfnIsRunningInCloudFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsRunningInCloud");
@@ -259,7 +263,7 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
 
     GFN_SDK_LOG("Successfully loaded cloud libary");
 
-    if (pCloudLibrary->InitializeRuntimeSdk == NULL)
+    if (pCloudLibrary->InitializeRuntimeSdk == NULL && pCloudLibrary->InitializeRuntimeSdkV3 == NULL)
     {
         GFN_SDK_LOG("Unable to find initialize function pointer");
         gfnFreeCloudLibrary(pCloudLibrary);
@@ -272,7 +276,7 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     return gfnSuccess;
 }
 
-GfnRuntimeError gfnInitializeCloudOnlySdk(void)
+GfnRuntimeError gfnInitializeCloudSdk(void)
 {
     // Already initialized, no need to re-initialize
     if (g_pCloudLibrary != NULL)
@@ -286,10 +290,18 @@ GfnRuntimeError gfnInitializeCloudOnlySdk(void)
         return g_cloudLibraryStatus;
     }
 
-    GfnRuntimeError result = g_pCloudLibrary->InitializeRuntimeSdk((float)(NVGFNSDK_VERSION_SHORT));
-    if (GFNSDK_FAILED(result))
+    if (g_pCloudLibrary->InitializeRuntimeSdkV3)
     {
-        GFN_SDK_LOG("Call to cloud InitializeRuntimeSdk failed: %d", result);
+        g_cloudLibraryStatus = g_pCloudLibrary->InitializeRuntimeSdkV3(NVGFNSDK_VERSION_STR);
+    }
+    // Old Initialization method. Deprecate when all libraries have updated to 1.7.1 or greater.
+    else if (g_pCloudLibrary->InitializeRuntimeSdk)
+    {
+        g_cloudLibraryStatus = g_pCloudLibrary->InitializeRuntimeSdk((float)(NVGFNSDK_VERSION_SHORT));
+    }
+    if (GFNSDK_FAILED(g_cloudLibraryStatus))
+    {
+        GFN_SDK_LOG("Call to cloud InitializeRuntimeSdk failed: %d", g_cloudLibraryStatus);
         // If init fails, we shouldn't force the host application to hold a loaded reference to the cloud DLL.
         // Instead we will unload to make sure SDK is in a clean state in case the application tried to call
         // the Initialize API again.
@@ -297,18 +309,7 @@ GfnRuntimeError gfnInitializeCloudOnlySdk(void)
         g_pCloudLibrary = NULL;
         g_cloudLibraryStatus = gfnAPINotInit;
     }
-    return gfnTranslateCloudStatus(result);
-}
-
-// Load the cloud library if not already done, and check to see if the runtime object has already been created
-bool gfnCloudOnlySdkIsInitialized(void)
-{
-    g_cloudLibraryStatus = gfnLoadCloudLibrary(&g_pCloudLibrary);
-
-    bool isInitialized = g_pCloudLibrary && g_pCloudLibrary->IsInitialized != NULL && g_pCloudLibrary->IsInitialized();
-
-    GFN_SDK_LOG("isInitialized: %d", isInitialized);
-    return isInitialized;
+    return g_cloudLibraryStatus;
 }
 
 typedef struct _gfnUserContextCallbackWrapper
@@ -330,8 +331,7 @@ static enum IsCloud g_isCloud = IsCloud_Unknown;
     {                                                                                       \
         if (!g_pCloudLibrary)                                                               \
         {                                                                                   \
-            GFN_SDK_LOG("Cloud library not present");                                       \
-            return gfnDllNotPresent;                                                        \
+            return gfnAPINotInit;                                                        \
         }                                                                                   \
         if (!g_pCloudLibrary->IsRunningInCloud)                                             \
         {                                                                                   \
@@ -346,7 +346,6 @@ static enum IsCloud g_isCloud = IsCloud_Unknown;
         return gfnCallWrongEnvironment;                                                     \
     }
 #define CHECK_CLOUD_ENVIRONMENT() CHECK_CLOUD_ENVIRONMENT_IMPL(true)
-#define RECHECK_CLOUD_ENVIRONMENT() CHECK_CLOUD_ENVIRONMENT_IMPL(false)
 #define CHECK_CLOUD_API_AVAILABLE(Fn)                                       \
     if (g_pCloudLibrary->Fn == NULL)                                        \
     {                                                                       \
@@ -495,9 +494,9 @@ GfnRuntimeError GfnInitializeSdkFromPath(GfnDisplayLanguage language, const char
         if (g_gfnSdkModule == NULL)
         {
             GFN_SDK_LOG("Not able to load client library. LastError=0x%08X", GetLastError());
+            clientStatus = gfnDllNotPresent;
         }
-
-        if (g_gfnSdkModule != NULL)
+        else
         {
             gfnInitializeRuntimeSdkFn fnGfnInitializeRuntimeSdk = (gfnInitializeRuntimeSdkFn)GetProcAddress(g_gfnSdkModule, "gfnInitializeRuntimeSdk");
             if (fnGfnInitializeRuntimeSdk == NULL)
@@ -509,43 +508,45 @@ GfnRuntimeError GfnInitializeSdkFromPath(GfnDisplayLanguage language, const char
                 clientStatus = (fnGfnInitializeRuntimeSdk)(language);
             }
         }
-        GFN_SDK_LOG("Client status=%d library=%p", clientStatus, g_gfnSdkModule);
-        if (GFNSDK_FAILED(clientStatus))
+        // gfnDllNotPresent means client dll was not present, this is allowed in the cloud environment but not suggested.
+        // Any other error is fatal.
+        if (GFNSDK_FAILED(clientStatus) && clientStatus != gfnDllNotPresent)
         {
-            GFN_SDK_LOG("Client library load failed: %d", clientStatus);
-        }
-    }
-
-    // With the client library loaded attempt to load the cloud Sdk library if available (inside GFN only) in order to use it directly for all cloud
-    GfnRuntimeError cloudStatus = gfnInitializeCloudOnlySdk();
-
-    // return client status in Client only mode
-    if (cloudStatus == gfnInitSuccessClientOnly)
-    {
-        if (GFNSDK_FAILED(clientStatus))
-        {
-            GFN_SDK_LOG("Client Only Mode : Client init failed with %d", clientStatus);
+            GFN_SDK_LOG("Client library init failed: %d", clientStatus);
             GfnShutdownSdk();
+            return clientStatus;
         }
-        return clientStatus;
     }
 
-    if (GFNSDK_SUCCEEDED(cloudStatus))
+    // With the client library loaded attempt to load the cloud Sdk library if available (inside GFN only) in order to use it 
+    // directly for cloud API calls.
+    GfnRuntimeError cloudStatus = gfnInitializeCloudSdk();
+    // gfnDllNotPresent is allowed, indicating that this is not running in a cloud environment.
+    // All other errors are fatal.
+    if (GFNSDK_FAILED(cloudStatus) && (cloudStatus != gfnDllNotPresent || GFNSDK_FAILED(clientStatus)))
     {
-        return cloudStatus;
-    }
-    else
-    {
-        GFN_SDK_LOG("Unloading client library as cloud library found in bad state: %d", cloudStatus);
-        // To avoid mismatch/bad state and wierd errors, if we failed to load the cloud library, we unload the client library
+        GFN_SDK_LOG("Cloud library init failed: %d", cloudStatus);
         GfnShutdownSdk();
         return cloudStatus;
     }
+
+    GFN_SDK_LOG("Initialization successful");
+
+    if (GFNSDK_SUCCEEDED(cloudStatus) && clientStatus == gfnDllNotPresent)
+    {
+        return gfnInitSuccessCloudOnly;
+    }
+    if (GFNSDK_SUCCEEDED(clientStatus) && cloudStatus == gfnDllNotPresent)
+    {
+        return gfnInitSuccessClientOnly;
+    }
+
+    return gfnSuccess;
 }
 
 GfnRuntimeError GfnShutdownSdk(void)
 {
-    gfnShutDownCloudOnlySdk();
+    gfnShutDownCloudSdk();
 
     if (g_gfnSdkModule == NULL)
     {
@@ -573,6 +574,11 @@ GfnRuntimeError GfnIsRunningInCloud(bool* runningInCloud)
     CHECK_NULL_PARAM(runningInCloud);
     *runningInCloud = false;
 
+    if (g_pCloudLibrary == NULL && g_gfnSdkModule == NULL)
+    {
+        return gfnAPINotInit;
+    }
+
     if (g_pCloudLibrary == NULL)
     {
         GFN_SDK_LOG("No cloud library present, call succeeds");
@@ -595,6 +601,11 @@ GfnRuntimeError GfnIsRunningInCloudSecure(GfnIsRunningInCloudAssurance* assuranc
 {
     CHECK_NULL_PARAM(assurance);
     *assurance = gfnNotCloud;
+
+    if (g_pCloudLibrary == NULL && g_gfnSdkModule == NULL)
+    {
+        return gfnAPINotInit;
+    }
 
     if (wcslen(g_cloudDllPath) == 0)
     {
