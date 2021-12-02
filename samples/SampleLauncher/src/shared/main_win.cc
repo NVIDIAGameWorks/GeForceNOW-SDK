@@ -84,7 +84,7 @@ namespace shared {
 
         // Get application data directory
         std::wstring appDataPath;
-        TryGetSpecialFolderPath(shared::SD_LOCALAPPDATA, appDataPath);
+        TryGetSpecialFolderPath(shared::SD_COMMONAPPDATA, appDataPath);
         appDataPath += L"\\NVIDIA Corporation\\GfnRuntimeSdk";
 
         int err = SHCreateDirectoryEx(NULL, appDataPath.c_str(), NULL);

@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.7.1
+# NVIDIA GeForce NOW SDK Release 1.8
 
 ## At a Glance
 
@@ -10,7 +10,10 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* Fixes an issue with the gfnInitializeRuntimeSdk and gfnIsRunningInCloud APIs returning incorrect values if called as export functions from the SDK DLL when not using the wrapper sources.
+* Added new samples (CGameAPISample, SDKDllDirectRefSample, SampleService), see Readme in ./samples for more information.
+* GFNSDK APIs now return explicit error codes on failure to load client DLL or cloud DLL.
+* Fixed an issue with GetClientInfo export missing from the client DLL.
+* Fixed a bug with backwards compatibility for 1.4 and older SDKs in cloud DLL.
 
 ## Developer Content Portal
 
@@ -45,7 +48,7 @@ The distribution is laid out as below:
 |   │   SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf
 |   │   SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf
 |   └───SDK-GFN-RUNTIME
-|           index.html
+|       └───index.html
 |
 ├───include
 │       GfnRuntimeSdk_CAPI.h
@@ -64,8 +67,10 @@ The distribution is laid out as below:
 │
 └───samples
     |   README.md
-    ├───SampleCApp
-    └───SampleLauncher
+    ├───CGameAPISample
+    ├───SDKDllDirectRefSample
+    ├───SampleLauncher
+    └───SampleService
 
 ```
 

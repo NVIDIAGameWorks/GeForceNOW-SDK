@@ -41,7 +41,8 @@ std::string DumpRequestContents(CefRefPtr<CefRequest> request);
 typedef enum
 {
     SD_UNDEFINED = 0x00000000,
-    SD_LOCALAPPDATA = 0x00000001   //(Ex: CSIDL_LOCAL_APPDATA)
+    SD_LOCALAPPDATA = 0x00000001,   //(Ex: CSIDL_LOCAL_APPDATA)
+    SD_COMMONAPPDATA = 0x00000002   //(Ex: CSIDL_COMMON_APPDATA )
 } SpecialDirectory;
 bool TryGetSpecialFolderPath(SpecialDirectory sd, std::wstring& path);
 

@@ -34,6 +34,7 @@
 #include "GfnRuntimeSdk_Wrapper.h"  //Helper functions that wrap Library-based APIs
 #include "shellapi.h"
 #include <fstream>
+#include "client.h"
 
 CefString GFN_SDK_INIT = "GFN_SDK_INIT";
 CefString GFN_SDK_SHUTDOWN = "GFN_SDK_SHUTDOWN";
@@ -42,6 +43,7 @@ CefString GFN_SDK_IS_RUNNING_IN_CLOUD = "GFN_SDK_IS_RUNNING_IN_CLOUD";
 CefString GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE = "GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE";
 CefString GFN_SDK_GET_CLIENT_IP = "GFN_SDK_GET_CLIENT_IP";
 CefString GFN_SDK_GET_CLIENT_COUNTRY_CODE = "GFN_SDK_GET_CLIENT_COUNTRY_CODE";
+CefString GFN_SDK_GET_CLIENT_LANGUAGE_CODE = "GFN_SDK_GET_CLIENT_LANGUAGE_CODE";
 CefString GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK = "GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK";
 CefString GFN_SDK_IS_TITLE_AVAILABLE = "GFN_SDK_IS_TITLE_AVAILABLE";
 CefString GFN_SDK_GET_AVAILABLE_TITLES = "GFN_SDK_GET_AVAILABLE_TITLES";
@@ -85,6 +87,8 @@ static CefString GfnErrorToString(GfnError err)
     case GfnError::gfnCanceled: return "GFN SDK action was canceled";
     case GfnError::gfnElevationRequired: return "GFN SDK API requires process elevation";
     case GfnError::gfnThrottled: return "GFN SDK API cannot be called in rapid succession";
+    case GfnError::gfnClientLibraryNotFound: return "GFN SDK API client library not found";
+    case GfnError::gfnCloudLibraryNotFound: return "GFN SDK API cloud library not found";
     default: return "Unknown Error";
     }
 }
@@ -92,7 +96,7 @@ static CefString GfnErrorToString(GfnError err)
 static void logGfnSdkData()
 {
     std::wstring appDataPath;
-    shared::TryGetSpecialFolderPath(shared::SD_LOCALAPPDATA, appDataPath);
+    shared::TryGetSpecialFolderPath(shared::SD_COMMONAPPDATA, appDataPath);
     std::wstring dataFilePath = appDataPath + L"\\NVIDIA Corporation\\GfnRuntimeSdk\\GFNSDK_Data.json";
 
     std::ifstream ifs(dataFilePath);
@@ -140,6 +144,52 @@ static GfnError initGFN()
     }
 
     return err;
+}
+
+bool checkSampleServiceRunningStatus() {
+    WCHAR* serviceName = L"GfnSdkSampleService";
+
+    SC_HANDLE sch = OpenSCManager(NULL, NULL, SC_MANAGER_ENUMERATE_SERVICE);
+    if (sch == NULL)
+    {
+        LOG(INFO) << "OpenSCManager failed";
+        return false;
+    }
+
+    SC_HANDLE svc = OpenService(sch, serviceName, SERVICE_QUERY_STATUS);
+    if (svc == NULL)
+    {
+        LOG(INFO) << "OpenService failed";
+        CloseServiceHandle(sch);
+        return false;
+    }
+
+    bool serviceRunning = false;
+    SERVICE_STATUS_PROCESS stat;
+    DWORD needed = 0;
+    BOOL ret = QueryServiceStatusEx(svc, SC_STATUS_PROCESS_INFO,
+        (BYTE*)&stat, sizeof stat, &needed);
+    if (ret == TRUE)
+    {
+        if (stat.dwCurrentState == SERVICE_RUNNING)
+        {
+            serviceRunning = true;
+            LOG(INFO) << serviceName << " is running";
+        }
+        else
+        {
+            LOG(INFO) << serviceName << " is NOT running";
+        }
+    }
+    else
+    {
+        LOG(INFO) << "QueryServiceStatusEx failed";
+    }
+
+    CloseServiceHandle(svc);
+    CloseServiceHandle(sch);
+
+    return serviceRunning;
 }
 
 bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
@@ -218,24 +268,41 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     else if (command == GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE)
     {
         GfnIsRunningInCloudAssurance assurance = GfnIsRunningInCloudAssurance::gfnNotCloud;
-        GfnError err = GfnIsRunningInCloudSecure(&assurance);
-        if (err != GfnError::gfnSuccess)
+        CefString errorMessage;
+
+        bool isServiceRunning = checkSampleServiceRunningStatus();
+        if (isServiceRunning)
         {
-            if (err == GfnError::gfnElevationRequired)
+            SampleService::ServiceClient client;
+            const auto [status, gfnstatus, value] = client.isRunningInCloudSecure();
+            if (status == SampleService::status::success)
             {
-                LOG(ERROR) << "GfnIsRunningInCloudSecure required elevation. Re-run elevated";
+                GfnError err = static_cast<GfnError>(std::stoi(gfnstatus));
+                if (err == GfnError::gfnSuccess)
+                {
+                    assurance = static_cast<GfnIsRunningInCloudAssurance>(std::stoi(value));
+                }
+                else
+                {
+                    LOG(ERROR) << "Failed to get if running in cloud. Error: " << err;
+                }
+                errorMessage = GfnErrorToString(err);
             }
             else
             {
-                LOG(ERROR) << "Failed to get if running in cloud. Error: " << err;
+                errorMessage = "ServiceClient error: " + std::to_string(static_cast<int>(status));
             }
+        }
+        else
+        {
+            errorMessage = "GfnSdkSampleService is not running";
         }
 
         LOG(INFO) << "Cloud environment assurance value: " << assurance;
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         response_dict->SetInt("assurance", assurance);
-        response_dict->SetString("errorMessage", GfnErrorToString(err));
+        response_dict->SetString("errorMessage", errorMessage);
 
         CefString response(DictToJson(response_dict));
         callback->Success(response);
@@ -445,6 +512,40 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         callback->Success(response);
         return true;
     }
+
+    /**
+     * Calls into GFN SDK to get the user's language code. THis is meant to be
+     * called while running on the GeForce NOW game seat to determine the language
+     * used by the user.
+     */
+    else if (command == GFN_SDK_GET_CLIENT_LANGUAGE_CODE)
+    {
+        const char* clientLanguageCode;
+        GfnError err = GfnGetClientLanguageCode(&clientLanguageCode);
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        if (err != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "get client country code error: " << GfnErrorToString(err);
+            response_dict->SetString("clientLanguageCode", "");
+            response_dict->SetString("errorMessage", GfnErrorToString(err));
+        }
+        else
+        {
+            LOG(INFO) << "client country code: " << clientLanguageCode;
+            response_dict->SetString("clientLanguageCode", clientLanguageCode);
+            response_dict->SetString("errorMessage", "");
+        }
+
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
+
+        if (err == GfnError::gfnSuccess)
+        {
+            GfnFree(&clientLanguageCode);
+        }
+        return true;
+    }
+
     /**
      * Registers for callback notifications during a streaming session.
      */

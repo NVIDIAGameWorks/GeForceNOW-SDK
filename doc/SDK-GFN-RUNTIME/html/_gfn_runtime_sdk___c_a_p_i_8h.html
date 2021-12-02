@@ -136,6 +136,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a25538f005dd06eded396ebfcefbeb754"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a25538f005dd06eded396ebfcefbeb754"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>IP_V4_SIZE</b>&#160;&#160;&#160;(17)</td></tr>
 <tr class="separator:a25538f005dd06eded396ebfcefbeb754"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca7748b2e0a41a6bf88190a0c637efa6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca7748b2e0a41a6bf88190a0c637efa6"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>IP_V6_SIZE</b>&#160;&#160;&#160;(49)</td></tr>
+<tr class="separator:aca7748b2e0a41a6bf88190a0c637efa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff8cdfde0bf65ec8f04ccec3fc5818d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff8cdfde0bf65ec8f04ccec3fc5818d1"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>CC_SIZE</b>&#160;&#160;&#160;(3)</td></tr>
 <tr class="separator:aff8cdfde0bf65ec8f04ccec3fc5818d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -189,6 +192,10 @@ typedef enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9
 typedef enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a1f78681ce77a7884cf0ffe98fedc7734">GfnOsType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a1262b81ef5a52dc48ea0e50fb08d0bd4">GfnOsType</a></td></tr>
 <tr class="memdesc:a1262b81ef5a52dc48ea0e50fb08d0bd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Types of operating systems that can be reported by the SDK. <br /></td></tr>
 <tr class="separator:a1262b81ef5a52dc48ea0e50fb08d0bd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b3046621861d2b8c5bf050d6e3e7705"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b3046621861d2b8c5bf050d6e3e7705"></a>
+typedef enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a249aa268c4dc22be665a4b87086ebf19">GfnInputType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4b3046621861d2b8c5bf050d6e3e7705">GfnInputType</a></td></tr>
+<tr class="memdesc:a4b3046621861d2b8c5bf050d6e3e7705"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of input used by the client. <br /></td></tr>
+<tr class="separator:a4b3046621861d2b8c5bf050d6e3e7705"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a954ec271aebbdf93440fd9841f0eb8fc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a954ec271aebbdf93440fd9841f0eb8fc"></a>
 typedef enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbb">GfnClientInfoChangeType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a954ec271aebbdf93440fd9841f0eb8fc">GfnClientDataChangeType</a></td></tr>
 <tr class="memdesc:a954ec271aebbdf93440fd9841f0eb8fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of data which changed. This enum will be expanded over time. <br /></td></tr>
@@ -281,6 +288,28 @@ Enumerations</h2></td></tr>
  }<tr class="memdesc:a1f78681ce77a7884cf0ffe98fedc7734"><td class="mdescLeft">&#160;</td><td class="mdescRight">Types of operating systems that can be reported by the SDK. <br /></td></tr>
 </td></tr>
 <tr class="separator:a1f78681ce77a7884cf0ffe98fedc7734"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a249aa268c4dc22be665a4b87086ebf19"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a249aa268c4dc22be665a4b87086ebf19"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a249aa268c4dc22be665a4b87086ebf19">GfnInputType</a> { <br />
+&#160;&#160;<b>gfnUnknownInput</b> = 0, 
+<b>gfnMouse</b> = 1, 
+<b>gfnKeyboard</b> = 2, 
+<b>gfnMouseKeyboard</b> = 3, 
+<br />
+&#160;&#160;<b>gfnXInputGamepad</b> = 4, 
+<b>gfnXInputGamepadPartial</b> = 5, 
+<b>gfnDirectInputGamepad</b> = 6, 
+<b>gfnDirectInputGamepadPartial</b> = 7, 
+<br />
+&#160;&#160;<b>gfnJoystick</b> = 8, 
+<b>gfnWheel</b> = 9, 
+<b>gfnTouchscreen</b> = 10, 
+<b>gfnWiiController</b> = 11, 
+<br />
+&#160;&#160;<b>gfnKinectController</b> = 12, 
+<b>gfnInputTypeMax</b> = 12
+<br />
+ }<tr class="memdesc:a249aa268c4dc22be665a4b87086ebf19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of input used by the client. <br /></td></tr>
+</td></tr>
+<tr class="separator:a249aa268c4dc22be665a4b87086ebf19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a855cf09bb9d788137222168251e69bbb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a855cf09bb9d788137222168251e69bbb"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbb">GfnClientInfoChangeType</a> { <b>gfnOs</b> = 0, 
 <b>gfnClientDataChangeTypeMax</b> = 0
  }<tr class="memdesc:a855cf09bb9d788137222168251e69bbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of data which changed. This enum will be expanded over time. <br /></td></tr>
@@ -505,7 +534,7 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
-    <tr><td class="paramname">gfnDllNotPresent</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
   </table>
@@ -549,7 +578,7 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
-    <tr><td class="paramname">gfnDLLNotPresent</td><td>- If callback was not registered </td></tr>
+    <tr><td class="paramname">gfnInternalError</td><td>- If callback was not registered </td></tr>
   </table>
   </dd>
 </dl>
@@ -592,7 +621,7 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
-    <tr><td class="paramname">gfnDllNotPresent</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
   </table>

@@ -1171,75 +1171,7 @@ static BOOL gfnInternalVerifyTimeStampRFC3161(PCMSG_SIGNER_INFO pSignerInfo, FIL
     return bReturn;
 }
 
-static LONG gfnInternalQueryRegistryValueFromKey(HKEY hKey, LPCWSTR pValueName, DWORD* pValueType, LPBYTE* ppValueData)
-{
-    DWORD dwValueType = 0;
-    DWORD cbData = 0;
-    DWORD cbExtra = 0;
-    LONG lResult = ERROR_SUCCESS;
 
-    if (!gfnInternalGetModule(L"Advapi32.dll", hModAdvapi32) ||
-        !gfnInternalGetProc(hModAdvapi32, "RegQueryValueExW", pfnRegQueryValueExW))
-    {
-        return GetLastError();
-    }
-
-    lResult = pfnRegQueryValueExW(hKey, pValueName, NULL, &dwValueType, NULL, &cbData);
-    if ((ERROR_SUCCESS != lResult) || (0 == cbData))
-    {
-        return lResult;
-    }
-
-    switch (dwValueType)
-    {
-    case REG_SZ:
-    case REG_EXPAND_SZ:
-        cbExtra = sizeof(WCHAR);
-        break;
-    case REG_MULTI_SZ:
-        cbExtra = sizeof(WCHAR) + sizeof(WCHAR);
-        break;
-    default:
-        break;
-    }
-
-    *ppValueData = (LPBYTE)LocalAlloc(LPTR, cbData + cbExtra);
-    if (NULL == *ppValueData)
-    {
-        return GetLastError();
-    }
-
-    lResult = pfnRegQueryValueExW(hKey, pValueName, NULL, pValueType, *ppValueData, &cbData);
-    if (ERROR_SUCCESS != lResult)
-    {
-        SafeLocalFree(*ppValueData);
-        *ppValueData = NULL;
-    }
-
-    return lResult;
-}
-
-static LONG gfnInternalQueryRegistryValue(HKEY hKey, LPCWSTR lpSubKey, LPCWSTR pValueName, DWORD* pValueType, LPBYTE* ppValueData)
-{
-    HKEY hSubKey = NULL;
-    LONG lResult = ERROR_SUCCESS;
-
-    if (!gfnInternalGetModule(L"Advapi32.dll", hModAdvapi32) ||
-        !gfnInternalGetProc(hModAdvapi32, "RegOpenKeyExW", pfnRegOpenKeyExW) ||
-        !gfnInternalGetProc(hModAdvapi32, "RegCloseKey", pfnRegCloseKey))
-    {
-        return GetLastError();
-    }
-
-    lResult = pfnRegOpenKeyExW(hKey, lpSubKey, 0, KEY_QUERY_VALUE, &hSubKey);
-    if (ERROR_SUCCESS == lResult)
-    {
-        lResult = gfnInternalQueryRegistryValueFromKey(hSubKey, pValueName, pValueType, ppValueData);
-        pfnRegCloseKey(hSubKey);
-    }
-
-    return lResult;
-}
 
 #ifndef WINTRUST_ACTION_GENERIC_VERIFY_V2
 #define WINTRUST_ACTION_GENERIC_VERIFY_V2                       \

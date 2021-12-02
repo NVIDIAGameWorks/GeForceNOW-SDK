@@ -55,7 +55,7 @@
         }
 
         .nv-button-disabled {
-            background-color: #FFFFFFB3;
+            background-color: #BABABA;
             border: none;
             color: white;
             text-align: center;
@@ -82,10 +82,21 @@
             align-items: center;
         }
 
+        .nv-nested-container {
+            display: inline-flex;
+            margin-left: 8px;
+        }
+
         .input {
-            width: 100px;
             height: 20px;
             margin: 0px 8px 0px 8px;
+        }
+
+        .input-label {
+            white-space: normal;
+            width: 70px;
+            margin-left: 12px;
+            vertical-align: middle;
         }
 
         .text {
@@ -97,20 +108,60 @@
             background: #292929;
             border-color: #FFFFFFB3;
             flex: auto;
-            height: 154px;
+            height: 130px;
         }
 
-        .inputFullWidth {
-            width: 490px;
-            height: 20px;
-            margin: 0px 0px 0px 8px;
+        #login-panel {
+            vertical-align: middle;
+        }
+
+        .flyout-container {
+            display: inline-block;
+            white-space: nowrap;
+            max-width: 480px;
+        }
+
+        .flyout {
+            flex-direction: column;
+            display: inline-flex;
+            flex-direction: column;
+            transform-origin: top left;
+            transition: transform 300ms, opacity 300ms;
+            transform: rotateY(90deg) translateY(-180px);
+            opacity: 0;
+            position: absolute;
+            white-space: normal;
+        }
+
+        .flyout_root:hover + .flyout {
+            opacity: 100;
+            transform: rotateY(0deg) translateY(-180px);
+        }
+
+        .flyout:hover {
+            opacity: 100;
+            transform: rotateY(0deg) translateY(-180px);
+        }
+
+        .flyout_root {
+            display: inline-block;
+        }
+
+        .flyout-button {
+            border: 2px solid black;
+        }
+
+        .flyout-button:active {
+            color: black;
         }
     </style>
 </head>
 <body>
     <div class="parent">
         <div>
+            <button class="nv-button nv-chevron" disabled id="previous-game" onclick="nextGame(-1)"><</button>
             <img id="cover-art" class="coverart" />
+            <button class="nv-button nv-chevron nv-chevron-right-align" disabled id="next-game" onclick="nextGame(1)">></button>
         </div>
         <div id="ip-address" class="nv-container" style="display: none">
             <span class="text">User's IP Address: </span><span class="text" id="ip-address-value"></span>
@@ -118,15 +169,25 @@
         <div class="nv-container">
             <button class="nv-button-disabled" disabled id="nv-login" onclick="doLogin()">NVIDIA<br />LOGIN</button>
             <button class="nv-button-disabled" style="display:none" disabled id="nv-logout" onclick="doLogout()">NVIDIA<br />LOGOUT</button>
-            <div class="spacer"></div>
-            <button class="nv-button-disabled" disabled id="previous-game" onclick="nextGame(-1)">PREVIOUS GAME</button>
-            <div class="spacer"></div>
-            <button class="nv-button-disabled" disabled id="next-game" onclick="nextGame(1)">NEXT GAME</button>
-            <button class="nv-button-disabled" disabled id="stream-action" onclick="performStreamAction()">START<br />STREAM</button>
         </div>
-        <div id="login-panel" class="nv-container">
-            <span>Launcher Token:</span><input id="launcherToken" type="text" class="inputFullWidth" size="32" />
-            <div class="spacer"></div>
+        <div class="nv-container flyout-container">
+            <div class="flyout_root">
+                <button class="nv-button">SDK Calls ></button>
+            </div>
+            <div class="flyout" id="api-button-container">
+                <button class="nv-button-disabled flyout-button" disabled id="stream-action" onclick="performStreamAction()">Start<br />Stream</button>
+                <button class="nv-button flyout-button" id="init-control" onclick="toggleSdkInit()">Shutdown SDK</button>
+                <button class="nv-button flyout-button" onclick="getRunningInCloud()">Check if Cloud</button>
+                <button class="nv-button flyout-button" onclick="isRunningInCloudSecure()">Check if Cloud Secure</button>
+                <button class="nv-button flyout-button" onclick="getClientIp()">Get Client IP</button>
+                <button class="nv-button flyout-button" onclick="getClientCountryCode()">Get Client Country Code</button>
+                <button class="nv-button flyout-button" onclick="getClientLanguageCode()">Get Client Language Code</button>
+                <button class="nv-button flyout-button" onclick="getClientInfo()">Get Client Info</button>
+            </div>
+            <div id="login-panel" class="nv-nested-container">
+                <span class="input-label">Launcher <br /> Token:</span>
+                <input id="launcherToken" type="text" class="input" size="32" />
+            </div>
         </div>
         <div id="stream-status" class="nv-container">
             <span>Stream Status: </span><span class="text" id="stream-status-value">Init</span>
@@ -138,16 +199,16 @@
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.494.0.min.js"></script>
     <script language="JavaScript">
         /**
-         * The client ID is used for NVIDIA Identity Services API calls and authentication to
-         * identify where the client calls originate from. The ID used here is only for the
-         * purpose of this sample launcher app and can not be reused by your application.
-         *
-         * If your application will initiate logins to the various NVIDIA GFN infrastructure,
-         * you must request your own client ID and make sure it is registered with the NVIDIA
-         * Identity Services via your NVIDIA partner representative. Because of the sensitive
-         * nature of authentication, the IdP APIs will not return user token data to any
-         * application that does not have a valid registered client ID.
-         */
+            * The client ID is used for NVIDIA Identity Services API calls and authentication to
+            * identify where the client calls originate from. The ID used here is only for the
+            * purpose of this sample launcher app and can not be reused by your application.
+            *
+            * If your application will initiate logins to the various NVIDIA GFN infrastructure,
+            * you must request your own client ID and make sure it is registered with the NVIDIA
+            * Identity Services via your NVIDIA partner representative. Because of the sensitive
+            * nature of authentication, the IdP APIs will not return user token data to any
+            * application that does not have a valid registered client ID.
+            */
         var sampleLauncherClientId = '93bvf7pvsTfhiYFLnlhE8-v07VlJRiDLGiJ94hgxenk';
 
         /**
@@ -168,11 +229,12 @@
         // These defines mirror the ones in GfnRuntimeSdk_CAPI.h
         var AUTH_NVIDIA_DEFAULT = '7';
         var streamRunning = false;
+        var isSDKEnabled = false;
 
         /**
-         * Adds a given input message to the console log as well as the log text box.
-         * @param message Input string to be added to the log
-         */
+            * Adds a given input message to the console log as well as the log text box.
+            * @param message Input string to be added to the log
+            */
         function setStatus(message) {
             console.log(message);
             var timestamp = new Date();
@@ -180,13 +242,13 @@
         }
 
         /**
-         * Initializes the NVIDIA GeForce NOW SDK and other startup values. Also checks
-         * if the client is being run on a GeForce NOW game seat to show a different UI.
-         */
+            * Initializes the NVIDIA GeForce NOW SDK and other startup values. Also checks
+            * if the client is being run on a GeForce NOW game seat to show a different UI.
+            */
         function initializeSdk() {
             return new Promise((resolve, reject) => {
                 setStatus('Initializing GFN SDK');
-                    window.cefQuery({
+                window.cefQuery({
                     request: JSON.stringify({
                         command: 'GFN_SDK_INIT'
                     }),
@@ -195,9 +257,11 @@
                         var success = data.success;
                         if (success) {
                             setStatus('GFN SDK successfully initialized!');
+                            this.isSDKEnabled = true;
                             resolve(0);
                         } else {
                             setStatus('GFN SDK not initialized: ' + data.errorMessage);
+                            this.isSDKEnabled = false;
                             reject(success);
                         }
                         resolve(0);
@@ -211,8 +275,8 @@
         }
 
         /**
-         * Requests a callback when the streamer state changes
-         */
+            * Requests a callback when the streamer state changes
+            */
         function registerStreamStatusCallback() {
             window.cefQuery({
                 request: JSON.stringify({
@@ -238,8 +302,8 @@
         }
 
         /**
-         * Requests a callback when on-seat client info changes
-         */
+            * Requests a callback when on-seat client info changes
+            */
         function registerClientInfoCallback() {
             window.cefQuery({
                 request: JSON.stringify({
@@ -253,11 +317,11 @@
         }
 
         /**
-         * Calls into GFN SDK to determine whether the sample launcher is being executed inside
-         * an NVIDIA GeForce NOW game seat. If running in the cloud it exercises other GFN SDK
-         * functions like displaying the user's current local IP address, or restoring the launcher
-         * user session from the IDM to demonstrate Single Sign-On behavior.
-         */
+            * Calls into GFN SDK to determine whether the sample launcher is being executed inside
+            * an NVIDIA GeForce NOW game seat. If running in the cloud it exercises other GFN SDK
+            * functions like displaying the user's current local IP address, or restoring the launcher
+            * user session from the IDM to demonstrate Single Sign-On behavior.
+            */
         function isRunningInCloud() {
             return new Promise((resolve, reject) => {
                 window.cefQuery({
@@ -289,9 +353,29 @@
         }
 
         /**
-         * Uses the secure version of the cloud check API to check if running in GFN environment. This
-         * requires the sample application to be launched elevated.
-         */
+         * Calls into GFN SDK to determine whether the sample launcher is being executed inside
+         * an NVIDIA GeForce NOW game seat. It then displays the result of the call and returns it.
+         **/
+        function getRunningInCloud() {
+            setStatus("Calling isRunningInCloud");
+            return new Promise((resolve, reject) => {
+                window.cefQuery({
+                    request: JSON.stringify({
+                        command: 'GFN_SDK_IS_RUNNING_IN_CLOUD'
+                    }),
+                    onSuccess: function (response) {
+                        var data = JSON.parse(response);
+                        setStatus(data.enabled ? 'Client is running on a cloud GFN game seat' : 'Client is not running on a cloud GFN game seat');
+                        resolve(data.enabled);
+                    }
+                });
+            });
+        }
+
+        /**
+            * Uses the secure version of the cloud check API to check if running in GFN environment. This
+            * requires the sample application to be launched elevated.
+            */
         function isRunningInCloudSecure() {
             return new Promise((resolve, reject) => {
                 window.cefQuery({
@@ -347,69 +431,69 @@
                     'Content-Type': 'application/json'
                 }
             })
-            .then(function (response) {
-                if (!response.ok) {
-                    throw 'The serverInfo endpoint failed';
-                }
-                return response.json();
-            })
-            .then(function (responseJson) {
-                var serverId = responseJson.requestStatus.serverId;
-                setStatus('serverId: ' + serverId);
-                if(serverId === '') {
-                    throw 'serverId value is not valid';
-                }
-                // GFN platform provides an App Catalog (LCARS) API to serve content from the other 
-                // microservices to all clients. LCARS is served with a GraphQL interface. SDK Clients can
-                // use this API to specify data they want (e.g. games from a particular GFN vpcId),
-                // and LCARS will build the appropriate response.
-                const GetAppsQuery = (vpcId) =>
-                `{
-                    apps(vpcId: "${vpcId}") {
-                        numberReturned
-                        items {
-                            title
-                            variants {
-                                id
-                                images {
-                                    FEATURE_IMAGE
-                                }
-                                appStore
-                            }
-                        }
-                    }
-                }`;
-                var url = 'https://public.games.geforce.com/graphql?query=' + encodeURIComponent(GetAppsQuery(serverId));
-                return fetch(url, {
-                    method: 'GET'
-                })
                 .then(function (response) {
                     if (!response.ok) {
-                        throw 'The apps endpoint failed';
+                        throw 'The serverInfo endpoint failed';
                     }
                     return response.json();
                 })
                 .then(function (responseJson) {
-                    return responseJson.data.apps.items;
+                    var serverId = responseJson.requestStatus.serverId;
+                    setStatus('serverId: ' + serverId);
+                    if (serverId === '') {
+                        throw 'serverId value is not valid';
+                    }
+                    // GFN platform provides an App Catalog (LCARS) API to serve content from the other
+                    // microservices to all clients. LCARS is served with a GraphQL interface. SDK Clients can
+                    // use this API to specify data they want (e.g. games from a particular GFN vpcId),
+                    // and LCARS will build the appropriate response.
+                    const GetAppsQuery = (vpcId) =>
+                        `{
+                                apps(vpcId: "${vpcId}") {
+                                    numberReturned
+                                    items {
+                                        title
+                                        variants {
+                                            id
+                                            images {
+                                                FEATURE_IMAGE
+                                            }
+                                            appStore
+                                        }
+                                    }
+                                }
+                            }`;
+                    var url = 'https://public.games.geforce.com/graphql?query=' + encodeURIComponent(GetAppsQuery(serverId));
+                    return fetch(url, {
+                        method: 'GET'
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw 'The apps endpoint failed';
+                            }
+                            return response.json();
+                        })
+                        .then(function (responseJson) {
+                            return responseJson.data.apps.items;
+                        })
                 })
-            })
         }
 
         /**
-         * Calls into GFN SDK to initiate a new GeForce NOW streaming session and launch the currently
-         * selected game, or stop it if a stream is running.
-         * 
-         * If the authentication method is set to "NVIDIA Account" and a valid delegate token is passed
-         * in as a parameter it will automatically authenticate the streaming session and begin streaming
-         * immediately. If an empty or invalid delegate token is passed in then the GeForce NOW streaming
-         * client will display a login window prompting the user to authenticate first.
-         * If the user previously logged into their NVIDIA user account we request a new delegate
-         * token to start streaming with, otherwise we pass an empty token and let the GeForce NOW
-         * streaming client handle NVIDIA user authentication.
-         * 
-         * The serviceId and appId parameters should be obtained from an NVIDIA Developer Services
-         * API call which returns that information, see the nextGame() function below for an example.
-         */
+            * Calls into GFN SDK to initiate a new GeForce NOW streaming session and launch the currently
+            * selected game, or stop it if a stream is running.
+            *
+            * If the authentication method is set to "NVIDIA Account" and a valid delegate token is passed
+            * in as a parameter it will automatically authenticate the streaming session and begin streaming
+            * immediately. If an empty or invalid delegate token is passed in then the GeForce NOW streaming
+            * client will display a login window prompting the user to authenticate first.
+            * If the user previously logged into their NVIDIA user account we request a new delegate
+            * token to start streaming with, otherwise we pass an empty token and let the GeForce NOW
+            * streaming client handle NVIDIA user authentication.
+            *
+            * The serviceId and appId parameters should be obtained from an NVIDIA Developer Services
+            * API call which returns that information, see the nextGame() function below for an example.
+            */
         function performStreamAction() {
             if (streamRunning == false) {
                 setStatus('Launching game stream session...');
@@ -454,12 +538,12 @@
         }
 
         /**
-         * Goes to the next or previous game in the list of games available for streaming on GeForce NOW
-         * and calls the NVIDIA Developer Services API to retrieve game metadata required for launch
-         * as well as information such as game name and a URL for the cover art image, which can be
-         * requested in various available formats.
-         * @param increment Number of steps by which to increase or decrease the current games index
-         */
+            * Goes to the next or previous game in the list of games available for streaming on GeForce NOW
+            * and calls the NVIDIA Developer Services API to retrieve game metadata required for launch
+            * as well as information such as game name and a URL for the cover art image, which can be
+            * requested in various available formats.
+            * @param increment Number of steps by which to increase or decrease the current games index
+            */
         function nextGame(increment) {
             gameIndex += increment;
             if (gameIndex < 0) {
@@ -475,17 +559,63 @@
 
             gfnTitleId = parseInt(supportedTitlesAsJson[gameIndex].variants[0].id);
             cover.src = supportedTitlesAsJson[gameIndex].variants[0].images.FEATURE_IMAGE;
-            
+
             var lastIndex = supportedTitlesAsJson.length - 1;
             setStatus('GFN Game ' + gameIndex + ' of ' + lastIndex + ':  ' + JSON.stringify(supportedTitlesAsJson[gameIndex]));
         }
 
         /**
-         * Calls into GFN SDK to request a copy of the 3rd party user access token passed into the
-         * StartStream API. This token should be a token that can be consumed by your application
-         * that is running inside the GFN cloud environment to facilitate Single Sign-On (SSO) and
-         * thus not require the user to manually log into your application.
+         *  Toggles the initialization state of the SDK
+         *  
+         *  When shutdown, other calls to the SDK should fail
          */
+        function toggleSdkInit() {
+            var toggleButton = document.getElementById('init-control');
+            switch (this.isSDKEnabled) {
+                case true:
+                    toggleButton.innerText = 'Initialize SDK';
+                    setStatus('Shutting down SDK.');
+                    window.cefQuery({
+                        request: JSON.stringify({
+                            command: 'GFN_SDK_SHUTDOWN'
+                        }),
+                        onSuccess: function (response) {
+                            var data = JSON.parse(response);
+                            launcherToken = data.authData;
+                            setStatus('GFN SDK Shutdown complete: ' + ( data.success ? 'Success' : data.errorMessage ));
+                            this.isSDKEnabled = false;
+                            const apiContainer = document.getElementById('api-button-container');
+                            for (var child of apiContainer.children) {
+                                if (child.id !== 'init-control') {
+                                    child.setAttribute("class", 'nv-button-disabled flyout-button');
+                                    child.disabled = true;
+                                }
+                            }
+                        }
+                    });
+                    break;
+                case false:
+                    toggleButton.innerText = 'Shutdown SDK';
+                    setStatus('Re-Initializing SDK.');
+                    initializeSdk();
+
+                    const apiContainer = document.getElementById('api-button-container');
+                    for (var child of apiContainer.children) {
+                        if (child.id !== 'init-control') {
+                            child.setAttribute("class", 'nv-button flyout-button');
+                            child.disabled = false;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        /**
+            * Calls into GFN SDK to request a copy of the 3rd party user access token passed into the
+            * StartStream API. This token should be a token that can be consumed by your application
+            * that is running inside the GFN cloud environment to facilitate Single Sign-On (SSO) and
+            * thus not require the user to manually log into your application.
+            */
         function requestCustomAuthToken() {
             window.cefQuery({
                 request: JSON.stringify({
@@ -500,11 +630,11 @@
         }
 
         /**
-         * Calls into GFN SDK to get the user's current local IP address. This is meant to be
-         * called while running on the GeForce NOW game seat to handle scenarios where the IP
-         * addressed is used for account security or other validation purposes or things like
-         * region specific localization or other UI.
-         */
+            * Calls into GFN SDK to get the user's current local IP address. This is meant to be
+            * called while running on the GeForce NOW game seat to handle scenarios where the IP
+            * addressed is used for account security or other validation purposes or things like
+            * region specific localization or other UI.
+            */
         function getClientIp() {
             window.cefQuery({
                 request: JSON.stringify({
@@ -515,19 +645,21 @@
                     clientIp = data.clientIp;
                     setStatus('Got client IP address: ' + clientIp + ' (' + data.errorMessage + ')');
 
-                    var ipAddressDiv = document.getElementById('ip-address');
-                    var ipAddressValue = document.getElementById('ip-address-value');
-                    ipAddressValue.innerHTML = clientIp;
-                    ipAddressDiv.style.display = 'flex';
+                    if (clientIp.length > 0) {
+                        var ipAddressDiv = document.getElementById('ip-address');
+                        var ipAddressValue = document.getElementById('ip-address-value');
+                        ipAddressValue.innerHTML = clientIp;
+                        ipAddressDiv.style.display = 'flex';
+                    }
                 }
             });
         }
 
         /**
-         * Calls into GFN SDK to get the user's current country code. This is meant to be
-         * called while running on the GeForce NOW game seat to validation purposes or things like
-         * region specific localization or other UI.
-         */
+            * Calls into GFN SDK to get the user's current country code. This is meant to be
+            * called while running on the GeForce NOW game seat to validation purposes or things like
+            * region specific localization or other UI.
+            */
         function getClientCountryCode() {
             window.cefQuery({
                 request: JSON.stringify({
@@ -536,17 +668,43 @@
                 onSuccess: function (response) {
                     var data = JSON.parse(response);
                     clientCountryCode = data.clientCountryCode;
-                    setStatus('Got client country code: ' + clientCountryCode + ' (' + data.errorMessage + ')');
+                    if (clientCountryCode.length > 0) {
+                        setStatus('Got client country code: ' + clientCountryCode + ' (' + data.errorMessage + ')');
+                    } else {
+                        setStatus('Failed to client country code: ' + data.errorMessage);
+                    }
                 }
             });
         }
 
         /**
-         * Calls into GFN SDK to get the user's client info. This is meant to be
-         * called while running on the GeForce NOW game seat to make decisions based on client settings,
-         * such as changing the application UI if the user's input is a game controller or touchscreen 
-         * versus using a keyboard and mouse.
+         * Calls into GFN SDK to get the user's current language code. This is meant to be
+         * called while running on the GeForce NOW game seat to validation purposes or things like
+         * region specific localization or other UI.
          */
+        function getClientLanguageCode() {
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GFN_SDK_GET_CLIENT_LANGUAGE_CODE'
+                }),
+                onSuccess: function (response) {
+                    var data = JSON.parse(response);
+                    clientLanguageCode = data.clientLanguageCode;
+                    if (clientLanguageCode.length > 0) {
+                        setStatus('Got client language code: ' + clientLanguageCode + ' (' + data.errorMessage + ')');
+                    } else {
+                        setStatus('Failed to client language code: ' + data.errorMessage);
+                    }
+                }
+            });
+        }
+
+        /**
+            * Calls into GFN SDK to get the user's client info. This is meant to be
+            * called while running on the GeForce NOW game seat to make decisions based on client settings,
+            * such as changing the application UI if the user's input is a game controller or touchscreen
+            * versus using a keyboard and mouse.
+            */
         function getClientInfo() {
             setStatus('Getting Client Info...');
             window.cefQuery({
@@ -565,12 +723,12 @@
         }
 
         /**
-         * Opens a popup window that displays the NVIDIA Identity Services login website to
-         * facilitate authentication with a new or existing NVIDIA account. This is part of
-         * the Account Linking flow, or can be used as a one-time authentication operation.
-         * After login is completed, the response and further calls are done through the
-         * receiveMessage event handler.
-         */
+            * Opens a popup window that displays the NVIDIA Identity Services login website to
+            * facilitate authentication with a new or existing NVIDIA account. This is part of
+            * the Account Linking flow, or can be used as a one-time authentication operation.
+            * After login is completed, the response and further calls are done through the
+            * receiveMessage event handler.
+            */
         function doLogin() {
             var popupX = 600,
                 popupY = 224,
@@ -620,7 +778,7 @@
                                 // Absolute coordinates that match the size/location of the underlying element
                                 'left=' + popupX + ',top=' + popupY + ',width=' + popupWidth +
                                 ',height=' + popupHeight);
-                                
+
                         },
                         onFailure: function (response) {
                             setStatus('Failed to check staging override from command line');
@@ -634,10 +792,10 @@
         }
 
         /**
-         *  Simulates logging out of the user's NVIDIA account.
-         *  All we do in this case is forget the NVIDIA ID Token we have stored and continue as if we never had it
-         *  In a real solution, this would likely involve asking an IDM backend to forget the link as well.
-         */
+            *  Simulates logging out of the user's NVIDIA account.
+            *  All we do in this case is forget the NVIDIA ID Token we have stored and continue as if we never had it
+            *  In a real solution, this would likely involve asking an IDM backend to forget the link as well.
+            */
         function doLogout() {
             nvidiaToken = null;
             document.getElementById('nv-login').style.display = '';
@@ -646,34 +804,34 @@
         }
 
         /**
-         * Helper method for base64 encoding a given input string. This is used to simulate
-         * generation of an authentication token for the launcher IDM, which is then stored
-         * as the Account Link information in the IDM hosted on AWS.
-         * @param str Input string to be encoded as base64
-         */
+            * Helper method for base64 encoding a given input string. This is used to simulate
+            * generation of an authentication token for the launcher IDM, which is then stored
+            * as the Account Link information in the IDM hosted on AWS.
+            * @param str Input string to be encoded as base64
+            */
         function base64encode(str) {
             return window.btoa(window.unescape(window.encodeURIComponent(str)));
         }
 
         /**
-         * Helper method for decoding a given base64 input string. This is used to simulate
-         * the part of the Single Sign-On flow where we receive an encoded launcher user token
-         * after validating the Account Link against the launcher IDM, and then use the
-         * token to establish a valid launcher user session.
-         * @param str Base64 encoded input string to be decoded
-         */
+            * Helper method for decoding a given base64 input string. This is used to simulate
+            * the part of the Single Sign-On flow where we receive an encoded launcher user token
+            * after validating the Account Link against the launcher IDM, and then use the
+            * token to establish a valid launcher user session.
+            * @param str Base64 encoded input string to be decoded
+            */
         function base64decode(str) {
             return window.decodeURIComponent(window.atob(str));
         }
 
         /**
-         * Event handler for window event messages. This is used to receive the authentication
-         * token information from the NVIDIA Identitiy Services login popup window after
-         * successful login. The login response provides an oauth code, which can be used to
-         * obtain additional information such as the NVIDIA user ID, which in turn is used for
-         * the delegate token request call.
-         * @param event Window event that was sent to be handled
-         */
+            * Event handler for window event messages. This is used to receive the authentication
+            * token information from the NVIDIA Identitiy Services login popup window after
+            * successful login. The login response provides an oauth code, which can be used to
+            * obtain additional information such as the NVIDIA user ID, which in turn is used for
+            * the delegate token request call.
+            * @param event Window event that was sent to be handled
+            */
         function receiveMessage(event) {
             // If the OAuth popup dialog isn't currently open then there is no work for us to do
             if (oauthWindow && !oauthWindow.closed) {
@@ -690,11 +848,11 @@
                 setStatus('Unexpected event data detected.');
                 return;
             }
-            if (!event.data.idToken || event.data.idToken =='') {
+            if (!event.data.idToken || event.data.idToken == '') {
                 setStatus('ID token not defined in message.');
                 return;
             }
-            nvidiaToken = event.data.idToken;            
+            nvidiaToken = event.data.idToken;
             setStatus('Succesfully retrieved NVIDIA ID token: ' + nvidiaToken);
             document.getElementById('nv-login').style.display = 'none';
             document.getElementById('nv-logout').style.display = '';
@@ -704,16 +862,18 @@
             if (enable) {
                 document.getElementById('nv-login').setAttribute("class", 'nv-button');
                 document.getElementById('nv-logout').setAttribute("class", 'nv-button');
-                document.getElementById('next-game').setAttribute("class", 'nv-button');
-                document.getElementById('previous-game').setAttribute("class", 'nv-button');
-                document.getElementById('stream-action').setAttribute("class", 'nv-button');
+                document.getElementById('next-game').setAttribute("class", 'nv-button nv-chevron nv-chevron-right-align');
+                document.getElementById('previous-game').setAttribute("class", 'nv-button nv-chevron');
+                if (this.isSDKEnabled) {
+                    document.getElementById('stream-action').setAttribute("class", 'nv-button flyout-button');
+                }
             }
             else {
                 document.getElementById('nv-login').setAttribute("class", 'nv-button-disabled');
                 document.getElementById('nv-logout').setAttribute("class", 'nv-button-disabled');
-                document.getElementById('next-game').setAttribute("class", 'nv-button-disabled');
-                document.getElementById('previous-game').setAttribute("class", 'nv-button-disabled');
-                document.getElementById('stream-action').setAttribute("class", 'nv-button-disabled');
+                document.getElementById('next-game').setAttribute("class", 'nv-button-disabled nv-chevron nv-chevron-right-align');
+                document.getElementById('previous-game').setAttribute("class", 'nv-button-disabled nv-chevron');
+                document.getElementById('stream-action').setAttribute("class", 'nv-button-disabled flyout-button');
             }
 
             document.getElementById('nv-login').disabled = !enable;
@@ -725,10 +885,10 @@
 
         function updateStreamButton() {
             if (streamRunning == false) {
-                document.getElementById('stream-action').innerHTML = 'START <br> STREAM';
+                document.getElementById('stream-action').innerHTML = 'Start <br> Stream';
             }
             else {
-                document.getElementById('stream-action').innerHTML = 'STOP <br> STREAM';
+                document.getElementById('stream-action').innerHTML = 'Stop <br> Stream';
             }
         }
 
@@ -749,7 +909,7 @@
             initializeSdk().then(function () {
                 // Secure cloud check requires elevation, which is not
                 // the default execution conditions of the sample. We'll
-                // make the call to show behavior, allowing the sample to 
+                // make the call to show behavior, allowing the sample to
                 // be manually run elevated, but not tie any decisions to
                 // the API's result or returned data.
                 isRunningInCloudSecure();

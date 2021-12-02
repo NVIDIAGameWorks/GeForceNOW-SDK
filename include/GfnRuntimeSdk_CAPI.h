@@ -76,7 +76,7 @@
 /// GFN cloud environments. In those cases, API calls will return a well-defined error code to denote the
 /// call was not applicable to the environment.
 ///
-/// Some of the APIs are used solely for authentication purposes in Account Linking and 
+/// Some of the APIs are used solely for authentication purposes in Account Linking and
 /// Single Sign-On scenarios. For more information about NVIDIA's Account Linking and Single Sign-On
 /// model, please refer to the SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf document in the /doc folder.
 ///
@@ -258,7 +258,6 @@
 /// C        | @ref gfnRegisterClientInfoCallback
 ///
 /// @copydoc gfnRegisterClientInfoCallback
-///
 
 #ifndef GFN_SDK_RUNTIME_CAPI_H
 #define GFN_SDK_RUNTIME_CAPI_H
@@ -375,10 +374,12 @@
         } GfnActionType;
 
 
+
     #define GfnClientInfoVersion    (1)
-    #define IP_V4_SIZE			    (17)	// INET_ADDRSTRLEN + NULL
-    #define CC_SIZE			        (3)	// ISO 3166-1 Alpha-2
-    #define LOCALE_SIZE		        (6)	// ISO 639-1 Alpha-2
+    #define IP_V4_SIZE              (17) // INET_ADDRSTRLEN + NULL
+    #define IP_V6_SIZE              (49) // INET6_ADDRSTRLEN + NULL
+    #define CC_SIZE                 (3)  // ISO 3166-1 Alpha-2
+    #define LOCALE_SIZE             (6)  // ISO 639-1 Alpha-2
 
         /// @brief Types of operating systems that can be reported by the SDK
         typedef enum GfnOsType
@@ -397,6 +398,25 @@
             gfnTvOs = 11,
             gfnOsTypeMax = 11
         } GfnOsType;
+
+        /// @brief Type of input used by the client
+        typedef enum GfnInputType
+        {
+            gfnUnknownInput = 0,
+            gfnMouse = 1,
+            gfnKeyboard = 2,
+            gfnMouseKeyboard = 3,
+            gfnXInputGamepad = 4,
+            gfnXInputGamepadPartial = 5,
+            gfnDirectInputGamepad = 6,
+            gfnDirectInputGamepadPartial = 7,
+            gfnJoystick = 8,
+            gfnWheel = 9,
+            gfnTouchscreen = 10,
+            gfnWiiController = 11,
+            gfnKinectController = 12,
+            gfnInputTypeMax = 12
+        } GfnInputType;
 
         /// @brief Client info blob
         typedef struct
@@ -514,7 +534,7 @@
         ///                                   registered callback. Can be NULL.
         ///
         /// @retval gfnSuccess              - On success, when running in a Geforce NOW environment
-        /// @retval gfnDLLNotPresent        - If callback could not be registered
+        /// @retval gfnInternalError        - If callback could not be registered
         /// @retval gfnInvalidParameter     - If exitCallback function pointer is NULL.
         /// @retval gfnCallWrongEnvironment - If callback could not be registered since this function
         ///                                   was called outside of a cloud execution environment
@@ -538,7 +558,7 @@
         ///                                   registered callback. Can be NULL.
         ///
         /// @retval gfnSuccess              - On success, when running in a Geforce NOW environment
-        /// @retval gfnDLLNotPresent        - If callback could not be registered
+        /// @retval gfnInternalError        - If callback could not be registered
         /// @retval gfnInvalidParameter     - If pauseCallback function pointer is NULL.
         /// @retval gfnCallWrongEnvironment - If callback could not be registered since this function
         ///                                   was called outside of a cloud execution environment
@@ -562,7 +582,7 @@
         ///                                     registered callback. Can be NULL.
         ///
         /// @retval gfnSuccess                - On success, when running in a Geforce NOW environment
-        /// @retval gfnDLLNotPresent          - If callback could not be registered
+        /// @retval gfnInternalError        - If callback could not be registered
         /// @retval gfnInvalidParameter       - If installCallback function pointer is NULL.
         /// @retval gfnCallWrongEnvironment   - If callback could not be registered since this function
         ///                                   was called outside of a cloud execution environment
@@ -605,7 +625,7 @@
         ///                                       callback specified. Can be NULL.
         ///
         /// @retval gfnSuccess                  - On success when running in a GFN environment
-        /// @retval gfnDLLNotPresent            - If callback was not registered
+        /// @retval gfnInternalError            - If callback was not registered
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterSaveCallback(SaveCallbackSig saveCallback, void* pUserContext);
         /// @}
 
@@ -623,7 +643,7 @@
         ///
         /// @retval gfnSuccess                  - On success when running in a GFN environment
         /// @retval gfnInvalidParameter         - If callback was NULL
-        /// @retval gfnDllNotPresent            - If the on-seat dll was not present (Usually due to not running on a seat)
+        /// @retval gfnCloudLibraryNotFound     - If the on-seat dll was not present (Usually due to not running on a seat)
         /// @retval gfnAPINotFound              - If the API was not found in the GFN SDK Library
         /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterSessionInitCallback(SessionInitCallbackSig sessionInitCallback, void* pUserContext);
@@ -641,7 +661,7 @@
         ///
         /// @retval gfnSuccess                  - On success when running in a GFN environment
         /// @retval gfnInvalidParameter         - If callback was NULL
-        /// @retval gfnDllNotPresent            - If the on-seat dll was not present (Usually due to not running on a seat)
+        /// @retval gfnCloudLibraryNotFound     - If the on-seat dll was not present (Usually due to not running on a seat)
         /// @retval gfnAPINotFound              - If the API was not found in the GFN SDK Library
         /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterClientInfoCallback(ClientInfoCallbackSig clientInfoCallback, void* pUserContext);
@@ -1062,6 +1082,7 @@
         /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* zone);
+
         /// @}
 
 #ifdef __cplusplus

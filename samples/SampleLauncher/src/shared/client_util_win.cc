@@ -26,6 +26,9 @@ bool TryGetSpecialFolderPath(SpecialDirectory sd, std::wstring& path)
     case SD_LOCALAPPDATA:
       knownId = FOLDERID_LocalAppData;
       break;
+    case SD_COMMONAPPDATA:
+      knownId = FOLDERID_ProgramData;
+      break;
     default:
       LOG(ERROR) << "Invalid special directory: " << sd;
       return false;

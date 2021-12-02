@@ -34,11 +34,11 @@ bool g_MainDone = false;
 int g_pause_call_counter = 0;
 
 // Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
-// Application callbacks are registered with the SDK after it is initialized.
+// Application callbacks are registered with the SDK after it is initialized if running in Cloud mode.
 void ApplicationInitialize()
 {
     printf("\n\nApplication: Initializing...\n");
-    
+
     // Initialize the Geforce NOW Runtime SDK using the C calling convention.
     GfnRuntimeError err = GfnInitializeSdk(gfnDefaultLanguage);
     if (GFNSDK_FAILED(err))
@@ -97,12 +97,10 @@ void ApplicationShutdown()
 {
     printf("\n\nApplication: Shutting down...\n");
 
-
     // Shut down the Geforce NOW Runtime SDK. Note that it's safe to call
     // gfnShutdownRuntimeSdk even if the SDK was not initialized.
     GfnShutdownSdk();
 }
-
 
 // Example application main
 int _tmain(int argc, _TCHAR* argv[])
@@ -198,7 +196,6 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("Failed to report 'AppReady' to the SDK: %d\n", (int)runtimeError);
         }
     }
-
 
     // Application main loop
     printf("\n\nApplication: In main application loop; Press space bar to exit...\n\n");

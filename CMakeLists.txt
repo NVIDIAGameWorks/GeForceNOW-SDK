@@ -56,7 +56,9 @@ set(GFN_SDK_COMMON_SOURCES
 add_custom_target(Dist SOURCES ${GFN_SDK_RUNTIME_SOURCES} ${GFN_SDK_COMMON_SOURCES})
 
 if (BUILD_SAMPLES)
-    add_subdirectory(samples/SampleCApp)
+    add_subdirectory(samples/CGameAPISample)
+    add_subdirectory(samples/SDKDllDirectRefSample)
+    add_subdirectory(samples/SampleService)
 
     if (USE_STATIC_CRT)
         add_subdirectory(samples/SampleLauncher)
