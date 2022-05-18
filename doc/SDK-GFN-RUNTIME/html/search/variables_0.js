@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['downloaded',['downloaded',['../struct_start_stream_response.html#a4a5d09f602ccbafe28dbd563758baf4a',1,'StartStreamResponse']]]
+  ['country',['country',['../struct_gfn_client_info.html#a0e0eef2a219a7c524a6f4f7714c9d456',1,'GfnClientInfo']]]
 ];

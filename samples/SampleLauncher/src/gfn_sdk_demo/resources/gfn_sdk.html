@@ -183,6 +183,7 @@
                 <button class="nv-button flyout-button" onclick="getClientCountryCode()">Get Client Country Code</button>
                 <button class="nv-button flyout-button" onclick="getClientLanguageCode()">Get Client Language Code</button>
                 <button class="nv-button flyout-button" onclick="getClientInfo()">Get Client Info</button>
+                <button class="nv-button flyout-button" onclick="getSessionInfo()">Get Session Info</button>
             </div>
             <div id="login-panel" class="nv-nested-container">
                 <span class="input-label">Launcher <br /> Token:</span>
@@ -339,12 +340,16 @@
                             getClientCountryCode();
                             // Get all the available client info
                             getClientInfo();
+                            // Get all the current session info
+                            getSessionInfo();
                             // Get streamable status about a specific title
                             isTitleAvailable();
                             // Get all titles available to stream in the current GFN game seat
                             getAvailableTitles();
                             // Obtain custom auth data that passed in as part of StartStream API
                             requestCustomAuthToken();
+                            // Obtain partner custom data that passed in as part of StartStream API
+                            requestPartnerCustomData();
                         }
                         resolve(data.enabled);
                     }
@@ -630,6 +635,25 @@
         }
 
         /**
+         * Calls into GFN SDK to request a copy of the 3rd party user access token passed into the
+         * StartStream API. This token should be a token that can be consumed by your application
+         * that is running inside the GFN cloud environment to facilitate Single Sign-On (SSO) and
+         * thus not require the user to manually log into your application.
+         */
+         function requestPartnerCustomData() {
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GFN_SDK_REQUEST_PARTNER_CUSTOM_DATA'
+                }),
+                onSuccess: function (response) {
+                    var data = JSON.parse(response);
+                    customData = data.customData;
+                    setStatus('Partner custom data retrieval completed: ' + data.errorMessage + ', Data: "' + customData + '"');
+                }
+            });
+        }
+
+        /**
             * Calls into GFN SDK to get the user's current local IP address. This is meant to be
             * called while running on the GeForce NOW game seat to handle scenarios where the IP
             * addressed is used for account security or other validation purposes or things like
@@ -713,11 +737,31 @@
                 }),
                 onSuccess: function (response) {
                     var data = JSON.parse(response);
-                    clientCountryCode = data.clientCountryCode;
                     setStatus('Got client info: ' + response);
                 },
                 onFailure: function (response) {
-                    setStatus('Failed to get Client Info: ' + JSON.stringify(response));
+                    setStatus('Failed to get client Info: ' + JSON.stringify(response));
+                }
+            });
+        }
+
+        /**
+            * Calls into GFN SDK to get information about current streaming session. This is meant to be
+            * called while running on the GeForce NOW game seat to make decisions based on session length,
+            * and how much time is remaining in the session.
+            */
+        function getSessionInfo() {
+            setStatus('Getting Session Info...');
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GFN_SDK_GET_SESSION_INFO'
+                }),
+                onSuccess: function (response) {
+                    var data = JSON.parse(response);
+                    setStatus('Got session info: ' + response);
+                },
+                onFailure: function (response) {
+                    setStatus('Failed to get session Info: ' + JSON.stringify(response));
                 }
             });
         }

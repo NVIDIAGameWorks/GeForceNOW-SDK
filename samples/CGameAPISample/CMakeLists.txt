@@ -6,10 +6,11 @@ set(GFN_SDK_SAMPLE_SOURCES
 )
 
 add_executable(CGameAPISample ${GFN_SDK_SAMPLE_SOURCES})
-set_target_properties(CGameAPISample PROPERTIES FOLDER "dist/samples")
+set_target_properties(CGameAPISample PROPERTIES FOLDER "Samples")
 set_target_properties(CGameAPISample PROPERTIES LINK_FLAGS "/ignore:4099")
 
 target_include_directories(CGameAPISample PRIVATE ${GFN_SDK_DIST_DIR}/include)
+target_compile_definitions(CGameAPISample PRIVATE GFN_SDK_WRAPPER_LOG=1 FEATURECONFIG_HEADER)
 
 # Set the configuration-specific binary output directory.
 set(TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")

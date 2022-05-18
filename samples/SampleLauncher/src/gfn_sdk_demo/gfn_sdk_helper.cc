@@ -51,7 +51,10 @@ CefString GFN_SDK_REQUEST_ACCESS_TOKEN = "GFN_SDK_REQUEST_ACCESS_TOKEN";
 CefString GET_TCP_PORT = "GET_TCP_PORT";
 CefString GET_CLIENT_INFO = "GFN_SDK_GET_CLIENT_INFO";
 CefString GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK = "GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK";
+CefString GFN_SDK_REGISTER_NETWORK_STATUS_CALLBACK = "GFN_SDK_REGISTER_NETWORK_STATUS_CALLBACK";
 CefString GET_OVERRIDE_URI = "GET_OVERRIDE_URI";
+CefString GFN_SDK_REQUEST_PARTNER_CUSTOM_DATA = "GFN_SDK_REQUEST_PARTNER_CUSTOM_DATA";
+CefString GET_SESSION_INFO = "GFN_SDK_GET_SESSION_INFO";
 
 static CefString DictToJson(CefRefPtr<CefDictionaryValue> dict)
 {
@@ -78,7 +81,7 @@ static CefString GfnErrorToString(GfnError err)
     case GfnError::gfnInvalidToken: return "Invalid Token";
     case GfnError::gfnTimedOut: return "Timed Out";
     case GfnError::gfnClientDownloadFailed: return "GFN Client download failed";
-    case GfnError::gfnCallWrongEnvironment: return "Invalid cloud environment";
+    case GfnError::gfnCallWrongEnvironment: return "GFN SDK API called in wrong environment";
     case GfnError::gfnWebApiFailed: return "NVIDIA Web API returned invalid data";
     case GfnError::gfnStreamFailure: return "GFN Streamer hit a failure while starting a stream";
     case GfnError::gfnAPINotFound: return "GFN SDK API not found";
@@ -122,6 +125,7 @@ static void logGfnSdkData()
 
 // Callback function for handling stream status callbacks
 static void __stdcall handleStreamStatusCallback(GfnStreamStatus status, void* context);
+static void __stdcall handleNetworkStatusCallback(GfnNetworkStatusUpdateData* pNetworkStatus, void* context);
 static void __stdcall handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, void* context);
 static CefMessageRouterBrowserSide::Callback* s_registerStreamStatusCallback = nullptr;
 static CefMessageRouterBrowserSide::Callback* s_registerNetworkStatusCallback = nullptr;
@@ -586,6 +590,33 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
 
         return true;
     }
+    /**
+     * Requests a copy of the custom data that was passed into pchCustomData as part of the
+     * call to one of the StartStream APIs. This call should only be made in the GFN cloud
+     * environment.
+     */
+    else if (command == GFN_SDK_REQUEST_PARTNER_CUSTOM_DATA)
+    {
+        char const* customData = nullptr;
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        GfnError err = GfnGetCustomData(&customData);
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
+        if (err != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "get custom data error: " << GfnErrorToString(err);
+            response_dict->SetString("customData", "");
+        }
+        else
+        {
+            response_dict->SetString("customData", customData);
+            GfnFree(&customData);
+        }
+
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
+
+        return true;
+    }
     else if (command == GET_TCP_PORT)
     {
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
@@ -617,6 +648,7 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
             response_dict->SetString("ipV4", clientInfo.ipV4);
             response_dict->SetString("locale", clientInfo.locale);
             response_dict->SetInt("osType", clientInfo.osType);
+            response_dict->SetInt("rtdLatencyMs", clientInfo.RTDAverageLatencyMs);
         }
         CefString response(DictToJson(response_dict));
         LOG(INFO) << "GfnGetClientInfo data: " << response.ToString();
@@ -634,6 +666,20 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         if (err != GfnError::gfnSuccess)
         {
             LOG(ERROR) << "Failed to register Client Info Callback: " << GfnErrorToString(err);
+        }
+        return true;
+    }
+    /**
+     * Registers for callback notifications for on-seat network latency updates
+     */
+    else if (command == GFN_SDK_REGISTER_NETWORK_STATUS_CALLBACK)
+    {
+        s_registerNetworkStatusCallback = callback;
+
+        GfnError err = GfnRegisterNetworkStatusCallback(reinterpret_cast<NetworkStatusCallbackSig>(&handleNetworkStatusCallback), 5 * 1000, nullptr);
+        if (err != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "Failed to register Network Latency Callback: " << GfnErrorToString(err);
         }
         return true;
     }
@@ -662,6 +708,30 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         callback->Success(response);
         return true;
     }
+    else if (command == GET_SESSION_INFO)
+    {
+    LOG(INFO) << "Calling GfnGetSessionInfo...";
+    CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+    GfnSessionInfo sessionInfo = { 0 };
+    GfnError error = GfnError::gfnSuccess;
+    error = GfnGetSessionInfo(&sessionInfo);
+    LOG(INFO) << "GfnGetSessionInfo error result: " << error;
+    response_dict->SetString("errorMessage", GfnErrorToString(error));
+    if (error != GfnError::gfnSuccess)
+    {
+        LOG(ERROR) << "get session info data error: " << GfnErrorToString(error);
+        response_dict->SetString("sessionInfo", "");
+    }
+    else
+    {
+        response_dict->SetInt("sessionMaxDurationSec", sessionInfo.sessionMaxDurationSec);
+        response_dict->SetInt("sessionTimeRemainingSec", sessionInfo.sessionTimeRemainingSec);
+    }
+    CefString response(DictToJson(response_dict));
+    LOG(INFO) << "GfnGetSessionInfo data: " << response.ToString();
+    callback->Success(response);
+    return true;
+    }
     LOG(ERROR) << "Unknown command value: " << command;
 
     return false;
@@ -679,6 +749,21 @@ void __stdcall handleStreamStatusCallback(GfnStreamStatus status, void* context)
     }
 }
 
+void __stdcall handleNetworkStatusCallback(GfnNetworkStatusUpdateData* pNetworkStatus, void* context)
+{
+    if (!pNetworkStatus)
+    {
+        return;
+    }
+    if (s_registerNetworkStatusCallback && pNetworkStatus->updateType == gfnRTDAverageLatency)
+    {
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        response_dict->SetInt("rtd", pNetworkStatus->data.RTDAverageLatencyMs);
+
+        CefString response(DictToJson(response_dict));
+        s_registerNetworkStatusCallback->Success(response);
+    }
+}
 void __stdcall handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, void* context)
 {
     if (!pClientUpdate)

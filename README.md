@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.8
+# NVIDIA GeForce NOW SDK Release 1.9
 
 ## At a Glance
 
@@ -10,10 +10,11 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* Added new samples (CGameAPISample, SDKDllDirectRefSample, SampleService), see Readme in ./samples for more information.
-* GFNSDK APIs now return explicit error codes on failure to load client DLL or cloud DLL.
-* Fixed an issue with GetClientInfo export missing from the client DLL.
-* Fixed a bug with backwards compatibility for 1.4 and older SDKs in cloud DLL.
+* Expanded the GfnGetClientInfo API to allow an application to obtain and be informed of network latency changes.
+* Added the GfnGetSessionInfo API to allow an application to request streaming session length and time remaining in the session.
+* Added an example of the GfnGetCustomData call to the Sample Launcher code.
+* New documentation for Deep Links usage, Mobile Touch integration, and Cloud SDK calls.
+* Bug fixes and other minor improvements.
 
 ## Developer Content Portal
 
@@ -43,9 +44,12 @@ The distribution is laid out as below:
 ├─── README.md
 |
 ├─── doc
-|   │   SDK-GFN-PRIMER.pdf
-|   │   SDK-GFN-NGN-ENDPOINT.pdf
+|   │   SDK-GFN-DEEP-LINKING.pdf
+|   │   SDK-GFN-MOBILE-TOUCH-INTEGRATION-GUIDE.pdf
 |   │   SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf
+|   │   SDK-GFN-CLOUD-API.pdf
+|   │   SDK-GFN-NGN-ENDPOINT.pdf
+|   │   SDK-GFN-PRIMER.pdf
 |   │   SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf
 |   └───SDK-GFN-RUNTIME
 |       └───index.html
@@ -68,12 +72,11 @@ The distribution is laid out as below:
 └───samples
     |   README.md
     ├───CGameAPISample
-    ├───SDKDllDirectRefSample
     ├───SampleLauncher
-    └───SampleService
+    ├───SampleService
+    └───SDKDllDirectRefSample
 
 ```
 
 ### Identity management
-
-* For Account and IDM-related APIs, please refer to the document /doc/SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf
+* For Account and IDM-related APIs, please refer to the [document](./doc/SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf)

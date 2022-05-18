@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['value1',['value1',['../struct_gfn_rect.html#af6cbbbd5b088957ea37b21e5e2f95afd',1,'GfnRect']]],
-  ['value2',['value2',['../struct_gfn_rect.html#af55a73adc4c05b52d206f13f83839c19',1,'GfnRect']]],
-  ['value3',['value3',['../struct_gfn_rect.html#a91ebd91af32855ddd55b665d535e61fa',1,'GfnRect']]],
-  ['value4',['value4',['../struct_gfn_rect.html#aa9bc8ec90f72855dd9442c9c3784d12a',1,'GfnRect']]]
+  ['titleinstallationinformation',['TitleInstallationInformation',['../struct_title_installation_information.html',1,'TitleInstallationInformation'],['../_gfn_runtime_sdk___c_a_p_i_8h.html#a7fb41dc15b1727277260870972831eac',1,'TitleInstallationInformation():&#160;GfnRuntimeSdk_CAPI.h']]],
+  ['tokentype',['tokenType',['../struct_start_stream_input.html#abaaa079b12040eaaca900ef1bf2fc1f5',1,'StartStreamInput']]],
+  ['true',['true',['../_gfn_sdk_8h.html#a41f9c5fb8b08eb5dc3edce4dcb37fee7',1,'GfnSdk.h']]]
 ];

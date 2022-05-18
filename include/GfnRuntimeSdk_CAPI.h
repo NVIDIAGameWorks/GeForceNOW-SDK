@@ -258,6 +258,12 @@
 /// C        | @ref gfnRegisterClientInfoCallback
 ///
 /// @copydoc gfnRegisterClientInfoCallback
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnRegisterNetworkStatusCallback
+///
+/// @copydoc gfnRegisterNetworkStatusCallback
 
 #ifndef GFN_SDK_RUNTIME_CAPI_H
 #define GFN_SDK_RUNTIME_CAPI_H
@@ -366,6 +372,7 @@
 
 
         /// @brief Specifies the action in GfnSetActionZone API
+        /// Deprecated with SetActionZone removal
         typedef enum GfnActionType
         {
             gfnActionNone = 0,    ///< No event
@@ -374,8 +381,7 @@
         } GfnActionType;
 
 
-
-    #define GfnClientInfoVersion    (1)
+    #define GfnClientInfoVersion    (2)  ///< Deprecated, usage will be ignored
     #define IP_V4_SIZE              (17) // INET_ADDRSTRLEN + NULL
     #define IP_V6_SIZE              (49) // INET6_ADDRSTRLEN + NULL
     #define CC_SIZE                 (3)  // ISO 3166-1 Alpha-2
@@ -399,52 +405,60 @@
             gfnOsTypeMax = 11
         } GfnOsType;
 
-        /// @brief Type of input used by the client
-        typedef enum GfnInputType
-        {
-            gfnUnknownInput = 0,
-            gfnMouse = 1,
-            gfnKeyboard = 2,
-            gfnMouseKeyboard = 3,
-            gfnXInputGamepad = 4,
-            gfnXInputGamepadPartial = 5,
-            gfnDirectInputGamepad = 6,
-            gfnDirectInputGamepadPartial = 7,
-            gfnJoystick = 8,
-            gfnWheel = 9,
-            gfnTouchscreen = 10,
-            gfnWiiController = 11,
-            gfnKinectController = 12,
-            gfnInputTypeMax = 12
-        } GfnInputType;
-
         /// @brief Client info blob
         typedef struct
         {
-            unsigned int version;  // GfnClientInfoVersion
-            GfnOsType osType;
-            char ipV4[IP_V4_SIZE];  // ”192.168.0.1”
-            char country[CC_SIZE];  // ”us”
-            char locale[LOCALE_SIZE];   // ”en-us”
+            unsigned int version;              ///< Deprecated, value will be ignored
+            GfnOsType osType;                  ///< Operating System type
+            char ipV4[IP_V4_SIZE];             ///< IPV4 address, example - "192.168.0.1"
+            char country[CC_SIZE];             ///< ISO 3166-1 alpha-2 standard country code, example - "us"
+            char locale[LOCALE_SIZE];          ///< ISO 639-1 Alpha-2 standard locale, example - "en-us"
+            unsigned int RTDAverageLatencyMs;  ///< Round Trip Delay - Average Latency in milliseconds
         } GfnClientInfo;
 
         /// @brief Type of data which changed. This enum will be expanded over time
         typedef enum GfnClientInfoChangeType
         {
-            gfnOs = 0,
-            gfnClientDataChangeTypeMax = 0
+            gfnOs = 0,                      ///< Change in OS of GFN Client
+            gfnClientDataChangeTypeMax = 0  ///< Sentinel value for GfnClientInfoChangeType
         } GfnClientDataChangeType;
 
         /// @brief An update notification for a piece of client info data
         typedef struct GfnClientInfoUpdateData
         {
-            unsigned int version;
-            GfnClientDataChangeType updateType;
+            unsigned int version;               ///< Deprecated, value will be ignored
+            GfnClientDataChangeType updateType; ///< Type of GFN Client data that changed
             union
             {
-                GfnOsType osType;
+                GfnOsType osType;               ///< Operating System type
             } data;
         } GfnClientInfoUpdateData;
+
+        /// @brief The type of network status data which changed. This enum will likely be expanded over time.
+        typedef enum GfnNetworkStatusChangeType
+        {
+            gfnRTDAverageLatency          = 0, ///< Change in RTDAverageLatency
+            gfnNetworkStatusChangeTypeMax = 0  ///< Sentinel value for GfnNetworkStatusChangeType
+        } GfnNetworkStatusChangeType;
+
+        /// @brief An update notification for a piece of network status data. This structure will likely be expanded over time.
+        typedef struct GfnNetworkStatusUpdateData
+        {
+            unsigned int version;                   ///< Deprecated, value will be ignored
+            GfnNetworkStatusChangeType updateType;  ///< Network Status Update type
+            union
+            {
+                unsigned int RTDAverageLatencyMs;   ///< Round Trip Delay - Average Latency in milliseconds
+            } data;
+        } GfnNetworkStatusUpdateData;
+
+
+        /// @brief Session info blob
+        typedef struct
+        {
+            unsigned int sessionMaxDurationSec;
+            unsigned int sessionTimeRemainingSec;
+        } GfnSessionInfo;
 
         // ============================================================================================
         // Callback signatures
@@ -467,6 +481,8 @@
         typedef GfnApplicationCallbackResult(GFN_CALLBACK* SessionInitCallbackSig)(const char* partnerInfoMutable, void* pUserContext);
         /// @brief Callback function for notifications on client info changes. Register via gfnRegisterClientInfoCallback API.
         typedef GfnApplicationCallbackResult(GFN_CALLBACK* ClientInfoCallbackSig)(GfnClientInfoUpdateData* pUpdate, const void* pUserContext);
+        /// @brief Callback function for notifications on network status changes. Register via gfnRegisterNetworkStatusCallback API.
+        typedef GfnApplicationCallbackResult(GFN_CALLBACK* NetworkStatusCallbackSig)(GfnNetworkStatusUpdateData* pUpdate, const void* pUserContext);
 
         // ============================================================================================
         // C API
@@ -667,6 +683,25 @@
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterClientInfoCallback(ClientInfoCallbackSig clientInfoCallback, void* pUserContext);
         /// @}
 
+        ///
+        /// @par Description
+        /// Register an application callback with GFN to be called when client latency changes
+        ///
+        /// @par Usage
+        /// Register an application function to call when a the network latency from the GFN user's client system has changed
+        ///
+        /// @param networkStatusCallback        - Function pointer to application code to call when network latency has changed
+        /// @param updateRateMs                 - The targeted rate at which callbacks should occur
+        /// @param pUserContext                 - Pointer to user context, which will be passed unmodified to the
+        ///                                       callback specified. Can be NULL.
+        ///
+        /// @retval gfnSuccess                  - On success when running in a GFN environment
+        /// @retval gfnInvalidParameter         - If callback was NULL
+        /// @retval gfnCloudLibraryNotFound     - If the on-seat dll was not present (Usually due to not running on a seat)
+        /// @retval gfnAPINotFound              - If the API was not found in the GFN SDK Library
+        /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterNetworkStatusCallback(NetworkStatusCallbackSig networkStatusCallback, unsigned int updateRateMs, void* pUserContext);
+        /// @}
 
         // ============================================================================================
         // Application -> Geforce NOW SDK communication
@@ -912,6 +947,26 @@
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError gfnGetClientInfo(GfnClientInfo* clientInfo);
+
+        ///
+        /// @par Description
+        /// Gets various information about the current game session
+        ///
+        /// @par Environment
+        /// Cloud
+        ///
+        /// @par Usage
+        /// Call this during game play to find session time remaining.
+        ///
+        /// @param sessionInfo               - Pointer to a GfnSessionInfo struct.
+
+        ///
+        /// @retval gfnSuccess               - On success
+        /// @retval gfnInvalidParameter      - NULL pointer passed in or buffer length is too small
+        /// @retval gfnCallWrongEnvironment  - If called in a client environment
+        /// @return Otherwise, appropriate error code
+        NVGFNSDK_EXPORT GfnRuntimeError gfnGetSessionInfo(GfnSessionInfo* sessionInfo);
+
         ///
         /// @par Description
         /// Requests GFN client to start a streamed session of an application in an asynchronous fashion
@@ -1082,9 +1137,7 @@
         /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* zone);
-
         /// @}
-
 #ifdef __cplusplus
     } // extern "C"
 #endif

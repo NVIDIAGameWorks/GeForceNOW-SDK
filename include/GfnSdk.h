@@ -54,7 +54,7 @@
 #   define GFN_CALLBACK __stdcall
 #   define NVGFNSDK_EXPORT __declspec(dllexport)
 #   define NVGFNSDKApi __cdecl
-#   include <shlwapi.h>
+#   include <stddef.h>
 #else
 // Support to be added in a later release
 /// Future support
@@ -78,28 +78,28 @@ typedef char bool;
 #define NVGFNSDK_VERSION_MAJOR 1
 
 /// @brief GFN SDK Minor Version
-#define NVGFNSDK_VERSION_MINOR 8
+#define NVGFNSDK_VERSION_MINOR 9
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_SHORT 1.8
+#define NVGFNSDK_VERSION_SHORT 1.9
 
 /// @brief GFN SDK Patch Version
 #define NVGFNSDK_VERSION_PATCH 0
 
 /// @brief GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 30719846
+#define NVGFNSDK_VERSION_BUILD 31293813
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 1.8.0.30719846
+#define NVGFNSDK_VERSION_LONG 1.9.0.31293813
 
 /// @brief GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "1.8.0.30719846"
-#define NVGFNSDK_VERSION_STR_PROD "1.8.0"
+#define NVGFNSDK_VERSION_STR   "1.9.0.31293813"
+#define NVGFNSDK_VERSION_STR_PROD "1.9.0"
 
 /// @brief GFN SDK Build CL
-#define NVGFNSDK_VERSION_BUILDCL 30719846
-#define NVGFNSDK_VERSION_BUILDH 3071
-#define NVGFNSDK_VERSION_BUILDL 9846
+#define NVGFNSDK_VERSION_BUILDCL 31293813
+#define NVGFNSDK_VERSION_BUILDH 3129
+#define NVGFNSDK_VERSION_BUILDL 3813
 
 
 #ifdef __cplusplus
@@ -184,7 +184,7 @@ typedef char bool;
             gfnDefaultLanguage = 0, ///< Uses the default system language
             gfn_bg_BG = 1, ///< Bulgarian (Bulgaria)
             gfn_cs_CZ = 2, ///< Czech (Czech Republic)
-            gfn_nl_NL = 3, ///< Dutch (Neatherlands)
+            gfn_nl_NL = 3, ///< Dutch (Netherlands)
             gfn_de_DE = 4, ///< German (Germany)
             gfn_el_GR = 5, ///< Greek (Greece)
             gfn_en_US = 6, ///< English (US)
@@ -246,41 +246,6 @@ typedef char bool;
             bool normalized;      ///< true : coordinates are normalized between 0.0-1.0, false : absolute coordinates
             GfnRectFormat format; ///< rect format as listed in GfnRectFormat
         } GfnRect;
-
-#ifdef _WIN32
-        /// @brief Utility for converting UTF8 string to wide char
-        inline bool GfnUtf8ToWide(const char* in, wchar_t* out, int outSize)
-        {
-            int result = MultiByteToWideChar(CP_UTF8, 0, in, -1, NULL, 0);
-            if (result <= 0 || outSize < result)
-            {
-                return false;
-            }
-
-            result = MultiByteToWideChar(CP_UTF8, 0, in, -1, out, outSize);
-            if (result <= 0)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        /// @brief Utility for converting wide char string to UTF8
-        inline bool GfnWideToUtf8(const wchar_t* in, char* out, int outSize)
-        {
-            int length = WideCharToMultiByte(CP_UTF8, 0, in, -1, NULL, 0, NULL, NULL);
-            if (length <= 0 || outSize < length)
-            {
-                return false;
-            }
-            length = WideCharToMultiByte(CP_UTF8, 0, in, -1, out, outSize, NULL, NULL);
-            if (length <= 0)
-            {
-                return false;
-            }
-            return true;
-        }
-#endif
 
 #ifdef __cplusplus
     } // extern "C"

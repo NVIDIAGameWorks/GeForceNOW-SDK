@@ -108,6 +108,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga59456b469f989e05918d1d7c6e8f3454"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0a78ef87b1164626048c7c88b9de3284"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga0a78ef87b1164626048c7c88b9de3284">gfnGetClientInfo</a> (<a class="el" href="struct_gfn_client_info.html">GfnClientInfo</a> *clientInfo)</td></tr>
 <tr class="separator:ga0a78ef87b1164626048c7c88b9de3284"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1f994c00e0579443e6cc920dd4a1c853"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga1f994c00e0579443e6cc920dd4a1c853">gfnGetSessionInfo</a> (<a class="el" href="struct_gfn_session_info.html">GfnSessionInfo</a> *sessionInfo)</td></tr>
+<tr class="separator:ga1f994c00e0579443e6cc920dd4a1c853"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac080be91f1f7c784b42147101ece1c93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> void <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gac080be91f1f7c784b42147101ece1c93">gfnStartStreamAsync</a> (const <a class="el" href="struct_start_stream_input.html">StartStreamInput</a> *pStartStreamInput, <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#adec3b60c6f670217c8067f1f0311d92e">StartStreamCallbackSig</a> cb, void *context, unsigned int timeoutMs)</td></tr>
 <tr class="separator:gac080be91f1f7c784b42147101ece1c93"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa2d0aa6c6d9325ff2ff5e2beb82c47d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream</a> (<a class="el" href="struct_start_stream_input.html">StartStreamInput</a> *pStartStreamInput, <a class="el" href="struct_start_stream_response.html">StartStreamResponse</a> *response)</td></tr>
@@ -423,6 +425,40 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the list </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga1f994c00e0579443e6cc920dd4a1c853"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError gfnGetSessionInfo </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_gfn_session_info.html">GfnSessionInfo</a> *&#160;</td>
+          <td class="paramname"><em>sessionInfo</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Gets various information about the current game session</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this during game play to find session time remaining.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sessionInfo</td><td>- Pointer to a <a class="el" href="struct_gfn_session_info.html" title="Session info blob. ">GfnSessionInfo</a> struct. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in or buffer length is too small </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
 
 </div>
 </div>

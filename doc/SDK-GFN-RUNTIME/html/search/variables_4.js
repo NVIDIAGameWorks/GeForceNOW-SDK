@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tokentype',['tokenType',['../struct_start_stream_input.html#abaaa079b12040eaaca900ef1bf2fc1f5',1,'StartStreamInput']]]
+  ['locale',['locale',['../struct_gfn_client_info.html#aa17100ee781465fe24f7bb4de3d5496d',1,'GfnClientInfo']]]
 ];

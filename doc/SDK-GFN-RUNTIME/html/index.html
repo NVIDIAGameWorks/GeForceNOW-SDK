@@ -689,6 +689,32 @@ Callback-related Methods</h2>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat</td></tr>
+  </table>
+  </dd>
+</dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#acaa9b6d41eac3e072f93f33429bba5e5">gfnRegisterNetworkStatusCallback</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when client latency changes</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a the network latency from the GFN user's client system has changed</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">networkStatusCallback</td><td>- Function pointer to application code to call when network latency has changed </td></tr>
+    <tr><td class="paramname">updateRateMs</td><td>- The targeted rate at which callbacks should occur </td></tr>
+    <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
   </table>
   </dd>

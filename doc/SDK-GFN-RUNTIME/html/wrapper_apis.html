@@ -394,6 +394,31 @@ Wrapper Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga2bbf214d68c42487b1e33f789e87330d">GfnGetSessionInfo</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Gets information related to the current streaming session.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this to obtain information related to the streaming session</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">sessionInfo</td><td>- A structure to hold session Info data</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+  </table>
+  </dd>
+</dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#ga658250f0c2178a8181bdc62b332c5aaf">GfnRegisterStreamStatusCallback</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a63f79659507415464e65d3feb96ba15a">gfnRegisterStreamStatusCallback</a> to register a callback that gets called on the user's PC when the streaming session state changes.</dd></dl>
@@ -683,8 +708,9 @@ Wrapper Methods</h2>
 <td>C </td><td><a class="el" href="group__wrapper.html#ga1d0b3d941ab0d2127282d79df49a9130">GfnSetActionZone</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Sends Active zone coordinates to GFN Client</dd></dl>
+<p>TO BE DEPRECATED SOON</p>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment Note : Marked for deprecation</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">type</td><td>- Populated with relevant GfnActionType </td></tr>
@@ -718,6 +744,30 @@ Wrapper Methods</h2>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">clientInfoCallback</td><td>- Function pointer to application code to call when GFN client data changes</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+  </table>
+  </dd>
+</dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga281cfc18e961dfcd537dce5ad4a73519">GfnRegisterNetworkStatusCallback</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Registers an application callback with GFN to be called when network latency changes</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">networkStatusCallback</td><td>- Function pointer to application code to call when network latency changes </td></tr>
+    <tr><td class="paramname">updateRateMs</td><td>- Time interval for updates </td></tr>
+    <tr><td class="paramname">userContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
   </table>
   </dd>
 </dl>

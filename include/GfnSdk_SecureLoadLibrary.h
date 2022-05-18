@@ -88,11 +88,55 @@ HMODULE gfnSecureLoadClientLibraryA(LPCSTR filePath, DWORD dwFlags);
 HMODULE gfnSecureLoadCloudLibraryW(LPCWSTR filePath, DWORD dwFlags);
 HMODULE gfnSecureLoadCloudLibraryA(LPCSTR filePath, DWORD dwFlags);
 
-// TODO: Documentation block
+///
+/// @par Description
+/// Validates NVIDIA digital signature in the given file path
+///
+/// @par Environment
+/// Cloud
+///
+/// @par Usage
+/// Used internally to validate NVIDIA digital signature
+///
+/// @param filePath                 - Fully quantified path to the library to load.
+///                                   Use backslash ("\") for path separators.
+///                                   See notes section for additional information.
+///
+/// @note
+/// In case of failure (return value FALSE), call GetLastError for additional information about the error.
+/// Common error values are:
+/// - ERROR_SUCCESS                 - no error, the library was loaded
+/// - ERROR_BAD_ARGUMENTS           - filePath is not absolute
+/// - ERROR_INVALID_PARAMETER       - parameter passed is NULL
+/// - ERROR_MOD_NOT_FOUND           - file / module not found
+/// - CRYPT_E_NO_MATCH              - no certificate found, or certificate wasn't issued by NVIDIA
+///
 BOOL gfnCheckLibraryGfnSignatureW(LPCWSTR filePath);
 BOOL gfnCheckLibraryGfnSignatureA(LPCSTR filePath);
 
-// TODO: Documentation block
+///
+/// @par Description
+/// Validates NVIDIA digital signature for the given library
+///
+/// @par Environment
+/// Cloud
+///
+/// @par Usage
+/// Used internally to validate NVIDIA digital signature
+///
+/// @param filePath                 - Fully quantified path to the library to load.
+///                                   Use backslash ("\") for path separators.
+///                                   See notes section for additional information.
+///
+/// @note
+/// In case of failure (return value FALSE), call GetLastError for additional information about the error.
+/// Common error values are:
+/// - ERROR_SUCCESS                 - no error, the library was loaded
+/// - ERROR_BAD_ARGUMENTS           - filePath is not absolute
+/// - ERROR_INVALID_PARAMETER       - parameter passed is NULL
+/// - ERROR_MOD_NOT_FOUND           - file / module not found
+/// - CRYPT_E_NO_MATCH              - no certificate found, or certificate wasn't issued by NVIDIA
+///
 BOOL gfnCheckLibraryNvSignatureW(LPCWSTR filePath);
 BOOL gfnCheckLibraryNvSignatureA(LPCSTR filePath);
 

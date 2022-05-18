@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['savecallbacksig',['SaveCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aec727814832c039259304e7c7537ea16',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['sessioninitcallbacksig',['SessionInitCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aaf8c09b9174894c91b980a790c105008',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['startstreamcallbacksig',['StartStreamCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#adec3b60c6f670217c8067f1f0311d92e',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['startstreaminput',['StartStreamInput',['../struct_start_stream_input.html',1,'StartStreamInput'],['../_gfn_runtime_sdk___c_a_p_i_8h.html#afd7de910963e8113f6595708bf5e8b2b',1,'StartStreamInput():&#160;GfnRuntimeSdk_CAPI.h']]],
-  ['startstreamresponse',['StartStreamResponse',['../struct_start_stream_response.html',1,'StartStreamResponse'],['../_gfn_runtime_sdk___c_a_p_i_8h.html#a1c8fd6acfeaf81aec3f6198e27450b8a',1,'StartStreamResponse():&#160;GfnRuntimeSdk_CAPI.h']]],
-  ['stopstreamcallbacksig',['StopStreamCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a19851a66182321b10f714e395fcb4737',1,'GfnRuntimeSdk_CAPI.h']]],
-  ['streamstatuscallbacksig',['StreamStatusCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#acbb9a59546e24d337ba84b6f61984d3e',1,'GfnRuntimeSdk_CAPI.h']]]
+  ['pausecallbacksig',['PauseCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#acf857bd2399ebd7c18c57c212c6e6a23',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['pchauthtoken',['pchAuthToken',['../struct_start_stream_input.html#a2e4c1a0ecb730bdd5b7d80a2cef08e00',1,'StartStreamInput']]],
+  ['pchbuildpath',['pchBuildPath',['../struct_title_installation_information.html#a2571880501b1051bff254eef8fce47ba',1,'TitleInstallationInformation']]],
+  ['pchcustomauth',['pchCustomAuth',['../struct_start_stream_input.html#a78dc23ccce340356d9f7f7f746876626',1,'StartStreamInput']]],
+  ['pchcustomdata',['pchCustomData',['../struct_start_stream_input.html#ab904b5ae565b351df79a1480b6d64669',1,'StartStreamInput']]],
+  ['pchmetadatapath',['pchMetadataPath',['../struct_title_installation_information.html#ab3f00b0f6d7f2cd8eeaae02270fd54da',1,'TitleInstallationInformation']]],
+  ['pchplatformappid',['pchPlatformAppId',['../struct_title_installation_information.html#af57e409b89d6c5a26f3eda2584bf8295',1,'TitleInstallationInformation']]]
 ];

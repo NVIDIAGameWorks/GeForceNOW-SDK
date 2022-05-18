@@ -32,6 +32,8 @@
 
 bool g_MainDone = false;
 int g_pause_call_counter = 0;
+const char* platformAppId = "GeForce NOW SDK - Sample C App";
+const char* platformId = "GeForce NOW SDK - Sample Test Platform";
 
 // Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
 // Application callbacks are registered with the SDK after it is initialized if running in Cloud mode.
@@ -49,7 +51,7 @@ void ApplicationInitialize()
     }
     else
     {
-        // If we're running in the cloud environment, initialize cloud callbacks so we can 
+        // If we're running in the cloud environment, initialize cloud callbacks so we can
         // receive events from the server. These are not used in client only mode.
         bool bIsCloudEnvironment = false;
         GfnIsRunningInCloud(&bIsCloudEnvironment);
@@ -82,6 +84,11 @@ void ApplicationInitialize()
                 printf("Error registering SessionInit callback: %d\n", err);
             }
             err = GfnRegisterClientInfoCallback(HandleClientDataChanges, NULL);
+            if (err != gfnSuccess)
+            {
+                printf("Error registering clientInfo callback: %d\n", err);
+            }
+            err = GfnRegisterNetworkStatusCallback(HandleNetworkStatusChanges, 10000 /* 10 seconds */, NULL);
             if (err != gfnSuccess)
             {
                 printf("Error registering clientInfo callback: %d\n", err);
@@ -149,15 +156,17 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("Failed to retrieve Geforce NOW client Country code. GfnError: %d\n", (int)runtimeError);
         }
 
-        GfnClientInfo info;
-        runtimeError = GfnGetClientInfo(&info);
+        GfnClientInfo clientInfo;
+        runtimeError = GfnGetClientInfo(&clientInfo);
         if (runtimeError == gfnSuccess)
         {
             printf("GetClientInfo returned: { version: %d, osType: %d, ipV4: %s, "
                 "country: %s, locale:%s"
+                ", RTDAverageLatencyMs: %d"
                 " }\n",
-                info.version, info.osType, info.ipV4,
-                info.country, info.locale
+                clientInfo.version, clientInfo.osType, clientInfo.ipV4,
+                clientInfo.country, clientInfo.locale
+                , clientInfo.RTDAverageLatencyMs
             );
         }
         else
@@ -165,9 +174,21 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("Failed to retrieve client info. GfnError: %d\n", (int)runtimeError);
         }
 
+        GfnSessionInfo sessionInfo = { 0 };
+        runtimeError = GfnGetSessionInfo(&sessionInfo);
+        if (runtimeError == gfnSuccess)
+        {
+            printf("Initial GetSessionInfo returned: { session length: %d, session remaining: %d}\n",
+                sessionInfo.sessionMaxDurationSec, sessionInfo.sessionTimeRemainingSec
+            );
+        }
+        else
+        {
+            printf("Failed to retrieve initial session info. GfnError: %d\n", (int)runtimeError);
+        }
 
         // Try "setting up" a title!
-        runtimeError = GfnSetupTitle("Sample C App");
+        runtimeError = GfnSetupTitle(platformAppId);
         if (runtimeError == gfnSuccess)
         {
             printf("Setup GFN Title\n");
@@ -207,6 +228,31 @@ int _tmain(int argc, _TCHAR* argv[])
         {
             g_MainDone = true;
         }
+    }
+
+    // Notify Title exited
+    GfnRuntimeError runtimeError = GfnTitleExited(platformId, platformAppId);
+    if (runtimeError == gfnSuccess)
+    {
+        printf("GFN Title Exited\n");
+    }
+    else
+    {
+        printf("GFN Title Exited failed: %d\n", (int)runtimeError);
+    }
+
+    // Call GetSessionInfo again to confirm less time remaining than before
+    GfnSessionInfo sessionInfo = { 0 };
+    runtimeError = GfnGetSessionInfo(&sessionInfo);
+    if (runtimeError == gfnSuccess)
+    {
+        printf("Final GetSessionInfo returned: { session length: %d, session remaining: %d}\n",
+            sessionInfo.sessionMaxDurationSec, sessionInfo.sessionTimeRemainingSec
+        );
+    }
+    else
+    {
+        printf("Failed to retrieve final session info. GfnError: %d\n", (int)runtimeError);
     }
 
     // Application Shutdown

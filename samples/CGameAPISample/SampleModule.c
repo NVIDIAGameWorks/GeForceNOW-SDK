@@ -86,3 +86,16 @@ GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoU
     }
     return crCallbackSuccess;
 }
+GfnApplicationCallbackResult GFN_CALLBACK HandleNetworkStatusChanges(GfnNetworkStatusUpdateData* pUpdate, const void* pContext)
+{
+    if (!pUpdate)
+    {
+        printf("Network perf callback received invalid data\n");
+        return crCallbackFailure;
+    }
+    if (pUpdate->updateType == gfnRTDAverageLatency)
+    {
+        printf("RTD data received %d\n", pUpdate->data.RTDAverageLatencyMs);
+    }
+    return crCallbackSuccess;
+}

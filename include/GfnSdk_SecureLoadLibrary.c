@@ -36,6 +36,8 @@
 
 #include "GfnSdk_SecureLoadLibrary.h"
 
+#define NV_NVIDIA_CERT_NAME "nvidia "
+
 // Internal function forward declarations
 static BOOL gfnInternalFileExists(LPCWSTR szFileName);
 static BOOL gfnInternalContainsAbsolutePath(LPCWSTR szFileName);
@@ -560,156 +562,18 @@ static BOOL gfnInternalCheckCert(
     return TRUE;
 }
 
-static BOOL gfnInternalTestCertificateChain(PCCERT_CONTEXT pCertContext, const LPCSTR chain[])
-{
-    PCCERT_CONTEXT pCurrentCert = pCertContext, pParentCert = NULL;
-    BOOL bRootCheck = FALSE;
-    BOOL bMatch = FALSE;
-
-    for (UINT i = 0; chain[i] != NULL; i++)
-    {
-        DWORD dwFlags = 0;
-        if (!gfnInternalCheckCert(pCurrentCert, bRootCheck, chain[i], 0, NULL))
-        {
-            bMatch = FALSE;
-            break;
-        }
-
-        if (bRootCheck)
-        {
-            bMatch = (chain[i + 1] == NULL);
-            break;
-        }
-
-        pParentCert = pfnCertGetIssuerCertificateFromStore(pCertContext->hCertStore,
-            pCurrentCert,
-            pParentCert,
-            &dwFlags);
-        if (pParentCert)
-        {
-            pCurrentCert = pParentCert;
-        }
-        else
-        {
-            if (chain[i + 1] == NULL)
-            {
-                bMatch = TRUE;
-                break;
-            }
-            bRootCheck = TRUE;
-        }
-    }
-
-    if ((pCurrentCert != pCertContext) && !bRootCheck)
-    {
-        pfnCertFreeCertificateContext(pCurrentCert);
-    }
-
-    if (bMatch)
-    {
-        SetLastError(ERROR_SUCCESS);
-    }
-
-    return bMatch;
-}
-
 static BOOL gfnInternalIsPeNvidiaSigned(PCCERT_CONTEXT pCertContext)
 {
-    const LPCSTR validChains[][5] =
-    {
-        {
-            "NVIDIA Corporation",
-            "Symantec Class 3 SHA256 Code Signing CA",
-            "VeriSign Class 3 Public Primary Certification Authority - G5",
-            "Microsoft Code Verification Root",
-            NULL
-        },
-        {
-            "NVIDIA Corporation",
-            "VeriSign Class 3 Code Signing 2010 CA",
-            "VeriSign Class 3 Public Primary Certification Authority - G5",
-            "Microsoft Code Verification Root",
-            NULL
-        },
-        {
-            "NVIDIA Corporation",
-            "Symantec Class 3 SHA256 Code Signing CA - G2",
-            "VeriSign Universal Root Certification Authority",
-            "Microsoft Code Verification Root",
-            NULL
-        },
-        {
-            "NVIDIA Corporation",
-            "Symantec Class 3 SHA256 Code Signing CA",
-            "VeriSign Class 3 Public Primary Certification Authority - G5",
-            NULL
-        },
-        {
-            "NVIDIA Corporation",
-            "VeriSign Class 3 Code Signing 2010 CA",
-            "VeriSign Class 3 Public Primary Certification Authority - G5",
-            NULL
-        },
-        {
-            "NVIDIA Corporation",
-            "Symantec Class 3 SHA256 Code Signing CA - G2",
-            "VeriSign Universal Root Certification Authority",
-            NULL
-        },
-        {
-            "NVIDIA Corporation PE Sign v2016",
-            "NVIDIA Subordinate CA 2016 v2",
-            "Microsoft Digital Media Authority 2005",
-            NULL
-        },
-        {
-            "NVIDIA Corporation-PE-Prod-Sha1",
-            "NVIDIA Subordinate CA 2018-Prod-Sha1",
-            "Microsoft Digital Media Authority 2005",
-            NULL
-        },
-        {
-            "NVIDIA Corporation-PE-Prod-Sha2",
-            "NVIDIA Subordinate CA 2018-Prod-Sha2",
-            "Microsoft Digital Media Authority 2005",
-            NULL
-        },
-        {
-            "NVIDIA Corporation-PE-Prod-Sha1",
-            "NVIDIA Subordinate CA 2019-Prod-Sha1",
-            "Microsoft Digital Media Authority 2005",
-            NULL
-        },
-        {
-            "NVIDIA Corporation-PE-Prod-Sha2",
-            "NVIDIA Subordinate CA 2019-Prod-Sha2",
-            "Microsoft Digital Media Authority 2005",
-            NULL
-        },
-        {
-            "NVIDIA CORPORATION",
-            "NVIDIA Subordinate CA",
-            "Microsoft Digital Media Authority 2005",
-            NULL
-        },
-        {
-            "Nvidia Corporation",
-            "DigiCert SHA2 Assured ID Code Signing CA",
-            "DigiCert Assured ID Root CA",
-            NULL
-        },
-        {NULL}
-    };
+    char szName[256];
+    szName[0] = 0;
+    pfnCertGetNameStringA(pCertContext,
+                              CERT_NAME_SIMPLE_DISPLAY_TYPE,
+                              0,
+                              NULL,
+                              szName,
+                              sizeof(szName));
 
-    for (UINT i = 0; validChains[i][0] != NULL; i++)
-    {
-        if (gfnInternalTestCertificateChain(pCertContext, validChains[i]))
-        {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
+    return (_strnicmp(szName, NV_NVIDIA_CERT_NAME, strlen(NV_NVIDIA_CERT_NAME)) == 0);
 }
 
 static BOOL gfnInternalIsPeGfnSigned(PCCERT_CONTEXT pCertContext)

@@ -130,6 +130,12 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
+/// C        | @ref GfnGetSessionInfo
+///
+/// @copydoc GfnGetSessionInfo
+///
+/// Language | API
+/// -------- | -------------------------------------
 /// C        | @ref GfnRegisterStreamStatusCallback
 ///
 /// @copydoc GfnRegisterStreamStatusCallback
@@ -205,14 +211,25 @@
 /// C        | @ref GfnRegisterClientInfoCallback
 ///
 /// @copydoc GfnRegisterClientInfoCallback
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref GfnRegisterNetworkStatusCallback
+///
+/// @copydoc GfnRegisterNetworkStatusCallback
+///
 
 #include "GfnRuntimeSdk_CAPI.h"
 
 #ifdef _WIN32
-#include <Shlobj.h>
-/// @brief Global handle to loaded GFN SDK Library module
-extern HMODULE g_gfnSdkModule;
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <windows.h>
+    /// @brief Global handle to loaded GFN SDK Library module
+    extern HMODULE g_gfnSdkModule;
 #endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -244,6 +261,9 @@ extern "C"
     /// @retval gfnAPINotFound            - The API was not found in the GFN SDK Library
     GfnRuntimeError GfnInitializeSdk(GfnDisplayLanguage language);
 
+    /// @brief Backward compatibility alias for GfnInitializeSdkFromPathA
+    #define GfnInitializeSdkFromPath GfnInitializeSdkFromPathA
+
     /// @par Description
     /// Loads the GFN SDK dynamic library from the given path and calls @ref gfnInitializeRuntimeSdk.
     ///
@@ -264,7 +284,29 @@ extern "C"
     /// @retval gfnClientLibraryNotFound  - GFN SDK client-side library could not be found
     /// @retval gfnCloudLibraryNotFound   - GFN SDK cloud-side library could not be found
     /// @retval gfnAPINotFound            - The API was not found in the GFN SDK Library
-    GfnRuntimeError GfnInitializeSdkFromPath(GfnDisplayLanguage language, const char* sdkLibraryPath);
+    GfnRuntimeError GfnInitializeSdkFromPathA(GfnDisplayLanguage language, const char* sdkLibraryPath);
+
+    /// @par Description
+    /// Loads the GFN SDK dynamic library from the given path and calls @ref gfnInitializeRuntimeSdk.
+    ///
+    /// @par Environment
+    /// Cloud and Client
+    ///
+    /// @par Usage
+    /// Call as soon as possible during application startup.
+    ///
+    /// @param language                   - Language to use for any UI, such as GFN download and install progress dialogs.
+    ///                                     Defaults to system language if not defined.
+    /// @param wSdkLibraryPath            - Wide Char string with Fully-quantified path to GFN SDK Library including the
+    ///                                     name GfnRuntimeSdk.dll, note that dll cannot be renamed to any other string.
+    /// @retval gfnSuccess                - If the SDK was initialized and all SDK features are available.
+    /// @retval gfnInitSuccessClientOnly  - If the SDK was initialized, but only client-side functionality is available, such as
+    ///                                     calls to gfnStartStream. By definition, gfnIsRunningInCloud is expected to return false
+    ///                                     in this scenario.
+    /// @retval gfnClientLibraryNotFound  - GFN SDK client-side library could not be found
+    /// @retval gfnCloudLibraryNotFound   - GFN SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound            - The API was not found in the GFN SDK Library
+    GfnRuntimeError GfnInitializeSdkFromPathW(GfnDisplayLanguage language, const wchar_t* wSdkLibraryPath);
 
     ///
     /// @par Description
@@ -426,6 +468,26 @@ extern "C"
     /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
         GfnRuntimeError GfnGetClientInfo(GfnClientInfo* clientInfo);
+
+        ///
+        /// @par Description
+        /// Gets information related to the current streaming session.
+        ///
+        /// @par Environment
+        /// Cloud
+        ///
+        /// @par Usage
+        /// Call this to obtain information related to the streaming session
+        ///
+        /// @param[out] sessionInfo           - A structure to hold session Info data
+        ///
+        /// @retval gfnSuccess               - On success
+        /// @retval gfnInvalidParameter      - NULL pointer passed in
+        /// @retval gfnCallWrongEnvironment  - If called in a client environment
+        /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
+        /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
+        GfnRuntimeError GfnGetSessionInfo(GfnSessionInfo* sessionInfo);
+
     ///
     /// @par Description
     /// Calls @ref GfnGetCustomData to retrieves custom data passed in by the client in the
@@ -777,7 +839,7 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
-    /// 
+    ///
     /// @par Usage
     /// Register an application function to call when GFN needs the application to save
     ///
@@ -797,7 +859,7 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
-    /// 
+    ///
     /// @par Usage
     /// Register an application function to call when a GFN user has connected to the game seat
     ///
@@ -819,13 +881,31 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
-    /// 
+    ///
     /// @param clientInfoCallback       - Function pointer to application code to call when GFN client data changes
     ///
     /// @retval gfnSuccess              - On success when running in a GFN environment
     /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
     /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
     GfnRuntimeError GfnRegisterClientInfoCallback(ClientInfoCallbackSig clientInfoCallback, void* userContext);
+
+    ///
+    /// @par Description
+    /// Registers an application callback with GFN to be called when network latency changes
+    ///
+    ///
+    /// @par Environment
+    /// Cloud
+    ///
+    /// @param networkStatusCallback    - Function pointer to application code to call when network latency changes
+    /// @param updateRateMs             - Time interval for updates
+    /// @param userContext              - Pointer to user context, which will be passed unmodified to the
+    ///                                   callback specified. Can be NULL.
+    ///
+    /// @retval gfnSuccess              - On success when running in a GFN environment
+    /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    GfnRuntimeError GfnRegisterNetworkStatusCallback(NetworkStatusCallbackSig networkStatusCallback, unsigned int updateRateMs, void* userContext);
 
     ///
     /// @par Description
@@ -850,11 +930,14 @@ extern "C"
     /// @par Description
     /// Sends Active zone coordinates to GFN Client
     ///
+    /// TO BE DEPRECATED SOON
+    ///
     /// @par Environment
     /// Cloud
     ///
     /// @par Usage
     /// Use to invoke special events on the client from the GFN cloud environment
+    /// Note : Marked for deprecation
     ///
     /// @param type                 - Populated with relevant GfnActionType
     /// @param id                   - unique unsigned int type identifier for this event

@@ -29,6 +29,7 @@
 #include <tchar.h>
 #include <windows.h>            // For GetAsyncKeyState
 #include "SampleModule.h"
+#include "GfnSdk_SecureLoadLibrary.h"
 
 bool g_MainDone = false;
 int g_pause_call_counter = 0;
@@ -107,9 +108,11 @@ int _tmain(int argc, _TCHAR* argv[])
         {
             printf("GetClientInfo returned: { version: %d, osType: %d, ipV4: %s, "
                 "country: %s, locale:%s"
+                ", RTDAverageLatencyMs: %d"
                 " }\n",
                 info.version, info.osType, info.ipV4,
                 info.country, info.locale
+                , info.RTDAverageLatencyMs
             );
         }
         else

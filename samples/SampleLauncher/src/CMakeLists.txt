@@ -62,7 +62,7 @@ macro(SET_EXAMPLE_PROPERTIES target)
 
   if(OS_MACOSX OR OS_WINDOWS)
     # Place the target in the "examples" folder in Visual Studio and Xcode.
-    set_property(TARGET ${target} PROPERTY FOLDER "dist/samples")
+    set_property(TARGET ${target} PROPERTY FOLDER "Samples")
   endif()
 endmacro()
 

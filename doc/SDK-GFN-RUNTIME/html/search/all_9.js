@@ -1,6 +1,7 @@
 var searchData=
 [
   ['native_20runtime_20api_20reference',['Native Runtime API Reference',['../index.html',1,'']]],
+  ['networkstatuscallbacksig',['NetworkStatusCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a02d95f5fcc4d22622ea8dc25979b6ff7',1,'GfnRuntimeSdk_CAPI.h']]],
   ['normalized',['normalized',['../struct_gfn_rect.html#a2fb4ff627b633d23a7395d4eed88966e',1,'GfnRect']]],
   ['nvgfnsdk_5fexport',['NVGFNSDK_EXPORT',['../_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae',1,'GfnSdk.h']]],
   ['nvgfnsdk_5fversion_5fbuild',['NVGFNSDK_VERSION_BUILD',['../_gfn_sdk_8h.html#a68ee89a9d83ad9be38e85b244266d616',1,'GfnSdk.h']]],
