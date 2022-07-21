@@ -210,9 +210,15 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
-/// C        | @ref gfnGetCustomData
+/// C        | @ref gfnGetPartnerData
 ///
-/// @copydoc gfnGetCustomData
+/// @copydoc gfnGetPartnerData
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnGetPartnerSecureData
+///
+/// @copydoc gfnGetPartnerSecureData
 ///
 /// Language | API
 /// -------- | -------------------------------------
@@ -325,11 +331,11 @@
         /// @brief Input data for gfnStartStream
         typedef struct StartStreamInput
         {
-            unsigned int uiTitleId;     ///< GFN-sourced game-specific unique identifier.
-            const char* pchAuthToken;   ///< NVIDIA IDM Token string
-            AuthType_t tokenType;       ///< Token identifier
-            const char* pchCustomData;  ///< Optional data that is passed to the streaming cloud instance and can be retrieved in that instance of application.
-            const char* pchCustomAuth;  ///< Optional client-specific token data that should be used to authenticate the user on the game seat for SSO purposes.
+            unsigned int uiTitleId;             ///< GFN-sourced game-specific unique identifier.
+            const char* pchAuthToken;           ///< NVIDIA IDM Token string
+            AuthType_t tokenType;               ///< Token identifier
+            const char* pchPartnerData;         ///< Optional non-secure partner data that is passed to the streaming cloud instance and can be retrieved in that instance of application.
+            const char* pchPartnerSecureData;   ///< Optional secure partner data that is guaranteed to be protected through the GFN pipeline.
         } StartStreamInput;
 
         /// @brief Input to the function registered via gfnRegisterInstallCallback (if any).
@@ -1039,36 +1045,36 @@
 
         ///
         /// @par Description
-        /// Retrieves custom data passed in by the client in the gfnStartStream call.
+        /// Retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent using Deep Link parameter.
         ///
         /// @par Environment
         /// Cloud
         ///
         /// @par Usage
-        /// Use during cloud session to retrieve custom data
+        /// Use during cloud session to retrieve partner data
         ///
-        /// @param ppchCustomData            - Populated with the custom data.
-        ///                                    Call @ref gfnFree to release the memory when done.
+        /// @param ppchPartnerData          - Populated with the partner data.
+        ///                                 Call @ref gfnFree to release the memory when done.
         ///
-        /// @retval gfnSuccess               - On success
-        /// @retval gfnInvalidParameter      - NULL pointer passed in
-        /// @retval gfnCallWrongEnvironment  - If called in a client environment
+        /// @retval gfnSuccess              - On success
+        /// @retval gfnInvalidParameter     - NULL pointer passed in
+        /// @retval gfnCallWrongEnvironment - If called in a client environment
         /// @return Otherwise, appropriate error code
         /// @note
         /// To avoid leaking memory, call @ref gfnFree once done with the list
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetCustomData(const char** ppchCustomData);
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetPartnerData(const char** ppchPartnerData);
 
         ///
         /// @par Description
-        /// Retrieves custom authorization data passed in by the client in the gfnStartStream call.
+        /// Retrieves secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent in response to Deep Link nonce validation.
         ///
         /// @par Environment
         /// Cloud
         ///
         /// @par Usage
-        /// Use during cloud session to retrieve custom data
+        /// Use during cloud session to retrieve secure partner data
         ///
-        /// @param ppchAuthData            - Populated with the custom data.
+        /// @param ppchPartnerSecureData     - Populated with the secure partner data.
         ///                                  Call @ref gfnFree to release the memory when done.
         ///
         /// @retval gfnSuccess               - On success
@@ -1077,12 +1083,12 @@
         /// @return Otherwise, appropriate error code
         /// @note
         /// To avoid leaking memory, call @ref gfnFree once done with the list
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetAuthData(const char** ppchAuthData);
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetPartnerSecureData(const char** ppchPartnerSecureData);
 
         ///
         /// @par Description
-        /// Releases memory allocated by Get functions such as, but not limited to, @ref gfnGetAuthData,
-        /// @ref gfnGetCustomData, or @ref gfnGetTitlesAvailable
+        /// Releases memory allocated by Get functions such as, but not limited to, @ref gfnGetPartnerData,
+        /// @ref gfnGetPartnerSecureData, or @ref gfnGetTitlesAvailable
         ///
         /// @par Environment
         /// Cloud

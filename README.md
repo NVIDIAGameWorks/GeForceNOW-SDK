@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.9
+# NVIDIA GeForce NOW SDK Release 1.9.1
 
 ## At a Glance
 
@@ -10,11 +10,11 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* Expanded the GfnGetClientInfo API to allow an application to obtain and be informed of network latency changes.
-* Added the GfnGetSessionInfo API to allow an application to request streaming session length and time remaining in the session.
-* Added an example of the GfnGetCustomData call to the Sample Launcher code.
-* New documentation for Deep Links usage, Mobile Touch integration, and Cloud SDK calls.
-* Bug fixes and other minor improvements.
+* API name change : `gfnGetCustomData` renamed to `gfnGetPartnerData`
+* API name change : `gfnGetAuthData` renamed to `gfnGetPartnerSecureData`
+* Struct `StartStreamNonceInput` members modified : `pchCustomData` and `pchCustomAuth` renamed to `pchPartnerData` and `pchPartnerSecureData` respectively.
+* Updated Mobile Touch Integration Guide
+* Bug fixes and other minor improvements
 
 ## Developer Content Portal
 
@@ -50,7 +50,6 @@ The distribution is laid out as below:
 |   │   SDK-GFN-CLOUD-API.pdf
 |   │   SDK-GFN-NGN-ENDPOINT.pdf
 |   │   SDK-GFN-PRIMER.pdf
-|   │   SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf
 |   └───SDK-GFN-RUNTIME
 |       └───index.html
 |
@@ -77,6 +76,3 @@ The distribution is laid out as below:
     └───SDKDllDirectRefSample
 
 ```
-
-### Identity management
-* For Account and IDM-related APIs, please refer to the [document](./doc/SDK-NVIDIA-IDENTITY-FEDERATION-SYSTEM.pdf)

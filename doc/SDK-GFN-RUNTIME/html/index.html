@@ -195,7 +195,7 @@ Launcher or Game Specific Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Releases memory allocated by Get functions such as, but not limited to, <a class="el" href="group__launcher.html#ga42dc59d2f01f931c4741054b3842a061">gfnGetAuthData</a>, <a class="el" href="group__launcher.html#ga64fe02420ecb734722359277caa57350">gfnGetCustomData</a>, or <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a></dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Releases memory allocated by Get functions such as, but not limited to, <a class="el" href="group__launcher.html#ga16c67cdee702190faf8b8682f760a339">gfnGetPartnerData</a>, <a class="el" href="group__launcher.html#gaeddedbabbd2d5da5d525bb737b26c820">gfnGetPartnerSecureData</a>, or <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a></dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to release memory after a call to a memory-allocated function and you are finished with the data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -493,14 +493,39 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
-<td>C </td><td><a class="el" href="group__launcher.html#ga64fe02420ecb734722359277caa57350">gfnGetCustomData</a> </td></tr>
+<td>C </td><td><a class="el" href="group__launcher.html#ga16c67cdee702190faf8b8682f760a339">gfnGetPartnerData</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Retrieves custom data passed in by the client in the gfnStartStream call.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent using Deep Link parameter.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve custom data</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve partner data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchCustomData</td><td>- Populated with the custom data. Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
+    <tr><td class="paramname">ppchPartnerData</td><td>- Populated with the partner data. Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the list</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__launcher.html#gaeddedbabbd2d5da5d525bb737b26c820">gfnGetPartnerSecureData</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Retrieves secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent in response to Deep Link nonce validation.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve secure partner data</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ppchPartnerSecureData</td><td>- Populated with the secure partner data. Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
   </table>
   </dd>
 </dl>

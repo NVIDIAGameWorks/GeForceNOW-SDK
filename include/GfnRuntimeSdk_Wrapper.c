@@ -90,8 +90,8 @@ typedef GfnRuntimeError(*gfnRegisterNetworkStatusCallbackFn)(NetworkStatusCallba
 
 typedef GfnRuntimeError(*gfnGetSessionInfoFn)(GfnSessionInfo* sessionInfo);
 
-typedef GfnRuntimeError(*gfnGetCustomDataFn)(const char** customData);
-typedef GfnRuntimeError(*gfnGetAuthDataFn)(const char** authData);
+typedef GfnRuntimeError(*gfnGetPartnerDataFn)(const char** partnerData);
+typedef GfnRuntimeError(*gfnGetPartnerSecureDataFn)(const char** partnerSecureData);
 
 typedef bool (*gfnIsTitleAvailableFn)(const char* platformAppId);
 typedef GfnRuntimeError(*gfnGetTitlesAvailableFn)(const char** platformAppIds);
@@ -132,8 +132,8 @@ typedef struct GfnSdkCloudLibrary_t
     gfnGetClientIpFn GetClientIp;
     gfnGetClientLanguageCodeFn GetClientLanguageCode;
     gfnGetClientCountryCodeFn GetClientCountryCode;
-    gfnGetCustomDataFn GetCustomData;
-    gfnGetAuthDataFn GetAuthData;
+    gfnGetPartnerDataFn GetPartnerData;
+    gfnGetPartnerSecureDataFn GetPartnerSecureData;
     gfnFreeFn Free;
     gfnAppReadyFn AppReady;
     gfnSetActionZoneFn SetActionZone;
@@ -296,8 +296,8 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     pCloudLibrary->GetClientIp = (gfnGetClientIpFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientIp");
     pCloudLibrary->GetClientLanguageCode = (gfnGetClientLanguageCodeFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientLanguageCode");
     pCloudLibrary->GetClientCountryCode = (gfnGetClientCountryCodeFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientCountryCode");
-    pCloudLibrary->GetCustomData = (gfnGetCustomDataFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetCustomData");
-    pCloudLibrary->GetAuthData = (gfnGetAuthDataFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetAuthData");
+    pCloudLibrary->GetPartnerData = (gfnGetPartnerDataFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetPartnerData");
+    pCloudLibrary->GetPartnerSecureData = (gfnGetPartnerSecureDataFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetPartnerSecureData");
     pCloudLibrary->Free = (gfnFreeFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnFree");
     pCloudLibrary->AppReady = (gfnAppReadyFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnAppReady");
     pCloudLibrary->SetActionZone = (gfnSetActionZoneFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnSetActionZone");
@@ -730,18 +730,18 @@ GfnRuntimeError GfnGetClientCountryCode(char* countryCode, unsigned int length)
     DELEGATE_TO_CLOUD_LIBRARY(GetClientCountryCode, countryCode, length);
 }
 
-GfnRuntimeError GfnGetCustomData(const char** customData)
+GfnRuntimeError GfnGetPartnerData(const char** partnerData)
 {
-    CHECK_NULL_PARAM(customData);
+    CHECK_NULL_PARAM(partnerData);
     CHECK_CLOUD_ENVIRONMENT();
-    DELEGATE_TO_CLOUD_LIBRARY(GetCustomData, customData);
+    DELEGATE_TO_CLOUD_LIBRARY(GetPartnerData, partnerData);
 }
 
-GfnRuntimeError GfnGetAuthData(const char** authData)
+GfnRuntimeError GfnGetPartnerSecureData(const char** partnerSecureData)
 {
-    CHECK_NULL_PARAM(authData);
+    CHECK_NULL_PARAM(partnerSecureData);
     CHECK_CLOUD_ENVIRONMENT();
-    DELEGATE_TO_CLOUD_LIBRARY(GetAuthData, authData);
+    DELEGATE_TO_CLOUD_LIBRARY(GetPartnerSecureData, partnerSecureData);
 }
 
 GfnRuntimeError GfnIsTitleAvailable(const char* platformAppId, bool* isAvailable)

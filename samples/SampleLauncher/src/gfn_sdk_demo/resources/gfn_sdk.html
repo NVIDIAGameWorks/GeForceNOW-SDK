@@ -346,10 +346,10 @@
                             isTitleAvailable();
                             // Get all titles available to stream in the current GFN game seat
                             getAvailableTitles();
-                            // Obtain custom auth data that passed in as part of StartStream API
-                            requestCustomAuthToken();
-                            // Obtain partner custom data that passed in as part of StartStream API
-                            requestPartnerCustomData();
+                            // Obtain partner secure data that passed in as part of StartStream API
+                            requestPartnerSecureData();
+                            // Obtain partner data that passed in as part of StartStream API
+                            requestPartnerData();
                         }
                         resolve(data.enabled);
                     }
@@ -616,39 +616,37 @@
         }
 
         /**
-            * Calls into GFN SDK to request a copy of the 3rd party user access token passed into the
+            * Calls into GFN SDK to request a copy of the 3rd party secure data passed into the
             * StartStream API. This token should be a token that can be consumed by your application
             * that is running inside the GFN cloud environment to facilitate Single Sign-On (SSO) and
             * thus not require the user to manually log into your application.
             */
-        function requestCustomAuthToken() {
+        function requestPartnerSecureData() {
             window.cefQuery({
                 request: JSON.stringify({
-                    command: 'GFN_SDK_REQUEST_ACCESS_TOKEN'
+                    command: 'GFN_SDK_REQUEST_PARTNER_SECURE_DATA'
                 }),
                 onSuccess: function (response) {
                     var data = JSON.parse(response);
-                    launcherToken = data.authData;
-                    setStatus('Custom auth token retrieval completed: ' + data.errorMessage + ', token: "' + launcherToken + '"');
+                    launcherToken = data.partnerSecureData;
+                    setStatus('Partner Secure data retrieval completed: ' + data.errorMessage + ', token: "' + launcherToken + '"');
                 }
             });
         }
 
         /**
-         * Calls into GFN SDK to request a copy of the 3rd party user access token passed into the
-         * StartStream API. This token should be a token that can be consumed by your application
-         * that is running inside the GFN cloud environment to facilitate Single Sign-On (SSO) and
-         * thus not require the user to manually log into your application.
+         * Calls into GFN SDK to request a copy of the 3rd party data passed into the
+         * StartStream API.
          */
-         function requestPartnerCustomData() {
+         function requestPartnerData() {
             window.cefQuery({
                 request: JSON.stringify({
-                    command: 'GFN_SDK_REQUEST_PARTNER_CUSTOM_DATA'
+                    command: 'GFN_SDK_REQUEST_PARTNER_DATA'
                 }),
                 onSuccess: function (response) {
                     var data = JSON.parse(response);
-                    customData = data.customData;
-                    setStatus('Partner custom data retrieval completed: ' + data.errorMessage + ', Data: "' + customData + '"');
+                    partnerData = data.partnerData;
+                    setStatus('Partner data retrieval completed: ' + data.errorMessage + ', Data: "' + partnerData + '"');
                 }
             });
         }

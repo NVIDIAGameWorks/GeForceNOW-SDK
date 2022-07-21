@@ -47,13 +47,13 @@ CefString GFN_SDK_GET_CLIENT_LANGUAGE_CODE = "GFN_SDK_GET_CLIENT_LANGUAGE_CODE";
 CefString GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK = "GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK";
 CefString GFN_SDK_IS_TITLE_AVAILABLE = "GFN_SDK_IS_TITLE_AVAILABLE";
 CefString GFN_SDK_GET_AVAILABLE_TITLES = "GFN_SDK_GET_AVAILABLE_TITLES";
-CefString GFN_SDK_REQUEST_ACCESS_TOKEN = "GFN_SDK_REQUEST_ACCESS_TOKEN";
+CefString GFN_SDK_REQUEST_PARTNER_SECURE_DATA = "GFN_SDK_REQUEST_PARTNER_SECURE_DATA";
 CefString GET_TCP_PORT = "GET_TCP_PORT";
 CefString GET_CLIENT_INFO = "GFN_SDK_GET_CLIENT_INFO";
 CefString GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK = "GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK";
 CefString GFN_SDK_REGISTER_NETWORK_STATUS_CALLBACK = "GFN_SDK_REGISTER_NETWORK_STATUS_CALLBACK";
 CefString GET_OVERRIDE_URI = "GET_OVERRIDE_URI";
-CefString GFN_SDK_REQUEST_PARTNER_CUSTOM_DATA = "GFN_SDK_REQUEST_PARTNER_CUSTOM_DATA";
+CefString GFN_SDK_REQUEST_PARTNER_DATA = "GFN_SDK_REQUEST_PARTNER_DATA";
 CefString GET_SESSION_INFO = "GFN_SDK_GET_SESSION_INFO";
 
 static CefString DictToJson(CefRefPtr<CefDictionaryValue> dict)
@@ -409,11 +409,11 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
 
                 // 3rd party IDM token for SSO that is consumed by launcher application running in GFN
                 std::string pchcustAuth = dict->GetString("launcherToken").ToString();
-                startStreamInput.pchCustomAuth = pchcustAuth.c_str();
+                startStreamInput.pchPartnerSecureData = pchcustAuth.c_str();
 
                 if (hasTokenType)
                 {
-                    startStreamInput.pchCustomData = "This is example custom data";
+                    startStreamInput.pchPartnerData = "This is example custom data";
 
                     GfnError err = GfnStartStream(&startStreamInput, &response);
                     msg = "gfnStartStream = " + std::string(GfnErrorToString(err));
@@ -565,14 +565,14 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         return true;
     }
     /**
-     * Requests a copy of the token data that was passed into customAuth as part of the call to one
+     * Requests a copy of the token data that was passed into partnerSecureData as part of the call to one
      * of the StartStream APIs. This call should only be made in the GFN cloud environment.
      */
-    else if (command == GFN_SDK_REQUEST_ACCESS_TOKEN)
+    else if (command == GFN_SDK_REQUEST_PARTNER_SECURE_DATA)
     {
-        char const* authData = nullptr;
+        char const* partnerSecureData = nullptr;
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
-        GfnError err = GfnGetAuthData(&authData);
+        GfnError err = GfnGetPartnerSecureData(&partnerSecureData);
         response_dict->SetString("errorMessage", GfnErrorToString(err));
         if (err != GfnError::gfnSuccess)
         {
@@ -581,8 +581,8 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         }
         else
         {
-            response_dict->SetString("authData", authData);
-            GfnFree(&authData);
+            response_dict->SetString("partnerSecureData", partnerSecureData);
+            GfnFree(&partnerSecureData);
         }
 
         CefString response(DictToJson(response_dict));
@@ -591,25 +591,25 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         return true;
     }
     /**
-     * Requests a copy of the custom data that was passed into pchCustomData as part of the
+     * Requests a copy of the custom data that was passed into pchPartnerData as part of the
      * call to one of the StartStream APIs. This call should only be made in the GFN cloud
      * environment.
      */
-    else if (command == GFN_SDK_REQUEST_PARTNER_CUSTOM_DATA)
+    else if (command == GFN_SDK_REQUEST_PARTNER_DATA)
     {
-        char const* customData = nullptr;
+        char const* partnerData = nullptr;
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
-        GfnError err = GfnGetCustomData(&customData);
+        GfnError err = GfnGetPartnerData(&partnerData);
         response_dict->SetString("errorMessage", GfnErrorToString(err));
         if (err != GfnError::gfnSuccess)
         {
             LOG(ERROR) << "get custom data error: " << GfnErrorToString(err);
-            response_dict->SetString("customData", "");
+            response_dict->SetString("partnerData", "");
         }
         else
         {
-            response_dict->SetString("customData", customData);
-            GfnFree(&customData);
+            response_dict->SetString("partnerData", partnerData);
+            GfnFree(&partnerData);
         }
 
         CefString response(DictToJson(response_dict));

@@ -106,9 +106,9 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
-/// C        | @ref GfnGetCustomData
+/// C        | @ref GfnGetPartnerData
 ///
-/// @copydoc GfnGetCustomData
+/// @copydoc GfnGetPartnerData
 ///
 /// Language | API
 /// -------- | -------------------------------------
@@ -490,16 +490,16 @@ extern "C"
 
     ///
     /// @par Description
-    /// Calls @ref GfnGetCustomData to retrieves custom data passed in by the client in the
-    /// gfnStartStream call.
+    /// Calls @ref GfnGetPartnerData to retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call 
+    /// or b) sent using Deep Link parameter.
     ///
     /// @par Environment
     /// Cloud
     ///
     /// @par Usage
-    /// Use during cloud session to retrieve custom data
+    /// Use during cloud session to retrieve partner data
     ///
-    /// @param customData               - Populated with the custom data. Call @ref GfnFree to free the memory.
+    /// @param partnerData               - Populated with the partner data. Call @ref GfnFree to free the memory.
     ///
     /// @retval gfnSuccess              - On success
     /// @retval gfnInvalidParameter     - NULL pointer passed in
@@ -508,20 +508,20 @@ extern "C"
     /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
     /// @note
     /// To avoid leaking memory, call @ref gfnFree once done with the data.
-    GfnRuntimeError GfnGetCustomData(const char** customData);
+    GfnRuntimeError GfnGetPartnerData(const char** partnerData);
 
     ///
     /// @par Description
-    /// Calls @ref GfnGetAuthData to retrieves custom authorization passed in by the client in the
-    /// gfnStartStream call.
+    /// Calls @ref GfnGetPartnerSecureData to retrieves secure partner data that is either a) passed by the client in the gfnStartStream call 
+    /// or b) sent in response to Deep Link nonce validation.
     ///
     /// @par Environment
     /// Cloud
     ///
     /// @par Usage
-    /// Use during cloud session to retrieve custom data
+    /// Use during cloud session to retrieve secure partner data
     ///
-    /// @param authData               - Populated with the authorization data. Call @ref GfnFree to free the memory.
+    /// @param partnerSecureData               - Populated with the secure partner data. Call @ref GfnFree to free the memory.
     ///
     /// @retval gfnSuccess              - On success
     /// @retval gfnInvalidParameter     - NULL pointer passed in
@@ -530,7 +530,7 @@ extern "C"
     /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
     /// @note
     /// To avoid leaking memory, call @ref gfnFree once done with the data.
-    GfnRuntimeError GfnGetAuthData(const char** authData);
+    GfnRuntimeError GfnGetPartnerSecureData(const char** partnerSecureData);
 
     ///
     /// @par Description

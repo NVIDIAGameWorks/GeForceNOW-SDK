@@ -118,10 +118,10 @@ Functions</h2></td></tr>
 <tr class="separator:ga85103db7a6fc1dded77a1119ca182ddd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2bbf214d68c42487b1e33f789e87330d"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga2bbf214d68c42487b1e33f789e87330d">GfnGetSessionInfo</a> (<a class="el" href="struct_gfn_session_info.html">GfnSessionInfo</a> *sessionInfo)</td></tr>
 <tr class="separator:ga2bbf214d68c42487b1e33f789e87330d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad5e6933339761513dfac03dc8c2b9a38"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#gad5e6933339761513dfac03dc8c2b9a38">GfnGetCustomData</a> (const char **customData)</td></tr>
-<tr class="separator:gad5e6933339761513dfac03dc8c2b9a38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaab4e89a4325bffc6512dba1142421959"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#gaab4e89a4325bffc6512dba1142421959">GfnGetAuthData</a> (const char **authData)</td></tr>
-<tr class="separator:gaab4e89a4325bffc6512dba1142421959"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9223905a2b1279a175f9b5bdbc40838c"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga9223905a2b1279a175f9b5bdbc40838c">GfnGetPartnerData</a> (const char **partnerData)</td></tr>
+<tr class="separator:ga9223905a2b1279a175f9b5bdbc40838c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab4760d499a669358847649c9dc44a433"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#gab4760d499a669358847649c9dc44a433">GfnGetPartnerSecureData</a> (const char **partnerSecureData)</td></tr>
+<tr class="separator:gab4760d499a669358847649c9dc44a433"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad9c160b9ea4921de4ca57d48ede5c9be"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#gad9c160b9ea4921de4ca57d48ede5c9be">GfnIsTitleAvailable</a> (const char *platformAppId, <a class="el" href="_gfn_sdk_8h.html#ad5c9d4ba3dc37783a528b0925dc981a0">bool</a> *isAvailable)</td></tr>
 <tr class="separator:gad9c160b9ea4921de4ca57d48ede5c9be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad21b46157207c9083f490cea77a4dea1"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#gad21b46157207c9083f490cea77a4dea1">GfnGetTitlesAvailable</a> (const char **platformAppIds)</td></tr>
@@ -239,42 +239,6 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-
-</div>
-</div>
-<a class="anchor" id="gaab4e89a4325bffc6512dba1142421959"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">GfnRuntimeError GfnGetAuthData </td>
-          <td>(</td>
-          <td class="paramtype">const char **&#160;</td>
-          <td class="paramname"><em>authData</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#gaab4e89a4325bffc6512dba1142421959">GfnGetAuthData</a> to retrieves custom authorization passed in by the client in the gfnStartStream call.</dd></dl>
-<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve custom data</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">authData</td><td>- Populated with the authorization data. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="retval"><dt>Return values</dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
-    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data. </dd></dl>
 
 </div>
 </div>
@@ -431,25 +395,61 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="gad5e6933339761513dfac03dc8c2b9a38"></a>
+<a class="anchor" id="ga9223905a2b1279a175f9b5bdbc40838c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">GfnRuntimeError GfnGetCustomData </td>
+          <td class="memname">GfnRuntimeError GfnGetPartnerData </td>
           <td>(</td>
           <td class="paramtype">const char **&#160;</td>
-          <td class="paramname"><em>customData</em></td><td>)</td>
+          <td class="paramname"><em>partnerData</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#gad5e6933339761513dfac03dc8c2b9a38">GfnGetCustomData</a> to retrieves custom data passed in by the client in the gfnStartStream call.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#ga9223905a2b1279a175f9b5bdbc40838c">GfnGetPartnerData</a> to retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent using Deep Link parameter.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve custom data</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve partner data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">customData</td><td>- Populated with the custom data. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
+    <tr><td class="paramname">partnerData</td><td>- Populated with the partner data. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gab4760d499a669358847649c9dc44a433"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GfnRuntimeError GfnGetPartnerSecureData </td>
+          <td>(</td>
+          <td class="paramtype">const char **&#160;</td>
+          <td class="paramname"><em>partnerSecureData</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#gab4760d499a669358847649c9dc44a433">GfnGetPartnerSecureData</a> to retrieves secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent in response to Deep Link nonce validation.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve secure partner data</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">partnerSecureData</td><td>- Populated with the secure partner data. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
   </table>
   </dd>
 </dl>

@@ -291,14 +291,14 @@ Wrapper Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
-<td>C </td><td><a class="el" href="group__wrapper.html#gad5e6933339761513dfac03dc8c2b9a38">GfnGetCustomData</a> </td></tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga9223905a2b1279a175f9b5bdbc40838c">GfnGetPartnerData</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#gad5e6933339761513dfac03dc8c2b9a38">GfnGetCustomData</a> to retrieves custom data passed in by the client in the gfnStartStream call.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#ga9223905a2b1279a175f9b5bdbc40838c">GfnGetPartnerData</a> to retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent using Deep Link parameter.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve custom data</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve partner data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">customData</td><td>- Populated with the custom data. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
+    <tr><td class="paramname">partnerData</td><td>- Populated with the partner data. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
   </table>
   </dd>
 </dl>
