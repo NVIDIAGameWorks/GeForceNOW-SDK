@@ -325,7 +325,7 @@ extern "C"
     ///
     /// @par Description
     /// Calls @ref gfnIsRunningInCloud to determine if calling application is running in GFN environment,
-    /// and without requiring process elevation.
+    /// and without requiring process registration.
     ///
     /// @par Environment
     /// Cloud and Client
@@ -360,24 +360,23 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud and Client
-    /// Elevated Process
     ///
     /// @par Usage
-    /// Call from an elevated process to securely determine whether running in GFN cloud, and use the
+    /// Call from an NVIDIA-approved process to securely determine whether running in GFN cloud, and use the
     /// GfnIsRunningInCloudAssurance value to decide the risk to enable any application specific logic
     /// for that environment.
     ///
     /// @warning
-    /// This API must be called from a high-integrity elevated process, or it will fail by design. To prevent
+    /// This API must be called from a process that has been registed with NVIDIA, or it will return an error.
+    /// Refer to the Cloud Check API Guide on how to get your application registered. To prevent
     /// man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity
-    /// of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudassurance
+    /// of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance
     /// to decide if the check was certain enough without tampering to enable the logic or feature associated
     /// with the API call.
     ///
     /// @param assurance                  - Likelihood and level of security assurance defined via @ref GfnIsRunningInCloudAssurance that API is running in GFN cloud environment
     ///
     /// @retval gfnSuccess                - If the query was successful.
-    /// @retval gfnRequiredElevation      - The API was called from a non-elevated process
     /// @retval gfnClientLibraryNotFound  - GFN SDK client-side library could not be found
     /// @retval gfnCloudLibraryNotFound   - GFN SDK cloud-side library could not be found
     /// @retval gfnAPINotFound            - The API was not found in the GFN SDK Library

@@ -64,6 +64,18 @@ GfnApplicationCallbackResult GFN_CALLBACK AutoSave(void* pContext)
 GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* pContext)
 {
     printf("SessionInit: %s\n", params);
+
+    // Report that the application is ready for streaming to begin
+    GfnError runtimeError = GfnAppReady(false, "Abcd");
+    if (runtimeError == gfnSuccess)
+    {
+        printf("Reported 'AppReady' with failure to the SDK\n");
+    }
+    else
+    {
+        printf("Failed to report 'AppReady' to the SDK: %d\n", (int)runtimeError);
+    }
+
     return crCallbackSuccess;
 }
 

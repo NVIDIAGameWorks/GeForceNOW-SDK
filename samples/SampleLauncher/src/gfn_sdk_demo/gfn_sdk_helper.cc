@@ -34,7 +34,6 @@
 #include "GfnRuntimeSdk_Wrapper.h"  //Helper functions that wrap Library-based APIs
 #include "shellapi.h"
 #include <fstream>
-#include "client.h"
 
 CefString GFN_SDK_INIT = "GFN_SDK_INIT";
 CefString GFN_SDK_SHUTDOWN = "GFN_SDK_SHUTDOWN";
@@ -150,52 +149,6 @@ static GfnError initGFN()
     return err;
 }
 
-bool checkSampleServiceRunningStatus() {
-    WCHAR* serviceName = L"GfnSdkSampleService";
-
-    SC_HANDLE sch = OpenSCManager(NULL, NULL, SC_MANAGER_ENUMERATE_SERVICE);
-    if (sch == NULL)
-    {
-        LOG(INFO) << "OpenSCManager failed";
-        return false;
-    }
-
-    SC_HANDLE svc = OpenService(sch, serviceName, SERVICE_QUERY_STATUS);
-    if (svc == NULL)
-    {
-        LOG(INFO) << "OpenService failed";
-        CloseServiceHandle(sch);
-        return false;
-    }
-
-    bool serviceRunning = false;
-    SERVICE_STATUS_PROCESS stat;
-    DWORD needed = 0;
-    BOOL ret = QueryServiceStatusEx(svc, SC_STATUS_PROCESS_INFO,
-        (BYTE*)&stat, sizeof stat, &needed);
-    if (ret == TRUE)
-    {
-        if (stat.dwCurrentState == SERVICE_RUNNING)
-        {
-            serviceRunning = true;
-            LOG(INFO) << serviceName << " is running";
-        }
-        else
-        {
-            LOG(INFO) << serviceName << " is NOT running";
-        }
-    }
-    else
-    {
-        LOG(INFO) << "QueryServiceStatusEx failed";
-    }
-
-    CloseServiceHandle(svc);
-    CloseServiceHandle(sch);
-
-    return serviceRunning;
-}
-
 bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     int64 query_id,
@@ -265,43 +218,22 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     }
     /**
     * Calls into GFN SDK securely to determine whether the sample launcher is being executed inside
-    * an NVIDIA GeForce NOW game seat. Call will only succeed if the sample launcher was executed
-    * as an elevated process. In a real-world implementation, this would be called via a separate
-    * OS-based/elevated process via an IPC mechanism.
+    * an NVIDIA GeForce NOW game seat. Call will only succeed if the process has been registered
+    * with NVIDIA, which this Sample Launcher has, but will fail if the process name/code has been
+    * altered.
     */
     else if (command == GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE)
     {
         GfnIsRunningInCloudAssurance assurance = GfnIsRunningInCloudAssurance::gfnNotCloud;
         CefString errorMessage;
 
-        bool isServiceRunning = checkSampleServiceRunningStatus();
-        if (isServiceRunning)
+        GfnError err = GfnIsRunningInCloudSecure(&assurance);
+        if (err != GfnError::gfnSuccess)
         {
-            SampleService::ServiceClient client;
-            const auto [status, gfnstatus, value] = client.isRunningInCloudSecure();
-            if (status == SampleService::status::success)
-            {
-                GfnError err = static_cast<GfnError>(std::stoi(gfnstatus));
-                if (err == GfnError::gfnSuccess)
-                {
-                    assurance = static_cast<GfnIsRunningInCloudAssurance>(std::stoi(value));
-                }
-                else
-                {
-                    LOG(ERROR) << "Failed to get if running in cloud. Error: " << err;
-                }
-                errorMessage = GfnErrorToString(err);
-            }
-            else
-            {
-                errorMessage = "ServiceClient error: " + std::to_string(static_cast<int>(status));
-            }
+            LOG(ERROR) << "Failed to get if running in cloud. Error: " << err;
+            return true;
         }
-        else
-        {
-            errorMessage = "GfnSdkSampleService is not running";
-        }
-
+        
         LOG(INFO) << "Cloud environment assurance value: " << assurance;
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();

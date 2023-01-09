@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.9.1
+# NVIDIA GeForce NOW SDK Release 1.10
 
 ## At a Glance
 
@@ -10,10 +10,8 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* API name change : `gfnGetCustomData` renamed to `gfnGetPartnerData`
-* API name change : `gfnGetAuthData` renamed to `gfnGetPartnerSecureData`
-* Struct `StartStreamNonceInput` members modified : `pchCustomData` and `pchCustomAuth` renamed to `pchPartnerData` and `pchPartnerSecureData` respectively.
-* Updated Mobile Touch Integration Guide
+* The API `gfnIsRunningInCloudSecure` no longer requires elevation to call successfully
+* Updated Cloud Check Integration Guide for new API requirements
 * Bug fixes and other minor improvements
 
 ## Developer Content Portal
@@ -44,10 +42,10 @@ The distribution is laid out as below:
 ├─── README.md
 |
 ├─── doc
-|   │   SDK-GFN-DEEP-LINKING.pdf
-|   │   SDK-GFN-MOBILE-TOUCH-INTEGRATION-GUIDE.pdf
 |   │   SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf
 |   │   SDK-GFN-CLOUD-API.pdf
+|   │   SDK-GFN-DEEP-LINKING.pdf
+|   │   SDK-GFN-MOBILE-TOUCH-INTEGRATION-GUIDE.pdf
 |   │   SDK-GFN-NGN-ENDPOINT.pdf
 |   │   SDK-GFN-PRIMER.pdf
 |   └───SDK-GFN-RUNTIME
@@ -72,7 +70,6 @@ The distribution is laid out as below:
     |   README.md
     ├───CGameAPISample
     ├───SampleLauncher
-    ├───SampleService
     └───SDKDllDirectRefSample
 
 ```

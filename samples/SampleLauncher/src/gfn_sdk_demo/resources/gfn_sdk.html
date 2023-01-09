@@ -379,7 +379,7 @@
 
         /**
             * Uses the secure version of the cloud check API to check if running in GFN environment. This
-            * requires the sample application to be launched elevated.
+            * requires the sample application to be registered per Cloud Check API guide.
             */
         function isRunningInCloudSecure() {
             return new Promise((resolve, reject) => {
@@ -948,16 +948,10 @@
         }
 
         document.addEventListener("DOMContentLoaded", function (event) {
-            initializeSdk().then(function () {
-                // Secure cloud check requires elevation, which is not
-                // the default execution conditions of the sample. We'll
-                // make the call to show behavior, allowing the sample to
-                // be manually run elevated, but not tie any decisions to
-                // the API's result or returned data.
-                isRunningInCloudSecure();
-
-                // Check if we're running on the game seat to
+            initializeSdk().then(function () {         
+                // Check if we're running on the game seat both ways to
                 // decide if we should get the supported titles
+                isRunningInCloudSecure();
                 isRunningInCloud().then(function (isCloud) {
                     if (!isCloud) {
                         registerStreamStatusCallback();

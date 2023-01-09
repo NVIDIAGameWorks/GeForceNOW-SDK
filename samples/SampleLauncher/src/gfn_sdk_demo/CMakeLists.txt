@@ -179,14 +179,11 @@ if(OS_WINDOWS)
   target_link_libraries(${EXAMPLE_TARGET}
     crypt32.lib
     Wldap32.lib
-    SampleServiceLib
   )
   target_include_directories(${EXAMPLE_TARGET}
     PRIVATE
       ${GFN_SDK_DIST_DIR}/include
       ${CMAKE_BINARY_DIR}/../include
-      ${GFN_SDK_DIST_DIR}/samples/SampleService/src/lib
-      ${GFN_SDK_DIST_DIR}/samples/SampleService/src/common
   )
   target_compile_features(${EXAMPLE_TARGET} PRIVATE cxx_std_17)
   set_source_files_properties(${EXAMPLE_TARGET} PROPERTIES COMPILE_FLAGS "/wd4996")

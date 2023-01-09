@@ -123,7 +123,7 @@ int _tmain(int argc, _TCHAR* argv[])
     {
         GfnError runtimeError = gfnSuccess;
 
-        char* clientIp;
+        char* clientIp = NULL;
         runtimeError = GfnGetClientIpV4(&clientIp);
         if (runtimeError == gfnSuccess)
         {
@@ -134,7 +134,7 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("Failed to retrieve Geforce NOW Client I.P. GfnError: %d\n", (int) runtimeError);
         }
 
-        char* clientLanguageCode;
+        char* clientLanguageCode = NULL;
         runtimeError = GfnGetClientLanguageCode(&clientLanguageCode);
         if (runtimeError == gfnSuccess)
         {
@@ -196,25 +196,6 @@ int _tmain(int argc, _TCHAR* argv[])
         else
         {
             printf("Failed to setup GFN Title: %d\n", (int)runtimeError);
-        }
-        runtimeError = GfnAppReady(false, "Abcd");
-        if (runtimeError == gfnSuccess)
-        {
-            printf("Reported 'AppReady' with failure to the SDK\n");
-        }
-        else
-        {
-            printf("Failed to report 'AppReady' to the SDK: %d\n", (int)runtimeError);
-        }
-
-        runtimeError = GfnAppReady(true, NULL);
-        if (runtimeError == gfnSuccess)
-        {
-            printf("Reported 'AppReady' with success to the SDK\n");
-        }
-        else
-        {
-            printf("Failed to report 'AppReady' to the SDK: %d\n", (int)runtimeError);
         }
     }
 

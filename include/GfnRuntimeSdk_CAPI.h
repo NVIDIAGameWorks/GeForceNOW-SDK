@@ -720,7 +720,7 @@
         ///
         /// @par Description
         /// Quickly determines if the calling application is running in GFN environment or not with a low
-        /// security assurance, and without requiring process elevation.
+        /// security assurance, and without requiring process registration.
         ///
         /// @par Environment
         /// Cloud and Client
@@ -751,15 +751,15 @@
         ///
         /// @par Environment
         /// Cloud and Client
-        /// Elevated Process
         ///
         /// @par Usage
-        /// Call from an elevated process to securely determine whether running in GFN cloud, and use the
+        /// Call from an NVIDIA-approved process to securely determine whether running in GFN cloud, and use the
         /// GfnIsRunningInCloudAssurance value to decide the risk to enable any application specific logic
         /// for that environment.
         ///
         /// @warning
-        /// This API must be called from a high-integrity elevated process, or it will fail by design. To prevent
+        /// This API must be called from a process that has been registed with NVIDIA, or it will return an error.
+        /// Refer to the Cloud Check API Guide on how to get your application registered. To prevent
         /// man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity
         /// of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance
         /// to decide if the check was certain enough without tampering to enable the logic or feature associated
@@ -768,7 +768,6 @@
         /// @param assurance                 - Level of assurance that API is running in GFN cloud environment
         ///
         /// @retval gfnSuccess               - On success
-        /// @retval gfnElevationRequired     - Was called from non-elevated process
         ///
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnIsRunningInCloudSecure(GfnIsRunningInCloudAssurance* assurance);

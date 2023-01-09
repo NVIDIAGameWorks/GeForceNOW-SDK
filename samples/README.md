@@ -10,10 +10,6 @@ CGameAPISample:
 SDKDllDirectRefSample:
     This sample demonstrates basic SDK usage without relying on the wrapper helper functions. This
     can be useful for partners who are unable to utilize the wrapper in their environment.
-
-SampleService:
-    This GFN-ready Windows service demonstrates how to call gfnIsRunningInCloudSecure API from a 
-    non-elevated process.
     
 SampleLauncher:
     This sample demonstrates usage of the Launcher/Publisher-focused APIs, including getting a list
@@ -47,17 +43,4 @@ Generating Visual Studio Solution:
 Compiling:
     Once the solution is built, simply run or debug the samples, as the generator will correctly 
     set links back to the GFN Runtime API include and lib folders.
-
-
-SampleService
-====================================================================================================
-SampleService integrates GFN SDK and provides a secure IPC command to query for
-cloud secure check (gfnIsRunningInCloudSecure API).  
-
-To see this command working:
-* Create and start SampleService with following steps:
-    * Start a command prompt as an administrator and run
-    * sc create GfnSdkSampleService binpath= <pathToSamples>\SampleService.exe displayname="GfnSdk Sample Service"
-    * sc start GfnSdkSampleService
-* On launch of the SampleLauncher, the application checks if the service is running and queries for 
-  secure cloud check.
+    
