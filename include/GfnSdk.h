@@ -78,28 +78,28 @@ typedef char bool;
 #define NVGFNSDK_VERSION_MAJOR 1
 
 /// @brief GFN SDK Minor Version
-#define NVGFNSDK_VERSION_MINOR 10
+#define NVGFNSDK_VERSION_MINOR 11
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_SHORT 1.10
+#define NVGFNSDK_VERSION_SHORT 1.11
 
 /// @brief GFN SDK Patch Version
 #define NVGFNSDK_VERSION_PATCH 0
 
 /// @brief GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 32038373
+#define NVGFNSDK_VERSION_BUILD 32558885
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 1.10.0.32038373
+#define NVGFNSDK_VERSION_LONG 1.11.0.32558885
 
 /// @brief GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "1.10.0.32038373"
-#define NVGFNSDK_VERSION_STR_PROD "1.10.0"
+#define NVGFNSDK_VERSION_STR   "1.11.0.32558885"
+#define NVGFNSDK_VERSION_STR_PROD "1.11.0"
 
 /// @brief GFN SDK Build CL
-#define NVGFNSDK_VERSION_BUILDCL 32038373
-#define NVGFNSDK_VERSION_BUILDH 3203
-#define NVGFNSDK_VERSION_BUILDL 8373
+#define NVGFNSDK_VERSION_BUILDCL 32558885
+#define NVGFNSDK_VERSION_BUILDH 3255
+#define NVGFNSDK_VERSION_BUILDL 8885
 
 
 #ifdef __cplusplus
@@ -246,6 +246,7 @@ typedef char bool;
             bool normalized;      ///< true : coordinates are normalized between 0.0-1.0, false : absolute coordinates
             GfnRectFormat format; ///< rect format as listed in GfnRectFormat
         } GfnRect;
+
 
 #ifdef __cplusplus
     } // extern "C"

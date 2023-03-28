@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.10
+# NVIDIA GeForce NOW SDK Release 1.11
 
 ## At a Glance
 
@@ -10,13 +10,12 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* The API `gfnIsRunningInCloudSecure` no longer requires elevation to call successfully
-* Updated Cloud Check Integration Guide for new API requirements
+* The API `getSessionInfo` is extended to include session ID and RTX enabled flag information
 * Bug fixes and other minor improvements
 
-## Developer Content Portal
+## GeForce NOW Developer Portal
 
-* If your organization or game isn't yet registered with NVIDIA, visit the [Developer Content Portal](https://portal-developer.nvidia.com/) to create accounts and complete game registration.
+* Please [contact us](mailto:gdp-queries@nvidia.com) to register your organization or game with the GeForce NOW Developer Portal.
 
 ## Development Guide
 

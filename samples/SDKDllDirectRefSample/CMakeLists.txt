@@ -6,7 +6,7 @@ set(GFN_SDK_SAMPLE_SOURCES
 )
 
 add_executable(SDKDllDirectRefSample ${GFN_SDK_SAMPLE_SOURCES})
-set_target_properties(SDKDllDirectRefSample PROPERTIES FOLDER "Dist/Samples")
+set_target_properties(SDKDllDirectRefSample PROPERTIES FOLDER "Samples")
 set_target_properties(SDKDllDirectRefSample PROPERTIES LINK_FLAGS "/ignore:4099")
 
 target_include_directories(SDKDllDirectRefSample PRIVATE ${GFN_SDK_DIST_DIR}/include)

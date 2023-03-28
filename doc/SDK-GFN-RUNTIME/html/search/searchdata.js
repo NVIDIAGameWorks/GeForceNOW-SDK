@@ -4,7 +4,7 @@ var indexSectionsWithContent =
   1: "gst",
   2: "g",
   3: "g",
-  4: "cdfilnoprtuv",
+  4: "cdfilnoprstuv",
   5: "abceginpst",
   6: "g",
   7: "cg",

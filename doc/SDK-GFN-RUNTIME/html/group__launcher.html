@@ -441,9 +441,9 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section user"><dt>Description</dt><dd>Gets various information about the current game session</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Gets various information about the current streaming session</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Call this during game play to find session time remaining.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this from a streaming session to find out more information about the session, such as session time remaining, or if RTX is enabled for the current session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">sessionInfo</td><td>- Pointer to a <a class="el" href="struct_gfn_session_info.html" title="Session info blob. ">GfnSessionInfo</a> struct. </td></tr>
@@ -459,6 +459,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If the application has called <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ac19b823f27eaffd4bd318eaf0fa02449">gfnRegisterSessionInitCallback</a> to be notified when a user connects, then this API should be called after that callback is triggered. Certain data, such as session time limit or RTX support, can only be defined when a user connects as the values depend on the user type. Calling before that point can result in obtaining incorrect data. </dd></dl>
 
 </div>
 </div>
@@ -547,7 +548,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success</td></tr>
   </table>
   </dd>
 </dl>

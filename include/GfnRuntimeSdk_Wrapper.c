@@ -770,7 +770,6 @@ GfnRuntimeError GfnGetClientInfo(GfnClientInfo* clientInfo)
     GFN_SDK_LOG("Calling GfnGetClientInfo");
     CHECK_NULL_PARAM(clientInfo);
     CHECK_CLOUD_ENVIRONMENT();
-    clientInfo->version = GfnClientInfoVersion;
     DELEGATE_TO_CLOUD_LIBRARY(GetClientInfo, clientInfo);
 }
 

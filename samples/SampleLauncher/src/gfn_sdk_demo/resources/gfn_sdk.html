@@ -746,7 +746,8 @@
         /**
             * Calls into GFN SDK to get information about current streaming session. This is meant to be
             * called while running on the GeForce NOW game seat to make decisions based on session length,
-            * and how much time is remaining in the session.
+            * and how much time is remaining in the session, RTX support, as well as getting the session ID
+            * for trackaing purposes.
             */
         function getSessionInfo() {
             setStatus('Getting Session Info...');

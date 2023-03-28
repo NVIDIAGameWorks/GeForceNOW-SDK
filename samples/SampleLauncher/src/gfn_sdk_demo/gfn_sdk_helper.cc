@@ -658,6 +658,8 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     {
         response_dict->SetInt("sessionMaxDurationSec", sessionInfo.sessionMaxDurationSec);
         response_dict->SetInt("sessionTimeRemainingSec", sessionInfo.sessionTimeRemainingSec);
+        response_dict->SetString("sessionID", sessionInfo.sessionId);
+        response_dict->SetInt("sessionRTXEnabled", sessionInfo.sessionRTXEnabled);
     }
     CefString response(DictToJson(response_dict));
     LOG(INFO) << "GfnGetSessionInfo data: " << response.ToString();

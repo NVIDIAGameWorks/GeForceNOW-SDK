@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "GfnRuntimeSdk_CAPI.h"
+#include "GfnRuntimeSdk_Wrapper.h"
 
 extern bool g_MainDone;
 
@@ -69,7 +69,7 @@ GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* 
     GfnError runtimeError = GfnAppReady(false, "Abcd");
     if (runtimeError == gfnSuccess)
     {
-        printf("Reported 'AppReady' with failure to the SDK\n");
+        printf("Reported 'AppReady' with success to the SDK\n");
     }
     else
     {

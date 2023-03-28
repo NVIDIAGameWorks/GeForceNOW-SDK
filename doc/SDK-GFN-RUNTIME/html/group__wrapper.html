@@ -480,25 +480,25 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section user"><dt>Description</dt><dd>Gets information related to the current streaming session.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Gets various information about the current streaming session</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Call this to obtain information related to the streaming session</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this from a streaming session to find out more information about the session, such as session time remaining, or if RTX is enabled for the current session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">sessionInfo</td><td>- A structure to hold session Info data</td></tr>
+    <tr><td class="paramname">sessionInfo</td><td>- Pointer to a <a class="el" href="struct_gfn_session_info.html" title="Session info blob. ">GfnSessionInfo</a> struct. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in or buffer length is too small </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If the application has called <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ac19b823f27eaffd4bd318eaf0fa02449">gfnRegisterSessionInitCallback</a> to be notified when a user connects, then this API should be called after that callback is triggered. Certain data, such as session time limit or RTX support, can only be defined when a user connects as the values depend on the user type. Calling before that point can result in obtaining incorrect data. </dd></dl>
 
 </div>
 </div>
@@ -717,7 +717,7 @@ Functions</h2></td></tr>
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gaf5ab33bd8cd24cb26cda5bacf1764e3f">gfnIsRunningInCloudSecure</a> to determine if calling application is running in GFN environment, and what level of security assurance that the result is valid.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call from an NVIDIA-approved process to securely determine whether running in GFN cloud, and use the GfnIsRunningInCloudAssurance value to decide the risk to enable any application specific logic for that environment.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>This API must be called from a process that has been registered with NVIDIA, or it will return an error. Refer to the Cloud Check API Guide on how to get your application registered. To prevent man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudassurance to decide if the check was certain enough without tampering to enable the logic or feature associated with the API call.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This API must be called from a process that has been registered with NVIDIA, or it will return an error. Refer to the Cloud Check API Guide on how to get your application registered. To prevent man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance to decide if the check was certain enough without tampering to enable the logic or feature associated with the API call.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">assurance</td><td>- Likelihood and level of security assurance defined via <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a1fa5e44e6ea4087ad75c7fd0ebf7bfa7">GfnIsRunningInCloudAssurance</a> that API is running in GFN cloud environment</td></tr>

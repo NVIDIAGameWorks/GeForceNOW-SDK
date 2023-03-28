@@ -183,7 +183,7 @@ Launcher or Game Specific Methods</h2>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success</td></tr>
   </table>
   </dd>
 </dl>
@@ -411,6 +411,31 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
+<td>C </td><td><a class="el" href="group__launcher.html#ga1f994c00e0579443e6cc920dd4a1c853">gfnGetSessionInfo</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Gets various information about the current streaming session</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Call this from a streaming session to find out more information about the session, such as session time remaining, or if RTX is enabled for the current session.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sessionInfo</td><td>- Pointer to a <a class="el" href="struct_gfn_session_info.html" title="Session info blob. ">GfnSessionInfo</a> struct. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in or buffer length is too small </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If the application has called <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ac19b823f27eaffd4bd318eaf0fa02449">gfnRegisterSessionInitCallback</a> to be notified when a user connects, then this API should be called after that callback is triggered. Certain data, such as session time limit or RTX support, can only be defined when a user connects as the values depend on the user type. Calling before that point can result in obtaining incorrect data.</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
 <td>C </td><td><a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Requests GFN client to start a streamed session of an application in a synchronous (blocking) fashion.</dd></dl>
@@ -561,6 +586,36 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
   </table>
   </dd>
 </dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__launcher.html#gaa5e1081ccd6b903f12a6b9f05b11bf03">gfnSetActionZone</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Defines active zone coordinates for GFN to interact with.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>- Populated with relevant GfnActionType </td></tr>
+    <tr><td class="paramname">id</td><td>- unique unsigned int type identifier for this action zone </td></tr>
+    <tr><td class="paramname">zone</td><td>- To enable action zone set this parameter to <a class="el" href="struct_gfn_rect.html" title="struct to reference a rect ">GfnRect</a> coordinates of the zone, to disable action zone set this parameter to NULL</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
+    <tr><td class="paramname">gfnInputExpected</td><td>- Expected zone to have a value </td></tr>
+    <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
+    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
+    <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
 <h2><a class="anchor" id="callback_section"></a>
 Callback-related Methods</h2>
 <p><a class="el" href="group__callbacks.html">Client Callback Registration</a></p>
@@ -666,32 +721,27 @@ Callback-related Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
-<td>C </td><td><a class="el" href="group__launcher.html#gaa5e1081ccd6b903f12a6b9f05b11bf03">gfnSetActionZone</a> </td></tr>
+<td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ac19b823f27eaffd4bd318eaf0fa02449">gfnRegisterSessionInitCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Defines active zone coordinates for GFN to interact with.</dd></dl>
-<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when a GFN user has connected to the game seat</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a GFN user has connected to the game seat</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">type</td><td>- Populated with relevant GfnActionType </td></tr>
-    <tr><td class="paramname">id</td><td>- unique unsigned int type identifier for this action zone </td></tr>
-    <tr><td class="paramname">zone</td><td>- To enable action zone set this parameter to <a class="el" href="struct_gfn_rect.html" title="struct to reference a rect ">GfnRect</a> coordinates of the zone, to disable action zone set this parameter to NULL</td></tr>
+    <tr><td class="paramname">sessionInitCallback</td><td>- Function pointer to application code to call when GFN is ready for the application to finalize loading </td></tr>
+    <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
-    <tr><td class="paramname">gfnInputExpected</td><td>- Expected zone to have a value </td></tr>
-    <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
-    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
-    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
-    <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>

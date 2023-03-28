@@ -367,7 +367,7 @@ extern "C"
     /// for that environment.
     ///
     /// @warning
-    /// This API must be called from a process that has been registed with NVIDIA, or it will return an error.
+    /// This API must be called from a process that has been registered with NVIDIA, or it will return an error.
     /// Refer to the Cloud Check API Guide on how to get your application registered. To prevent
     /// man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity
     /// of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance
@@ -470,21 +470,28 @@ extern "C"
 
         ///
         /// @par Description
-        /// Gets information related to the current streaming session.
+        /// Gets various information about the current streaming session
         ///
         /// @par Environment
         /// Cloud
         ///
         /// @par Usage
-        /// Call this to obtain information related to the streaming session
+        /// Call this from a streaming session to find out more information about the session, such
+        /// as session time remaining, or if RTX is enabled for the current session. 
         ///
-        /// @param[out] sessionInfo           - A structure to hold session Info data
+        /// @param sessionInfo               - Pointer to a GfnSessionInfo struct.
+
         ///
         /// @retval gfnSuccess               - On success
-        /// @retval gfnInvalidParameter      - NULL pointer passed in
+        /// @retval gfnInvalidParameter      - NULL pointer passed in or buffer length is too small
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
-        /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
-        /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
+        /// @return Otherwise, appropriate error code
+        /// @note
+        /// If the application has called @ref gfnRegisterSessionInitCallback to be notified when a
+        /// user connects, then this API should be called after that callback is triggered.
+        /// Certain data, such as session time limit or RTX support, can only be defined when a user
+        /// connects as the values depend on the user type. Calling before that point can result in 
+        /// obtaining incorrect data. 
         GfnRuntimeError GfnGetSessionInfo(GfnSessionInfo* sessionInfo);
 
     ///

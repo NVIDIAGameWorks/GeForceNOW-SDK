@@ -186,6 +186,12 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
+/// C        | @ref gfnGetSessionInfo
+///
+/// @copydoc gfnGetSessionInfo
+///
+/// Language | API
+/// -------- | -------------------------------------
 /// C        | @ref gfnStartStream
 ///
 /// @copydoc gfnStartStream
@@ -226,6 +232,11 @@
 ///
 /// @copydoc gfnAppReady
 ///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnSetActionZone
+///
+/// @copydoc gfnSetActionZone
 /// @subsection callback_section Callback-related Methods
 /// @ref callbacks
 ///
@@ -255,9 +266,9 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
-/// C        | @ref gfnSetActionZone
+/// C        | @ref gfnRegisterSessionInitCallback
 ///
-/// @copydoc gfnSetActionZone
+/// @copydoc gfnRegisterSessionInitCallback
 ///
 /// Language | API
 /// -------- | -------------------------------------
@@ -387,11 +398,11 @@
         } GfnActionType;
 
 
-    #define GfnClientInfoVersion    (2)  ///< Deprecated, usage will be ignored
     #define IP_V4_SIZE              (17) // INET_ADDRSTRLEN + NULL
     #define IP_V6_SIZE              (49) // INET6_ADDRSTRLEN + NULL
     #define CC_SIZE                 (3)  // ISO 3166-1 Alpha-2
     #define LOCALE_SIZE             (6)  // ISO 639-1 Alpha-2
+    #define SESSION_ID_SIZE         (38)
 
         /// @brief Types of operating systems that can be reported by the SDK
         typedef enum GfnOsType
@@ -462,8 +473,10 @@
         /// @brief Session info blob
         typedef struct
         {
-            unsigned int sessionMaxDurationSec;
-            unsigned int sessionTimeRemainingSec;
+            unsigned int sessionMaxDurationSec;      ///< Maximum total time allowed for the session in seconds
+            unsigned int sessionTimeRemainingSec;    ///< Nominal time remaining in the session in seconds
+            char sessionId[SESSION_ID_SIZE];         ///< NVIDIA-defined unique indentifier for the session
+            bool sessionRTXEnabled;                  ///< Defines if RTX support is enabled for the session
         } GfnSessionInfo;
 
         // ============================================================================================
@@ -758,7 +771,7 @@
         /// for that environment.
         ///
         /// @warning
-        /// This API must be called from a process that has been registed with NVIDIA, or it will return an error.
+        /// This API must be called from a process that has been registered with NVIDIA, or it will return an error.
         /// Refer to the Cloud Check API Guide on how to get your application registered. To prevent
         /// man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity
         /// of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance
@@ -955,13 +968,14 @@
 
         ///
         /// @par Description
-        /// Gets various information about the current game session
+        /// Gets various information about the current streaming session
         ///
         /// @par Environment
         /// Cloud
         ///
         /// @par Usage
-        /// Call this during game play to find session time remaining.
+        /// Call this from a streaming session to find out more information about the session, such
+        /// as session time remaining, or if RTX is enabled for the current session. 
         ///
         /// @param sessionInfo               - Pointer to a GfnSessionInfo struct.
 
@@ -970,6 +984,12 @@
         /// @retval gfnInvalidParameter      - NULL pointer passed in or buffer length is too small
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
+        /// @note
+        /// If the application has called @ref gfnRegisterSessionInitCallback to be notified when a
+        /// user connects, then this API should be called after that callback is triggered.
+        /// Certain data, such as session time limit or RTX support, can only be defined when a user
+        /// connects as the values depend on the user type. Calling before that point can result in 
+        /// obtaining incorrect data. 
         NVGFNSDK_EXPORT GfnRuntimeError gfnGetSessionInfo(GfnSessionInfo* sessionInfo);
 
         ///
