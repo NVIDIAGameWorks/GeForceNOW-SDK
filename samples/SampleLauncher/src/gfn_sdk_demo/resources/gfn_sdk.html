@@ -28,16 +28,19 @@
             color: white;
             text-align: center;
             font-size: 14px;
-            width: 122px;
+            width: 125px;
             height: 48px;
             cursor: pointer;
         }
 
         .nv-chevron {
-            height: 32px;
-            width: 32px;
+            /**
+             * Buttons must be small to stay outside TV_BANNER's name area to avoid occluding title name.
+            **/
+            height: 28px;
+            width: 28px;
             font-weight: bolder;
-            font-size: 24px;
+            font-size: 20px;
             position: absolute;
             top: 119px;
             border-color: white;
@@ -47,7 +50,7 @@
         }
 
         .nv-chevron-right-align {
-            left: 456px;
+            left: 460px;
         }
 
         .nv-button:not(:last-of-type) {
@@ -60,7 +63,7 @@
             color: white;
             text-align: center;
             font-size: 14px;
-            width: 122px;
+            width: 125px;
             height: 48px;
         }
 
@@ -108,7 +111,7 @@
             background: #292929;
             border-color: #FFFFFFB3;
             flex: auto;
-            height: 130px;
+            height: 260px;
         }
 
         #login-panel {
@@ -149,6 +152,8 @@
 
         .flyout-button {
             border: 2px solid black;
+            width: 170px;
+            height: 44px;
         }
 
         .flyout-button:active {
@@ -176,6 +181,7 @@
             </div>
             <div class="flyout" id="api-button-container">
                 <button class="nv-button-disabled flyout-button" disabled id="stream-action" onclick="performStreamAction()">Start<br />Stream</button>
+                <button class="nv-button-disabled flyout-button" disabled id="send-message" onclick="sendMessage('SampleLauncher: Ping')">Send Message to Game</button>
                 <button class="nv-button flyout-button" id="init-control" onclick="toggleSdkInit()">Shutdown SDK</button>
                 <button class="nv-button flyout-button" onclick="getRunningInCloud()">Check if Cloud</button>
                 <button class="nv-button flyout-button" onclick="isRunningInCloudSecure()">Check if Cloud Secure</button>
@@ -184,6 +190,8 @@
                 <button class="nv-button flyout-button" onclick="getClientLanguageCode()">Get Client Language Code</button>
                 <button class="nv-button flyout-button" onclick="getClientInfo()">Get Client Info</button>
                 <button class="nv-button flyout-button" onclick="getSessionInfo()">Get Session Info</button>
+                <button class="nv-button flyout-button" onclick="getPartnerData()">Get Partner Data</button>
+                <button class="nv-button flyout-button" onclick="getPartnerSecureData()">Get Partner Secure Data</button>
             </div>
             <div id="login-panel" class="nv-nested-container">
                 <span class="input-label">Launcher <br /> Token:</span>
@@ -303,8 +311,8 @@
         }
 
         /**
-            * Requests a callback when on-seat client info changes
-            */
+         * Requests a callback when on-seat client info changes
+         */
         function registerClientInfoCallback() {
             window.cefQuery({
                 request: JSON.stringify({
@@ -314,6 +322,19 @@
                 onSuccess: function (response) {
                     setStatus('Client info update: ' + response);
                 }
+            });
+        }
+
+        /**
+         * Requests a callback when a message is received from the client.
+         */
+        function registerMessageCallback(onSuccess) {
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GFN_SDK_REGISTER_MESSAGE_CALLBACK'
+                }),
+                persistent: true,
+                onSuccess: onSuccess
             });
         }
 
@@ -347,9 +368,9 @@
                             // Get all titles available to stream in the current GFN game seat
                             getAvailableTitles();
                             // Obtain partner secure data that passed in as part of StartStream API
-                            requestPartnerSecureData();
+                            getPartnerSecureData();
                             // Obtain partner data that passed in as part of StartStream API
-                            requestPartnerData();
+                            getPartnerData();
                         }
                         resolve(data.enabled);
                     }
@@ -461,7 +482,7 @@
                                         variants {
                                             id
                                             images {
-                                                FEATURE_IMAGE
+                                                TV_BANNER
                                             }
                                             appStore
                                         }
@@ -543,6 +564,31 @@
         }
 
         /**
+         * Sends a message from the locally running launcher to the game running in the cloud.
+         */
+        function sendMessage(message, isCloud = false) {
+            if (!isCloud && streamRunning == true) {
+                setStatus('Sending message to cloud: ' + message);
+            } else if (isCloud) {
+                setStatus('Sending message to client: ' + message);
+            } else {
+                setStatus('ERROR: Invalid state, cannot Send Message');
+                return;
+            }
+
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GFN_SDK_SEND_MESSAGE',
+                    message: message,
+                }),
+                onSuccess: function (response) {
+                    var data = JSON.parse(response);
+                    setStatus('Message sent: ' + data.actionSuccess + ' (' + data.errorMessage + ')');
+                }
+            });
+        }
+
+        /**
             * Goes to the next or previous game in the list of games available for streaming on GeForce NOW
             * and calls the NVIDIA Developer Services API to retrieve game metadata required for launch
             * as well as information such as game name and a URL for the cover art image, which can be
@@ -563,7 +609,7 @@
             var cover = document.getElementById('cover-art');
 
             gfnTitleId = parseInt(supportedTitlesAsJson[gameIndex].variants[0].id);
-            cover.src = supportedTitlesAsJson[gameIndex].variants[0].images.FEATURE_IMAGE;
+            cover.src = supportedTitlesAsJson[gameIndex].variants[0].images.TV_BANNER;
 
             var lastIndex = supportedTitlesAsJson.length - 1;
             setStatus('GFN Game ' + gameIndex + ' of ' + lastIndex + ':  ' + JSON.stringify(supportedTitlesAsJson[gameIndex]));
@@ -571,7 +617,7 @@
 
         /**
          *  Toggles the initialization state of the SDK
-         *  
+         *
          *  When shutdown, other calls to the SDK should fail
          */
         function toggleSdkInit() {
@@ -621,10 +667,10 @@
             * that is running inside the GFN cloud environment to facilitate Single Sign-On (SSO) and
             * thus not require the user to manually log into your application.
             */
-        function requestPartnerSecureData() {
+        function getPartnerSecureData() {
             window.cefQuery({
                 request: JSON.stringify({
-                    command: 'GFN_SDK_REQUEST_PARTNER_SECURE_DATA'
+                    command: 'GFN_SDK_GET_PARTNER_SECURE_DATA'
                 }),
                 onSuccess: function (response) {
                     var data = JSON.parse(response);
@@ -638,10 +684,10 @@
          * Calls into GFN SDK to request a copy of the 3rd party data passed into the
          * StartStream API.
          */
-         function requestPartnerData() {
+         function getPartnerData() {
             window.cefQuery({
                 request: JSON.stringify({
-                    command: 'GFN_SDK_REQUEST_PARTNER_DATA'
+                    command: 'GFN_SDK_GET_PARTNER_DATA'
                 }),
                 onSuccess: function (response) {
                     var data = JSON.parse(response);
@@ -917,6 +963,7 @@
                 document.getElementById('next-game').setAttribute("class", 'nv-button-disabled nv-chevron nv-chevron-right-align');
                 document.getElementById('previous-game').setAttribute("class", 'nv-button-disabled nv-chevron');
                 document.getElementById('stream-action').setAttribute("class", 'nv-button-disabled flyout-button');
+                document.getElementById('send-message').setAttribute("class", 'nv-button-disabled flyout-button');
             }
 
             document.getElementById('nv-login').disabled = !enable;
@@ -924,14 +971,19 @@
             document.getElementById('next-game').disabled = !enable;
             document.getElementById('previous-game').disabled = !enable;
             document.getElementById('stream-action').disabled = !enable;
+            document.getElementById('send-message').disabled = !enable;
         }
 
         function updateStreamButton() {
             if (streamRunning == false) {
                 document.getElementById('stream-action').innerHTML = 'Start <br> Stream';
+                document.getElementById('send-message').disabled = true;
+                document.getElementById('send-message').setAttribute("class", 'nv-button-disabled flyout-button');
             }
             else {
                 document.getElementById('stream-action').innerHTML = 'Stop <br> Stream';
+                document.getElementById('send-message').disabled = false;
+                document.getElementById('send-message').setAttribute("class", 'nv-button flyout-button');
             }
         }
 
@@ -949,13 +1001,17 @@
         }
 
         document.addEventListener("DOMContentLoaded", function (event) {
-            initializeSdk().then(function () {         
+            initializeSdk().then(function () {
                 // Check if we're running on the game seat both ways to
                 // decide if we should get the supported titles
                 isRunningInCloudSecure();
                 isRunningInCloud().then(function (isCloud) {
                     if (!isCloud) {
                         registerStreamStatusCallback();
+                        registerMessageCallback(function (resp) {
+                            var data = JSON.parse(resp);
+                            setStatus('Message from cloud: ' + data.message);
+                        });
                         getSupportedTitles().then(function (titles) {
                             // Some titles may not have cmsids assigned
                             supportedTitlesAsJson = []
@@ -976,6 +1032,14 @@
                     else {
                         setStatus('Running in GFN Cloud, skipping getting Supported Titles');
                         registerClientInfoCallback();
+                        registerMessageCallback(function (resp) {
+                            var data = JSON.parse(resp);
+                            setStatus('Message from client: ' + data.message);
+
+                            var responseMsg = 'ACK ' + data.message;
+                            setStatus('Returning message to client: ' + responseMsg);
+                            sendMessage(responseMsg, isCloud);
+                        });
                     }
                 });
             }, function (error) {

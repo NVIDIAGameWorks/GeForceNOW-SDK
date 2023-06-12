@@ -12,5 +12,6 @@ var searchData=
   ['gfnostype',['GfnOsType',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a1262b81ef5a52dc48ea0e50fb08d0bd4',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfnrect',['GfnRect',['../_gfn_sdk_8h.html#a699b993a827933fe62429d7d0ebf704a',1,'GfnSdk.h']]],
   ['gfnrectformat',['GfnRectFormat',['../_gfn_sdk_8h.html#a8de89168abe41738deda25fefa932aad',1,'GfnSdk.h']]],
-  ['gfnstreamstatus',['GfnStreamStatus',['../_gfn_runtime_sdk___c_a_p_i_8h.html#af75af9b7645d8c549d1b4406045ea70b',1,'GfnRuntimeSdk_CAPI.h']]]
+  ['gfnstreamstatus',['GfnStreamStatus',['../_gfn_runtime_sdk___c_a_p_i_8h.html#af75af9b7645d8c549d1b4406045ea70b',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['gfnstring',['GfnString',['../_gfn_sdk_8h.html#a0c6a0fe545863e999e18019ea176c737',1,'GfnSdk.h']]]
 ];

@@ -46,14 +46,16 @@ CefString GFN_SDK_GET_CLIENT_LANGUAGE_CODE = "GFN_SDK_GET_CLIENT_LANGUAGE_CODE";
 CefString GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK = "GFN_SDK_REGISTER_STREAM_STATUS_CALLBACK";
 CefString GFN_SDK_IS_TITLE_AVAILABLE = "GFN_SDK_IS_TITLE_AVAILABLE";
 CefString GFN_SDK_GET_AVAILABLE_TITLES = "GFN_SDK_GET_AVAILABLE_TITLES";
-CefString GFN_SDK_REQUEST_PARTNER_SECURE_DATA = "GFN_SDK_REQUEST_PARTNER_SECURE_DATA";
+CefString GFN_SDK_GET_PARTNER_SECURE_DATA = "GFN_SDK_GET_PARTNER_SECURE_DATA";
 CefString GET_TCP_PORT = "GET_TCP_PORT";
 CefString GET_CLIENT_INFO = "GFN_SDK_GET_CLIENT_INFO";
 CefString GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK = "GFN_SDK_REGISTER_CLIENT_INFO_CALLBACK";
 CefString GFN_SDK_REGISTER_NETWORK_STATUS_CALLBACK = "GFN_SDK_REGISTER_NETWORK_STATUS_CALLBACK";
 CefString GET_OVERRIDE_URI = "GET_OVERRIDE_URI";
-CefString GFN_SDK_REQUEST_PARTNER_DATA = "GFN_SDK_REQUEST_PARTNER_DATA";
+CefString GFN_SDK_GET_PARTNER_DATA = "GFN_SDK_GET_PARTNER_DATA";
 CefString GET_SESSION_INFO = "GFN_SDK_GET_SESSION_INFO";
+CefString GFN_SDK_SEND_MESSAGE = "GFN_SDK_SEND_MESSAGE";
+CefString GFN_SDK_REGISTER_MESSAGE_CALLBACK = "GFN_SDK_REGISTER_MESSAGE_CALLBACK";
 
 static CefString DictToJson(CefRefPtr<CefDictionaryValue> dict)
 {
@@ -68,6 +70,7 @@ static CefString GfnErrorToString(GfnError err)
     {
     case GfnError::gfnSuccess: return "Success";
     case GfnError::gfnInitSuccessClientOnly: return "SDK initialization successful, but only client-side functionality available";
+    case GfnError::gfnInitSuccessCloudOnly: return "SDK initialization successful, but only cloud-side functionality available";
     case GfnError::gfnInitFailure: return "SDK initialization failure";
     case GfnError::gfnDllNotPresent: return "DLL Not Present";
     case GfnError::gfnComError: return "Com Error";
@@ -86,11 +89,16 @@ static CefString GfnErrorToString(GfnError err)
     case GfnError::gfnAPINotFound: return "GFN SDK API not found";
     case GfnError::gfnAPINotInit: return "GFN SDK API not initialized";
     case GfnError::gfnStreamStopFailure: return "GFN SDK failed to stop active streaming session";
+    case GfnError::gfnUnhandledException: return "Unhandled exception";
+    case GfnError::gfnIPCFailure: return "Inter-process Communication failure";
     case GfnError::gfnCanceled: return "GFN SDK action was canceled";
     case GfnError::gfnElevationRequired: return "GFN SDK API requires process elevation";
     case GfnError::gfnThrottled: return "GFN SDK API cannot be called in rapid succession";
+    case GfnError::gfnInputExpected: return "Input parameter expected to have data";
+    case GfnError::gfnBinarySignatureInvalid: return "Attemped to load a binary with invalid digital signature";
     case GfnError::gfnClientLibraryNotFound: return "GFN SDK API client library not found";
     case GfnError::gfnCloudLibraryNotFound: return "GFN SDK API cloud library not found";
+    case GfnError::gfnNoData: return "Requested data is empty or does not exist";
     default: return "Unknown Error";
     }
 }
@@ -129,6 +137,9 @@ static void __stdcall handleClientInfoCallback(GfnClientInfoUpdateData* pClientU
 static CefMessageRouterBrowserSide::Callback* s_registerStreamStatusCallback = nullptr;
 static CefMessageRouterBrowserSide::Callback* s_registerNetworkStatusCallback = nullptr;
 static CefMessageRouterBrowserSide::Callback* s_registerClientInfoCallback = nullptr;
+
+static void __stdcall handleMessageCallback(GfnString* pStrData, void* context);
+static CefMessageRouterBrowserSide::Callback* s_registerMessageCallback = nullptr;
 
 static GfnError initGFN()
 {
@@ -233,7 +244,7 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
             LOG(ERROR) << "Failed to get if running in cloud. Error: " << err;
             return true;
         }
-        
+
         LOG(INFO) << "Cloud environment assurance value: " << assurance;
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
@@ -394,6 +405,48 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         callback->Success(response);
         return true;
     }
+    else if (command == GFN_SDK_SEND_MESSAGE)
+    {
+        bool actionSuccess = false;
+        std::string statusMsg;
+        if (!dict->HasKey("launchStream"))
+        {
+            statusMsg = "Call to SendMessage missing \"message\" parameter";
+        }
+
+        std::string message = dict->GetString("message").ToString();
+
+        GfnError err = GfnSendMessage(message.c_str(), (unsigned int)message.length());
+        statusMsg = "GfnSendMessage = " + std::string(GfnErrorToString(err));
+        if (err != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "SendMessage error: " << statusMsg;
+        }
+        else
+        {
+            actionSuccess = true;
+            LOG(INFO) << "SendMessage success";
+        }
+
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        response_dict->SetBool("actionSuccess", actionSuccess);
+        response_dict->SetString("errorMessage", CefString(statusMsg.c_str()));
+
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
+        return true;
+    }
+    else if (command == GFN_SDK_REGISTER_MESSAGE_CALLBACK)
+    {
+        s_registerMessageCallback = callback;
+
+        GfnError err = GfnRegisterMessageCallback(reinterpret_cast<MessageCallbackSig>(&handleMessageCallback), nullptr);
+        if (err != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "Failed to register Message Callback: " << GfnErrorToString(err);
+        }
+        return true;
+    }
     /**
      * Calls into GFN SDK to get the user's current local IP address. This is meant to be
      * called while running on the GeForce NOW game seat to handle scenarios where the IP
@@ -500,7 +553,7 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
      * Requests a copy of the token data that was passed into partnerSecureData as part of the call to one
      * of the StartStream APIs. This call should only be made in the GFN cloud environment.
      */
-    else if (command == GFN_SDK_REQUEST_PARTNER_SECURE_DATA)
+    else if (command == GFN_SDK_GET_PARTNER_SECURE_DATA)
     {
         char const* partnerSecureData = nullptr;
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
@@ -508,8 +561,8 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         response_dict->SetString("errorMessage", GfnErrorToString(err));
         if (err != GfnError::gfnSuccess)
         {
-            LOG(ERROR) << "get authorization data error: " << GfnErrorToString(err);
-            response_dict->SetString("authData", "");
+            LOG(ERROR) << "get partner secure data error: " << GfnErrorToString(err);
+            response_dict->SetString("partnerSecureData", "");
         }
         else
         {
@@ -527,7 +580,7 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
      * call to one of the StartStream APIs. This call should only be made in the GFN cloud
      * environment.
      */
-    else if (command == GFN_SDK_REQUEST_PARTNER_DATA)
+    else if (command == GFN_SDK_GET_PARTNER_DATA)
     {
         char const* partnerData = nullptr;
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
@@ -535,7 +588,7 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         response_dict->SetString("errorMessage", GfnErrorToString(err));
         if (err != GfnError::gfnSuccess)
         {
-            LOG(ERROR) << "get custom data error: " << GfnErrorToString(err);
+            LOG(ERROR) << "get partner data error: " << GfnErrorToString(err);
             response_dict->SetString("partnerData", "");
         }
         else
@@ -581,6 +634,8 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
             response_dict->SetString("locale", clientInfo.locale);
             response_dict->SetInt("osType", clientInfo.osType);
             response_dict->SetInt("rtdLatencyMs", clientInfo.RTDAverageLatencyMs);
+            response_dict->SetInt("clientResolutionWidth", clientInfo.clientResolution.horizontalPixels);
+            response_dict->SetInt("clientResolutionHeight", clientInfo.clientResolution.verticalPixels);
         }
         CefString response(DictToJson(response_dict));
         LOG(INFO) << "GfnGetClientInfo data: " << response.ToString();
@@ -712,11 +767,38 @@ void __stdcall handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, 
         case gfnOs:
             response_dict->SetInt("os", pClientUpdate->data.osType);
             break;
+        case gfnIP:
+            response_dict->SetString("IP Changed", pClientUpdate->data.ipV4);
+            break;
+        case gfnClientResolution:
+            response_dict->SetInt("clientResolutionWidth", pClientUpdate->data.clientResolution.horizontalPixels);
+            response_dict->SetInt("clientResolutionHeight", pClientUpdate->data.clientResolution.verticalPixels);
+            break;
+        case gfnSafeZone:
+            response_dict->SetDouble("SafeZone.left", pClientUpdate->data.safeZone.value1);
+            response_dict->SetDouble("SafeZone.top", pClientUpdate->data.safeZone.value2);
+            response_dict->SetDouble("SafeZone.right", pClientUpdate->data.safeZone.value3);
+            response_dict->SetDouble("SafeZone.bottom", pClientUpdate->data.safeZone.value4);
+            response_dict->SetBool("SafeZone.normalized", pClientUpdate->data.safeZone.normalized);
+            break;
         default:
             return;
         }
 
         CefString response(DictToJson(response_dict));
         s_registerClientInfoCallback->Success(response);
+    }
+}
+
+void __stdcall handleMessageCallback(GfnString* pStrData, void* context)
+{
+    if (s_registerMessageCallback)
+    {
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+
+        response_dict->SetString("message", std::string(pStrData->pchString, pStrData->length));
+
+        CefString response(DictToJson(response_dict));
+        s_registerMessageCallback->Success(response);
     }
 }

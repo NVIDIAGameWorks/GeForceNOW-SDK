@@ -246,6 +246,10 @@ typedef <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a9c7df068710138e6
 typedef <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a9c7df068710138e6a6f0162f758ff38d">GfnApplicationCallbackResult</a>(<a class="el" href="_gfn_sdk_8h.html#a6c0d24df59a5bd1c1fbf10cc0864d1d6">GFN_CALLBACK</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a02d95f5fcc4d22622ea8dc25979b6ff7">NetworkStatusCallbackSig</a>) (<a class="el" href="struct_gfn_network_status_update_data.html">GfnNetworkStatusUpdateData</a> *pUpdate, const void *pUserContext)</td></tr>
 <tr class="memdesc:a02d95f5fcc4d22622ea8dc25979b6ff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for notifications on network status changes. Register via gfnRegisterNetworkStatusCallback API. <br /></td></tr>
 <tr class="separator:a02d95f5fcc4d22622ea8dc25979b6ff7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9b322d4ee0932aa12bbbd6120e74cbf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9b322d4ee0932aa12bbbd6120e74cbf"></a>
+typedef <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a9c7df068710138e6a6f0162f758ff38d">GfnApplicationCallbackResult</a>(<a class="el" href="_gfn_sdk_8h.html#a6c0d24df59a5bd1c1fbf10cc0864d1d6">GFN_CALLBACK</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#af9b322d4ee0932aa12bbbd6120e74cbf">MessageCallbackSig</a>) (const <a class="el" href="struct_gfn_string.html">GfnString</a> *pStrData, void *pUserContext)</td></tr>
+<tr class="memdesc:af9b322d4ee0932aa12bbbd6120e74cbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for notifications when an application recieves a custom message. <br /></td></tr>
+<tr class="separator:af9b322d4ee0932aa12bbbd6120e74cbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -302,8 +306,14 @@ Enumerations</h2></td></tr>
  }<tr class="memdesc:a1f78681ce77a7884cf0ffe98fedc7734"><td class="mdescLeft">&#160;</td><td class="mdescRight">Types of operating systems that can be reported by the SDK. <br /></td></tr>
 </td></tr>
 <tr class="separator:a1f78681ce77a7884cf0ffe98fedc7734"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a855cf09bb9d788137222168251e69bbb"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbb">GfnClientInfoChangeType</a> { <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbbaa8264e33995e412604eb073b4b122cce">gfnOs</a> = 0, 
-<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbbaeab2daba98e6eb78530e4fa6bd241902">gfnClientDataChangeTypeMax</a> = 0
+<tr class="memitem:a855cf09bb9d788137222168251e69bbb"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbb">GfnClientInfoChangeType</a> { <br />
+&#160;&#160;<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbbaa8264e33995e412604eb073b4b122cce">gfnOs</a> = 0, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbba2c68336e34f6100ccb9c4acd7da9bf2a">gfnIP</a> = 1, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbbadfba9806511384410198cb2449b2ca25">gfnClientResolution</a> = 2, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbbacf145d936a82c09515034ab86cd3ba86">gfnSafeZone</a> = 3, 
+<br />
+&#160;&#160;<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbbaeab2daba98e6eb78530e4fa6bd241902">gfnClientDataChangeTypeMax</a> = 3
+<br />
  }<tr class="memdesc:a855cf09bb9d788137222168251e69bbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of data which changed. This enum will be expanded over time.  <a href="_gfn_runtime_sdk___c_a_p_i_8h.html#a855cf09bb9d788137222168251e69bbb">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a855cf09bb9d788137222168251e69bbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -335,6 +345,8 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:a432fb9b340f4ee95166d537feee44ea0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac19b823f27eaffd4bd318eaf0fa02449"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ac19b823f27eaffd4bd318eaf0fa02449">gfnRegisterSessionInitCallback</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#aaf8c09b9174894c91b980a790c105008">SessionInitCallbackSig</a> sessionInitCallback, void *pUserContext)</td></tr>
 <tr class="separator:ac19b823f27eaffd4bd318eaf0fa02449"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5b74a7732c782eb448f5017115997c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ae5b74a7732c782eb448f5017115997c8">gfnRegisterMessageCallback</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#af9b322d4ee0932aa12bbbd6120e74cbf">MessageCallbackSig</a> messageCallback, void *pUserContext)</td></tr>
+<tr class="separator:ae5b74a7732c782eb448f5017115997c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abae3540f316b5bbd5e72b0071d3f3d5a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#abae3540f316b5bbd5e72b0071d3f3d5a">gfnRegisterClientInfoCallback</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#af8cf87633ab1ce4e56a2b9f8b71a4306">ClientInfoCallbackSig</a> clientInfoCallback, void *pUserContext)</td></tr>
 <tr class="separator:abae3540f316b5bbd5e72b0071d3f3d5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acaa9b6d41eac3e072f93f33429bba5e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#acaa9b6d41eac3e072f93f33429bba5e5">gfnRegisterNetworkStatusCallback</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a02d95f5fcc4d22622ea8dc25979b6ff7">NetworkStatusCallbackSig</a> networkStatusCallback, unsigned int updateRateMs, void *pUserContext)</td></tr>
@@ -379,6 +391,8 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:ga2fa481d6d0cd9218425d0dbc3175b68e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa5e1081ccd6b903f12a6b9f05b11bf03"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gaa5e1081ccd6b903f12a6b9f05b11bf03">gfnSetActionZone</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4d3eb8f4bb9195f7777ea5286ec2be46">GfnActionType</a> type, unsigned int id, <a class="el" href="struct_gfn_rect.html">GfnRect</a> *zone)</td></tr>
 <tr class="separator:gaa5e1081ccd6b903f12a6b9f05b11bf03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab6a2bf6d5242c4f172d39096dda54cef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gab6a2bf6d5242c4f172d39096dda54cef">gfnSendMessage</a> (const char *pchMessage, unsigned int length)</td></tr>
+<tr class="separator:gab6a2bf6d5242c4f172d39096dda54cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>API definitions </p>
@@ -444,6 +458,15 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="a855cf09bb9d788137222168251e69bbbaa8264e33995e412604eb073b4b122cce"></a>gfnOs&#160;</td><td class="fielddoc">
 <p>Change in OS of GFN Client. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a855cf09bb9d788137222168251e69bbba2c68336e34f6100ccb9c4acd7da9bf2a"></a>gfnIP&#160;</td><td class="fielddoc">
+<p>Change in IP of GFN Client (due to device switch/reconnect) </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a855cf09bb9d788137222168251e69bbbadfba9806511384410198cb2449b2ca25"></a>gfnClientResolution&#160;</td><td class="fielddoc">
+<p>Change in resolution of GFN Client. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a855cf09bb9d788137222168251e69bbbacf145d936a82c09515034ab86cd3ba86"></a>gfnSafeZone&#160;</td><td class="fielddoc">
+<p>Change in safe zone rectangle (due to device switch or rotation) </p>
 </td></tr>
 <tr><td class="fieldname"><a class="anchor" id="a855cf09bb9d788137222168251e69bbbaeab2daba98e6eb78530e4fa6bd241902"></a>gfnClientDataChangeTypeMax&#160;</td><td class="fielddoc">
 <p>Sentinel value for GfnClientInfoChangeType. </p>
@@ -571,6 +594,51 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">clientInfoCallback</td><td>- Function pointer to application code to call when client information has changed </td></tr>
+    <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ae5b74a7732c782eb448f5017115997c8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a> gfnRegisterMessageCallback </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#af9b322d4ee0932aa12bbbd6120e74cbf">MessageCallbackSig</a>&#160;</td>
+          <td class="paramname"><em>messageCallback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>pUserContext</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when a message is sent to the application.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Provide a callback function that will be called when a message is sent to the application.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">messageCallback</td><td>- Function pointer to application code to call when a message has been recieved. </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
   </table>
   </dd>

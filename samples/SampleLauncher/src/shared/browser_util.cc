@@ -142,7 +142,7 @@ void CreateBrowser(CefRefPtr<CefClient> client,
     // We can't programmatically know the side of the rendered HTML without
     // resizing windows after the fact. Size this to fit the HTML.
     int dpiAdjustedWidth = MulDiv(512, systemDpi, 96);
-    int dpiAdjustedHeight = MulDiv(624, systemDpi, 96);
+    int dpiAdjustedHeight = MulDiv(730, systemDpi, 96);
     window_info.width = dpiAdjustedWidth;
     window_info.height = dpiAdjustedHeight;
 #endif

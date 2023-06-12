@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 1.11
+# NVIDIA GeForce NOW SDK Release 1.12
 
 ## At a Glance
 
@@ -10,8 +10,12 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* The API `getSessionInfo` is extended to include session ID and RTX enabled flag information
-* Bug fixes and other minor improvements
+* Added device physical resolution to the GfnGetClientInfo call
+* Added IP, client resolution, and safe-zone information to the callbacks received after GfnRegisterClientInfoCallback
+* Added bi-directional communication between GFN/custom clients and GFN SDK-enabled applications running in the GFN cloud. See the Primer and SendMessage API for more details
+* Modified samples to demonstrate APIs which previously hadn't been prominent
+* Added a new error-code, gfnNoData. This occurs in cases such as the GetPartnerData API, where it is possible to have no internal error, yet still find no data
+* Bug fixes and minor improvements
 
 ## GeForce NOW Developer Portal
 

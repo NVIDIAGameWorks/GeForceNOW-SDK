@@ -83,6 +83,11 @@ void ApplicationInitialize()
             {
                 printf("Error registering SessionInit callback: %d\n", err);
             }
+            err = GfnRegisterMessageCallback(MessageCallback, NULL);
+            if (err != gfnSuccess)
+            {
+                printf("Error registering MessageCallback: %d\n", err);
+            }
             err = GfnRegisterClientInfoCallback(HandleClientDataChanges, NULL);
             if (err != gfnSuccess)
             {
@@ -155,18 +160,41 @@ int _tmain(int argc, _TCHAR* argv[])
         {
             printf("Failed to retrieve Geforce NOW client Country code. GfnError: %d\n", (int)runtimeError);
         }
+        char* partnerSecureData = NULL;
+        runtimeError = GfnGetPartnerSecureData(&partnerSecureData);
+        if (GFNSDK_SUCCEEDED(runtimeError)) {
+            printf("GfnGetPartnerSecureData: [%s]\n", partnerSecureData);
+            GfnFree(&partnerSecureData);
+        }
+        else {
+            printf("Failed to retrieve PartnerSecureData\n");
+        }
+
+        char* partnerData = NULL;
+        runtimeError = GfnGetPartnerData(&partnerData);
+        if (GFNSDK_SUCCEEDED(runtimeError)) {
+            printf("GfnGetPartnerData: [%s]\n", partnerData);
+            GfnFree(&partnerData);
+        }
+        else {
+            printf("Failed to retrieve PartnerData\n");
+        }
 
         GfnClientInfo clientInfo;
+
         runtimeError = GfnGetClientInfo(&clientInfo);
         if (runtimeError == gfnSuccess)
         {
-            printf("GetClientInfo returned: { version: %d, osType: %d, ipV4: %s, "
-                "country: %s, locale:%s"
+            printf("GetClientInfo returned: { version: %d, osType: %d, ipV4: %s"
+                ", country: %s, locale:%s"
                 ", RTDAverageLatencyMs: %d"
+                ", clientResolution: %dx%d"
+
                 " }\n",
                 clientInfo.version, clientInfo.osType, clientInfo.ipV4,
                 clientInfo.country, clientInfo.locale
                 , clientInfo.RTDAverageLatencyMs
+                , clientInfo.clientResolution.horizontalPixels, clientInfo.clientResolution.verticalPixels
             );
         }
         else

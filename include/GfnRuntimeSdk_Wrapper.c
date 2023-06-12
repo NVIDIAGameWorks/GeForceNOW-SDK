@@ -87,6 +87,7 @@ typedef GfnRuntimeError(*gfnGetClientCountryCodeFn)(char* clientCountryCode, uns
 typedef GfnRuntimeError(*gfnGetClientInfoFn)(GfnClientInfo* clientInfo);
 typedef GfnRuntimeError(*gfnRegisterClientInfoCallbackFn)(ClientInfoCallbackSig clientInfoCallback, void* pUserContext);
 typedef GfnRuntimeError(*gfnRegisterNetworkStatusCallbackFn)(NetworkStatusCallbackSig networkStatusCallback, unsigned int updateRateMs, void* pUserContext);
+typedef GfnRuntimeError(*gfnRegisterMessageCallbackFn)(MessageCallbackSig messageCallback, void* pUserContext);
 
 typedef GfnRuntimeError(*gfnGetSessionInfoFn)(GfnSessionInfo* sessionInfo);
 
@@ -111,6 +112,7 @@ typedef GfnRuntimeError(*gfnRegisterCallbackFn)(_cb callback, void* userContext)
 typedef GfnRuntimeError(*gfnRegisteCallbackFnWithUIntParam)(_cb callback, unsigned int param, void* userContext);
 typedef GfnRuntimeError(*gfnAppReadyFn)(bool success, const char* status);
 typedef GfnRuntimeError (*gfnSetActionZoneFn)(GfnActionType type, unsigned int id, GfnRect* zone);
+typedef GfnRuntimeError(*gfnSendMessageFn)(const char* pchMessage, unsigned int length);
 typedef struct GfnSdkCloudLibrary_t
 {
     void* handle;
@@ -137,10 +139,12 @@ typedef struct GfnSdkCloudLibrary_t
     gfnFreeFn Free;
     gfnAppReadyFn AppReady;
     gfnSetActionZoneFn SetActionZone;
+    gfnSendMessageFn SendMessage;
 
     gfnGetClientInfoFn GetClientInfo;
     gfnRegisterCallbackFn RegisterClientInfoCallback;
     gfnRegisteCallbackFnWithUIntParam RegisterNetworkStatusCallback;
+    gfnRegisterCallbackFn RegisterMessageCallback;
 
     gfnGetSessionInfoFn GetSessionInfo;
 
@@ -283,34 +287,36 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
 
     pCloudLibrary->handle = library;
     // Old Initialization method. Deprecate when all libraries have updated to 1.7.1 or greater.
-    pCloudLibrary->InitializeRuntimeSdk = (gfnCloudInitializeRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnInitializeRuntimeSdk2");
-    pCloudLibrary->InitializeRuntimeSdkV3 = (gfnCloudInitializeRuntimeSdkV3Fn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnInitializeRuntimeSdk3");
-    pCloudLibrary->ShutdownRuntimeSdk = (gfnCloudShutdownRuntimeSdkFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnShutdownRuntimeSdk2");
-    pCloudLibrary->IsInitialized = (gfnIsInitializedFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsInitialized");
-    pCloudLibrary->IsRunningInCloud = (gfnIsRunningInCloudFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsRunningInCloud");
-    pCloudLibrary->IsRunningInCloudSecure = (gfnIsRunningInCloudSecureFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsRunningInCloudSecure");
-    pCloudLibrary->IsTitleAvailable = (gfnIsTitleAvailableFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsTitleAvailable");
-    pCloudLibrary->GetTitlesAvailable = (gfnGetTitlesAvailableFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetTitlesAvailable");
-    pCloudLibrary->SetupTitle = (gfnSetupTitleFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnSetupTitle");
-    pCloudLibrary->TitleExited = (gfnTitleExitedFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnTitleExited");
-    pCloudLibrary->GetClientIp = (gfnGetClientIpFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientIp");
-    pCloudLibrary->GetClientLanguageCode = (gfnGetClientLanguageCodeFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientLanguageCode");
-    pCloudLibrary->GetClientCountryCode = (gfnGetClientCountryCodeFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientCountryCode");
-    pCloudLibrary->GetPartnerData = (gfnGetPartnerDataFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetPartnerData");
-    pCloudLibrary->GetPartnerSecureData = (gfnGetPartnerSecureDataFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetPartnerSecureData");
-    pCloudLibrary->Free = (gfnFreeFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnFree");
-    pCloudLibrary->AppReady = (gfnAppReadyFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnAppReady");
-    pCloudLibrary->SetActionZone = (gfnSetActionZoneFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnSetActionZone");
-    pCloudLibrary->RegisterExitCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterExitCallback");
-    pCloudLibrary->RegisterPauseCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterPauseCallback");
-    pCloudLibrary->RegisterInstallCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterInstallCallback");
-    pCloudLibrary->RegisterSaveCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterSaveCallback");
-    pCloudLibrary->RegisterSessionInitCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterSessionInitCallback");
+    pCloudLibrary->InitializeRuntimeSdk = (gfnCloudInitializeRuntimeSdkFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnInitializeRuntimeSdk2");
+    pCloudLibrary->InitializeRuntimeSdkV3 = (gfnCloudInitializeRuntimeSdkV3Fn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnInitializeRuntimeSdk3");
+    pCloudLibrary->ShutdownRuntimeSdk = (gfnCloudShutdownRuntimeSdkFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnShutdownRuntimeSdk2");
+    pCloudLibrary->IsInitialized = (gfnIsInitializedFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsInitialized");
+    pCloudLibrary->IsRunningInCloud = (gfnIsRunningInCloudFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsRunningInCloud");
+    pCloudLibrary->IsRunningInCloudSecure = (gfnIsRunningInCloudSecureFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsRunningInCloudSecure");
+    pCloudLibrary->IsTitleAvailable = (gfnIsTitleAvailableFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnIsTitleAvailable");
+    pCloudLibrary->GetTitlesAvailable = (gfnGetTitlesAvailableFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetTitlesAvailable");
+    pCloudLibrary->SetupTitle = (gfnSetupTitleFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnSetupTitle");
+    pCloudLibrary->TitleExited = (gfnTitleExitedFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnTitleExited");
+    pCloudLibrary->GetClientIp = (gfnGetClientIpFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientIp");
+    pCloudLibrary->GetClientLanguageCode = (gfnGetClientLanguageCodeFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientLanguageCode");
+    pCloudLibrary->GetClientCountryCode = (gfnGetClientCountryCodeFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientCountryCode");
+    pCloudLibrary->GetPartnerData = (gfnGetPartnerDataFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetPartnerData");
+    pCloudLibrary->GetPartnerSecureData = (gfnGetPartnerSecureDataFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetPartnerSecureData");
+    pCloudLibrary->Free = (gfnFreeFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnFree");
+    pCloudLibrary->AppReady = (gfnAppReadyFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnAppReady");
+    pCloudLibrary->SetActionZone = (gfnSetActionZoneFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnSetActionZone");
+    pCloudLibrary->SendMessage = (gfnSendMessageFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnSendCustomMessageToClient");
+    pCloudLibrary->RegisterExitCallback = (gfnRegisterCallbackFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterExitCallback");
+    pCloudLibrary->RegisterPauseCallback = (gfnRegisterCallbackFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterPauseCallback");
+    pCloudLibrary->RegisterInstallCallback = (gfnRegisterCallbackFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterInstallCallback");
+    pCloudLibrary->RegisterSaveCallback = (gfnRegisterCallbackFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterSaveCallback");
+    pCloudLibrary->RegisterSessionInitCallback = (gfnRegisterCallbackFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterSessionInitCallback");
 
-    pCloudLibrary->GetClientInfo = (gfnGetClientInfoFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientInfo");
-    pCloudLibrary->RegisterClientInfoCallback = (gfnRegisterCallbackFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterClientInfoCallback");
-    pCloudLibrary->RegisterNetworkStatusCallback = (gfnRegisteCallbackFnWithUIntParam)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterNetworkStatusCallback");
-    pCloudLibrary->GetSessionInfo = (gfnGetSessionInfoFn)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetSessionInfo");
+    pCloudLibrary->GetClientInfo = (gfnGetClientInfoFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetClientInfo");
+    pCloudLibrary->RegisterClientInfoCallback = (gfnRegisterCallbackFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterClientInfoCallback");
+    pCloudLibrary->RegisterNetworkStatusCallback = (gfnRegisteCallbackFnWithUIntParam)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterNetworkStatusCallback");
+    pCloudLibrary->RegisterMessageCallback = (gfnRegisterCallbackFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnRegisterCustomMessageCallback");
+    pCloudLibrary->GetSessionInfo = (gfnGetSessionInfoFn)(void*)GetProcAddress((HMODULE)pCloudLibrary->handle, "gfnGetSessionInfo");
 
     GFN_SDK_LOG("Successfully loaded cloud libary");
 
@@ -552,7 +558,7 @@ GfnRuntimeError GfnInitializeSdkFromPathW(GfnDisplayLanguage language, const wch
 #endif
         else
         {
-            gfnInitializeRuntimeSdkFn fnGfnInitializeRuntimeSdk = (gfnInitializeRuntimeSdkFn)GetProcAddress(g_gfnSdkModule, "gfnInitializeRuntimeSdk");
+            gfnInitializeRuntimeSdkFn fnGfnInitializeRuntimeSdk = (gfnInitializeRuntimeSdkFn)(void*)GetProcAddress(g_gfnSdkModule, "gfnInitializeRuntimeSdk");
             if (fnGfnInitializeRuntimeSdk == NULL)
             {
                 clientStatus = gfnAPINotFound;
@@ -617,7 +623,7 @@ GfnRuntimeError GfnShutdownSdk(void)
         return gfnSuccess;
     }
 
-    gfnShutdownRuntimeSdkFn fnGfnShutdownRuntimeSdk = (gfnShutdownRuntimeSdkFn)GetProcAddress(g_gfnSdkModule, "gfnShutdownRuntimeSdk");
+    gfnShutdownRuntimeSdkFn fnGfnShutdownRuntimeSdk = (gfnShutdownRuntimeSdkFn)(void*)GetProcAddress(g_gfnSdkModule, "gfnShutdownRuntimeSdk");
     if (fnGfnShutdownRuntimeSdk == NULL)
     {
         return gfnAPINotFound;
@@ -857,7 +863,7 @@ GfnRuntimeError GfnRegisterStreamStatusCallback(StreamStatusCallbackSig streamSt
         return gfnAPINotInit;
     }
 
-    gfnRegisterStreamStatusCallbackFn fnRegisterStreamStatusCallback = (gfnRegisterStreamStatusCallbackFn)GetProcAddress(g_gfnSdkModule, "gfnRegisterStreamStatusCallback");
+    gfnRegisterStreamStatusCallbackFn fnRegisterStreamStatusCallback = (gfnRegisterStreamStatusCallbackFn)(void*)GetProcAddress(g_gfnSdkModule, "gfnRegisterStreamStatusCallback");
 
     if (fnRegisterStreamStatusCallback == NULL)
     {
@@ -874,7 +880,7 @@ GfnRuntimeError GfnStartStream(StartStreamInput * startStreamInput, StartStreamR
         return gfnAPINotInit;
     }
 
-    gfnStartStreamFn fnGfnStartStream = (gfnStartStreamFn)GetProcAddress(g_gfnSdkModule, "gfnStartStream");
+    gfnStartStreamFn fnGfnStartStream = (gfnStartStreamFn)(void*)GetProcAddress(g_gfnSdkModule, "gfnStartStream");
 
     if (fnGfnStartStream == NULL)
     {
@@ -891,7 +897,7 @@ GfnRuntimeError GfnStartStreamAsync(const StartStreamInput* startStreamInput, St
         return gfnAPINotInit;
     }
 
-    gfnStartStreamAsyncFn fnGfnStartStreamAsync = (gfnStartStreamAsyncFn)GetProcAddress(g_gfnSdkModule, "gfnStartStreamAsync");
+    gfnStartStreamAsyncFn fnGfnStartStreamAsync = (gfnStartStreamAsyncFn)(void*)GetProcAddress(g_gfnSdkModule, "gfnStartStreamAsync");
 
     if (fnGfnStartStreamAsync == NULL)
     {
@@ -910,7 +916,7 @@ GfnRuntimeError GfnStopStream(void)
         return gfnAPINotInit;
     }
 
-    gfnStopStreamFn fnGfnStopStream = (gfnStopStreamFn)GetProcAddress(g_gfnSdkModule, "gfnStopStream");
+    gfnStopStreamFn fnGfnStopStream = (gfnStopStreamFn)(void*)GetProcAddress(g_gfnSdkModule, "gfnStopStream");
 
     if (fnGfnStopStream == NULL)
     {
@@ -927,7 +933,7 @@ GfnRuntimeError GfnStopStreamAsync(StopStreamCallbackSig cb, void* context, unsi
         return gfnAPINotInit;
     }
 
-    gfnStopStreamAsyncFn fnGfnStopStreamAsync = (gfnStopStreamAsyncFn)GetProcAddress(g_gfnSdkModule, "gfnStopStreamAsync");
+    gfnStopStreamAsyncFn fnGfnStopStreamAsync = (gfnStopStreamAsyncFn)(void*)GetProcAddress(g_gfnSdkModule, "gfnStopStreamAsync");
 
     if (fnGfnStopStreamAsync == NULL)
     {
@@ -964,6 +970,29 @@ GfnRuntimeError GfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* z
 {
     CHECK_CLOUD_ENVIRONMENT();
     DELEGATE_TO_CLOUD_LIBRARY(SetActionZone, type, id, zone);
+}
+
+GfnRuntimeError GfnSendMessage(const char* pchMessage, unsigned int length) {
+    if (g_pCloudLibrary != NULL && g_pCloudLibrary->SendMessage != NULL)                                        \
+    {                                                                       \
+        DELEGATE_TO_CLOUD_LIBRARY(SendMessage, pchMessage, length);              \
+    }
+    else
+    {
+        if (g_gfnSdkModule == NULL)
+        {
+            return gfnAPINotInit;
+        }
+
+        gfnSendMessageFn fnSendMessage = (gfnSendMessageFn)(void*)GetProcAddress(g_gfnSdkModule, "gfnSendMessage");
+
+        if (fnSendMessage == NULL)
+        {
+            return gfnAPINotFound;
+        }
+
+        return fnSendMessage(pchMessage, length);
+    }
 }
 
 static void GFN_CALLBACK _gfnExitCallbackWrapper(int status, void* pUnused, void* pContext)
@@ -1096,6 +1125,49 @@ GfnRuntimeError GfnRegisterSessionInitCallback(SessionInitCallbackSig sessionIni
     // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
     // cppcheck-suppress memleak
 	DELEGATE_TO_CLOUD_LIBRARY(RegisterSessionInitCallback, &_gfnSessionInitCallbackWrapper, pWrappedContext)
+}
+
+static void GFN_CALLBACK _gfnMessageCallbackWrapper(int status, void* pMessage, void* pContext)
+{
+    (void)status;
+    _gfnUserContextCallbackWrapper* pWrappedContext = (_gfnUserContextCallbackWrapper*)(pContext);
+    if (pWrappedContext == NULL || pWrappedContext->fnCallback == NULL)
+    {
+        return;
+    }
+    MessageCallbackSig cb = (MessageCallbackSig)(pWrappedContext->fnCallback);
+    cb((GfnString*)pMessage, pWrappedContext->pOrigUserContext);
+}
+
+GfnRuntimeError GfnRegisterMessageCallback(MessageCallbackSig messageCallback, void* pUserContext)
+{
+    CHECK_NULL_PARAM(messageCallback);
+
+    if (g_pCloudLibrary != NULL && g_pCloudLibrary->RegisterMessageCallback != NULL)
+    {
+        _gfnUserContextCallbackWrapper* pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
+        pWrappedContext->fnCallback = (void*)messageCallback;
+        pWrappedContext->pOrigUserContext = pUserContext;
+
+        // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
+        // cppcheck-suppress memleak
+        DELEGATE_TO_CLOUD_LIBRARY(RegisterMessageCallback, &_gfnMessageCallbackWrapper, pWrappedContext);
+    }
+    else
+    {
+        if (g_gfnSdkModule == NULL)
+        {
+            return gfnAPINotInit;
+        }
+
+        gfnRegisterMessageCallbackFn fnRegisterMessageCallback = (gfnRegisterMessageCallbackFn)(void*)GetProcAddress(g_gfnSdkModule, "gfnRegisterMessageCallback");
+        if (fnRegisterMessageCallback == NULL)
+        {
+            return gfnAPINotFound;
+        }
+
+        return fnRegisterMessageCallback(messageCallback, pUserContext);
+    }
 }
 
 

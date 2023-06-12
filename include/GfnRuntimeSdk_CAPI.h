@@ -237,6 +237,13 @@
 /// C        | @ref gfnSetActionZone
 ///
 /// @copydoc gfnSetActionZone
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnSendMessage
+///
+/// @copydoc gfnSendMessage
+///
 /// @subsection callback_section Callback-related Methods
 /// @ref callbacks
 ///
@@ -281,6 +288,12 @@
 /// C        | @ref gfnRegisterNetworkStatusCallback
 ///
 /// @copydoc gfnRegisterNetworkStatusCallback
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnRegisterMessageCallback
+///
+/// @copydoc gfnRegisterMessageCallback
 
 #ifndef GFN_SDK_RUNTIME_CAPI_H
 #define GFN_SDK_RUNTIME_CAPI_H
@@ -425,19 +438,23 @@
         /// @brief Client info blob
         typedef struct
         {
-            unsigned int version;              ///< Deprecated, value will be ignored
-            GfnOsType osType;                  ///< Operating System type
-            char ipV4[IP_V4_SIZE];             ///< IPV4 address, example - "192.168.0.1"
-            char country[CC_SIZE];             ///< ISO 3166-1 alpha-2 standard country code, example - "us"
-            char locale[LOCALE_SIZE];          ///< ISO 639-1 Alpha-2 standard locale, example - "en-us"
-            unsigned int RTDAverageLatencyMs;  ///< Round Trip Delay - Average Latency in milliseconds
+            unsigned int version;               ///< Deprecated, value will be ignored
+            GfnOsType osType;                   ///< Operating System type
+            char ipV4[IP_V4_SIZE];              ///< IPV4 address, example - "192.168.0.1"
+            char country[CC_SIZE];              ///< ISO 3166-1 alpha-2 standard country code, example - "us"
+            char locale[LOCALE_SIZE];           ///< ISO 639-1 Alpha-2 standard locale, example - "en-us"
+            unsigned int RTDAverageLatencyMs;   ///< Round Trip Delay - Average Latency in milliseconds
+            GfnResolutionInfo clientResolution; ///< Client device's physical resolution, if reported. If client does not report, expect values of zero.
         } GfnClientInfo;
 
         /// @brief Type of data which changed. This enum will be expanded over time
         typedef enum GfnClientInfoChangeType
         {
-            gfnOs = 0,                      ///< Change in OS of GFN Client
-            gfnClientDataChangeTypeMax = 0  ///< Sentinel value for GfnClientInfoChangeType
+            gfnOs = 0,                          ///< Change in OS of GFN Client
+            gfnIP = 1,                          ///< Change in IP of GFN Client (due to device switch/reconnect)
+            gfnClientResolution = 2,            ///< Change in resolution of GFN Client
+            gfnSafeZone = 3,                    ///< Change in safe zone rectangle (due to device switch or rotation)
+            gfnClientDataChangeTypeMax = 3      ///< Sentinel value for GfnClientInfoChangeType
         } GfnClientDataChangeType;
 
         /// @brief An update notification for a piece of client info data
@@ -448,6 +465,9 @@
             union
             {
                 GfnOsType osType;               ///< Operating System type
+                char ipV4[IP_V4_SIZE];          ///< IPV4 address, example - "192.168.0.1"
+                GfnResolutionInfo clientResolution; ///< Client device's physical resolution, if reported. If client does not report, expect values of zero.
+                GfnRect safeZone;                   ///< Client safe zone rectangle (title-safe area), in normalized coordinates. If the entire screen is title-safe because of device type, then expect values of zero.
             } data;
         } GfnClientInfoUpdateData;
 
@@ -502,6 +522,8 @@
         typedef GfnApplicationCallbackResult(GFN_CALLBACK* ClientInfoCallbackSig)(GfnClientInfoUpdateData* pUpdate, const void* pUserContext);
         /// @brief Callback function for notifications on network status changes. Register via gfnRegisterNetworkStatusCallback API.
         typedef GfnApplicationCallbackResult(GFN_CALLBACK* NetworkStatusCallbackSig)(GfnNetworkStatusUpdateData* pUpdate, const void* pUserContext);
+        /// @brief Callback function for notifications when an application recieves a custom message.
+        typedef GfnApplicationCallbackResult(GFN_CALLBACK* MessageCallbackSig)(const GfnString* pStrData, void* pUserContext);
 
         // ============================================================================================
         // C API
@@ -683,6 +705,25 @@
         /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterSessionInitCallback(SessionInitCallbackSig sessionInitCallback, void* pUserContext);
         /// @}
+
+        ///
+        /// @par Description
+        /// Register an application callback with GFN to be called when a message is sent to the application.
+        ///
+        /// @par Usage
+        /// Provide a callback function that will be called when a message is sent to the application.
+        ///
+        /// @param messageCallback              - Function pointer to application code to call when a message
+        ///                                       has been recieved.
+        /// @param pUserContext                 - Pointer to user context, which will be passed unmodified to the
+        ///                                       callback specified. Can be NULL.
+        ///
+        /// @retval gfnSuccess                  - On success when running in a GFN environment
+        /// @retval gfnInvalidParameter         - If callback was NULL
+        /// @retval gfnCloudLibraryNotFound     - If the on-seat dll was not present (Usually due to not running on a seat)
+        /// @retval gfnAPINotFound              - If the API was not found in the GFN SDK Library
+        /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterMessageCallback(MessageCallbackSig messageCallback, void* pUserContext);
         ///
         /// @par Description
         /// Register an application callback with GFN to be called when certain client info that is part of @ref GetClientInfo API changes
@@ -891,8 +932,8 @@
         /// @param ppchClientIp              - Output IPv4 in string format. Example: "192.168.0.1".
         ///                                    Call @ref gfnFree to release the memory when done.
         ///
-        /// @retval gfnSuccess               - On success
-        /// @retval gfnInvalidParameter      - NULL pointer passed in
+        /// @retval gfnSuccess               - Successfully retrieved client IP
+        /// @retval gfnNoData                - No IP data found
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
         /// @note
@@ -918,7 +959,8 @@
         /// @param ppchLanguageCode          - Language code as a string. Example: "en-US".
         ///                                    Call @ref gfnFree to release the memory when done.
         ///
-        /// @retval gfnSuccess               - On success
+        /// @retval gfnSuccess               - Successfully retrieved language code
+        /// @retval gfnNoData                - No language code found
         /// @retval gfnInvalidParameter      - NULL pointer passed in
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
@@ -964,6 +1006,13 @@
         /// @retval gfnInvalidParameter      - NULL pointer passed in or buffer length is too small
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
+        /// @note
+        /// The client data returned by this function is best effort, as not all client devices will report
+        /// all information. For example, certain browser and TV clients will not report client resolution or
+        /// will incorrect resolution in certain situations. In the cases the data is not reported, the data
+        /// returned will be zeroes. Likewise for safezone information, as most clients, such as Windows PC,
+        /// do not have screen areas unsafe for rendering or input. For more information about safe zones,
+        /// see the  the Mobile Integration Guide in the /doc folder.
         NVGFNSDK_EXPORT GfnRuntimeError gfnGetClientInfo(GfnClientInfo* clientInfo);
 
         ///
@@ -975,7 +1024,7 @@
         ///
         /// @par Usage
         /// Call this from a streaming session to find out more information about the session, such
-        /// as session time remaining, or if RTX is enabled for the current session. 
+        /// as session time remaining, or if RTX is enabled for the current session.
         ///
         /// @param sessionInfo               - Pointer to a GfnSessionInfo struct.
 
@@ -988,8 +1037,8 @@
         /// If the application has called @ref gfnRegisterSessionInitCallback to be notified when a
         /// user connects, then this API should be called after that callback is triggered.
         /// Certain data, such as session time limit or RTX support, can only be defined when a user
-        /// connects as the values depend on the user type. Calling before that point can result in 
-        /// obtaining incorrect data. 
+        /// connects as the values depend on the user type. Calling before that point can result in
+        /// obtaining incorrect data.
         NVGFNSDK_EXPORT GfnRuntimeError gfnGetSessionInfo(GfnSessionInfo* sessionInfo);
 
         ///
@@ -1070,17 +1119,18 @@
         /// Cloud
         ///
         /// @par Usage
-        /// Use during cloud session to retrieve partner data
+        /// Use during cloud session to retrieve partner data based in during session initialization.
         ///
-        /// @param ppchPartnerData          - Populated with the partner data.
-        ///                                 Call @ref gfnFree to release the memory when done.
+        /// @param ppchPartnerData          - Populated with the partner data, if found
+        ///                                   Call @ref gfnFree to release the memory when done with data
         ///
-        /// @retval gfnSuccess              - On success
+        /// @retval gfnSuccess              - Partner data successfully retrieved from session data
+        /// @retval gfnNoData               - No partner data found in session data
         /// @retval gfnInvalidParameter     - NULL pointer passed in
-        /// @retval gfnCallWrongEnvironment - If called in a client environment
+        /// @retval gfnCallWrongEnvironment - Called in a client environment
         /// @return Otherwise, appropriate error code
         /// @note
-        /// To avoid leaking memory, call @ref gfnFree once done with the list
+        /// To avoid leaking memory, call @ref gfnFree once done with the data
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetPartnerData(const char** ppchPartnerData);
 
         ///
@@ -1093,10 +1143,11 @@
         /// @par Usage
         /// Use during cloud session to retrieve secure partner data
         ///
-        /// @param ppchPartnerSecureData     - Populated with the secure partner data.
-        ///                                  Call @ref gfnFree to release the memory when done.
+        /// @param ppchPartnerSecureData     - Populated with the secure partner data, if found
+        ///                                    Call @ref gfnFree to release the memory when done.
         ///
-        /// @retval gfnSuccess               - On success
+        /// @retval gfnSuccess               - Secure partner data successfully retrieved from session data
+        /// @retval gfnNoData                - No secure partner data found in session data
         /// @retval gfnInvalidParameter      - NULL pointer passed in
         /// @retval gfnCallWrongEnvironment  - If called in a client environment
         /// @return Otherwise, appropriate error code
@@ -1113,12 +1164,14 @@
         /// Cloud
         ///
         /// @par Usage
-        /// Use to release memory after a call to a memory-allocated function and you are finished with the data
+        /// Use to release memory after a call to a memory-allocated function and you are finished with the data.
+        /// Should only be called if the memory is populated with valid data. Calling @ref gfnFree with invalid
+        /// pointer or data will result in an memory exception being thrown.
         ///
-        /// @param ppchData                  - Pointer to allocated string memmory
+        /// @param ppchData                  - Pointer to allocated string memory
         ///
-        /// @retval gfnSuccess               - On success
-        /// @retval gfnInvalidParameter      - NULL pointer passed in
+        /// @retval gfnSuccess               - Memory successfully released
+        /// @retval gfnInvalidParameter      - Invalid pointer or data passed in
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnFree(const char** ppchData);
 
 
@@ -1162,6 +1215,32 @@
         /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* zone);
+
+        ///
+        /// @par Description
+        /// Sends a custom message communication from the app to the client. This message
+        /// is "fire-and-forget", and does not wait for the message to be delivered to return status.
+        /// Latency is best effort and not guaranteed.
+        ///
+        /// @par Environment
+        /// Cloud or Client
+        ///
+        /// @par Usage
+        /// Use to communicate between cloud applications and streaming clients.
+        ///
+        /// @param pchMessage - Character string
+        /// @param length     - Length of pchMessage in characters
+        ///
+        /// @retval gfnSuccess              - Call was successful
+        /// @retval gfnComError             - There was SDK internal communication error
+        /// @retval gfnInitFailure          - SDK was not initialized
+        /// @retval gfnInvalidParameter     - Invalid parameters provided
+        /// @retval gfnThrottled            - API call was throttled for exceeding limit
+        /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
+        /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
+        /// @return Otherwise, appropriate error code
+        NVGFNSDK_EXPORT GfnRuntimeError gfnSendMessage(const char* pchMessage, unsigned int length);
+
         /// @}
 #ifdef __cplusplus
     } // extern "C"

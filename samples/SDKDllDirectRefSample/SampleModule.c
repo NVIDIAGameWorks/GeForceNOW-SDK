@@ -80,6 +80,16 @@ GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoU
     case gfnOs:
         printf("OS changed: %d\n", pUpdate->data.osType);
         break;
+    case gfnIP:
+        printf("IP changed: %s\n", pUpdate->data.ipV4);
+        break;
+    case gfnClientResolution:
+        printf("Resolution changed: %dx%d\n", pUpdate->data.clientResolution.horizontalPixels, pUpdate->data.clientResolution.verticalPixels);
+        break;
+    case gfnSafeZone:
+        // Safe zone information always comes in as normalized gfnRectLTRB formatted values
+        printf("SafeZone changed: %2.2f, %2.2f, %2.2f, %2.2f\n", pUpdate->data.safeZone.value1, pUpdate->data.safeZone.value2, pUpdate->data.safeZone.value3, pUpdate->data.safeZone.value4);
+        break;
     default:
         printf("Unknown client data change type %d\n", pUpdate->updateType);
         break;

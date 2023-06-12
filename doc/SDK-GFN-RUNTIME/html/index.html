@@ -196,17 +196,17 @@ Launcher or Game Specific Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Releases memory allocated by Get functions such as, but not limited to, <a class="el" href="group__launcher.html#ga16c67cdee702190faf8b8682f760a339">gfnGetPartnerData</a>, <a class="el" href="group__launcher.html#gaeddedbabbd2d5da5d525bb737b26c820">gfnGetPartnerSecureData</a>, or <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a></dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use to release memory after a call to a memory-allocated function and you are finished with the data</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to release memory after a call to a memory-allocated function and you are finished with the data. Should only be called if the memory is populated with valid data. Calling <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> with invalid pointer or data will result in an memory exception being thrown.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchData</td><td>- Pointer to allocated string memmory</td></tr>
+    <tr><td class="paramname">ppchData</td><td>- Pointer to allocated string memory</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in</td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Memory successfully released </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid pointer or data passed in</td></tr>
   </table>
   </dd>
 </dl>
@@ -323,8 +323,8 @@ Launcher or Game Specific Methods</h2>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Successfully retrieved client IP </td></tr>
+    <tr><td class="paramname">gfnNoData</td><td>- No IP data found </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
   </table>
   </dd>
@@ -350,7 +350,8 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Successfully retrieved language code </td></tr>
+    <tr><td class="paramname">gfnNoData</td><td>- No language code found </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
   </table>
@@ -406,7 +407,8 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The client data returned by this function is best effort, as not all client devices will report all information. For example, certain browser and TV clients will not report client resolution or will incorrect resolution in certain situations. In the cases the data is not reported, the data returned will be zeroes. Likewise for safezone information, as most clients, such as Windows PC, do not have screen areas unsafe for rendering or input. For more information about safe zones, see the the Mobile Integration Guide in the /doc folder.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -521,23 +523,24 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent using Deep Link parameter.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve partner data</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve partner data based in during session initialization.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchPartnerData</td><td>- Populated with the partner data. Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
+    <tr><td class="paramname">ppchPartnerData</td><td>- Populated with the partner data, if found Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done with data</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Partner data successfully retrieved from session data </td></tr>
+    <tr><td class="paramname">gfnNoData</td><td>- No partner data found in session data </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
-    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- Called in a client environment </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the list</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -549,13 +552,14 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 <dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve secure partner data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchPartnerSecureData</td><td>- Populated with the secure partner data. Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
+    <tr><td class="paramname">ppchPartnerSecureData</td><td>- Populated with the secure partner data, if found Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Secure partner data successfully retrieved from session data </td></tr>
+    <tr><td class="paramname">gfnNoData</td><td>- No secure partner data found in session data </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
   </table>
@@ -615,7 +619,36 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__launcher.html#gab6a2bf6d5242c4f172d39096dda54cef">gfnSendMessage</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Sends a custom message communication from the app to the client. This message is "fire-and-forget", and does not wait for the message to be delivered to return status. Latency is best effort and not guaranteed.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud or Client</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to communicate between cloud applications and streaming clients.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pchMessage</td><td>- Character string </td></tr>
+    <tr><td class="paramname">length</td><td>- Length of pchMessage in characters</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
+    <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
+    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
+    <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
 <h2><a class="anchor" id="callback_section"></a>
 Callback-related Methods</h2>
 <p><a class="el" href="group__callbacks.html">Client Callback Registration</a></p>
@@ -779,6 +812,31 @@ Callback-related Methods</h2>
   <table class="params">
     <tr><td class="paramname">networkStatusCallback</td><td>- Function pointer to application code to call when network latency has changed </td></tr>
     <tr><td class="paramname">updateRateMs</td><td>- The targeted rate at which callbacks should occur </td></tr>
+    <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat</td></tr>
+  </table>
+  </dd>
+</dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ae5b74a7732c782eb448f5017115997c8">gfnRegisterMessageCallback</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when a message is sent to the application.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Provide a callback function that will be called when a message is sent to the application.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">messageCallback</td><td>- Function pointer to application code to call when a message has been recieved. </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
   </table>
   </dd>

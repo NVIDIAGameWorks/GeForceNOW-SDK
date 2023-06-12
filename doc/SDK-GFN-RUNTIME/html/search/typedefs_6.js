@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['networkstatuscallbacksig',['NetworkStatusCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a02d95f5fcc4d22622ea8dc25979b6ff7',1,'GfnRuntimeSdk_CAPI.h']]]
+  ['messagecallbacksig',['MessageCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#af9b322d4ee0932aa12bbbd6120e74cbf',1,'GfnRuntimeSdk_CAPI.h']]]
 ];

@@ -192,19 +192,17 @@ Wrapper Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to free memory allocated by <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a></dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use to free memory after a call to a memory-allocating function and you are finished with the data</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to release memory after a call to a memory-allocated function and you are finished with the data. Should only be called if the memory is populated with valid data. Calling <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> with invalid pointer or data will result in an memory exception being thrown.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>- Pointer to data to free</td></tr>
+    <tr><td class="paramname">data</td><td>- Pointer to allocated string memory</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Memory successfully released </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in</td></tr>
   </table>
   </dd>
 </dl>
@@ -225,7 +223,8 @@ Wrapper Methods</h2>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Successfully retrieved client IP </td></tr>
+    <tr><td class="paramname">gfnNoData</td><td>- No IP data found </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
@@ -233,7 +232,7 @@ Wrapper Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> once done with the data.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -251,7 +250,8 @@ Wrapper Methods</h2>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Successfully retrieved client IP </td></tr>
+    <tr><td class="paramname">gfnNoData</td><td>- No IP data found </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
@@ -259,7 +259,7 @@ Wrapper Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> once done with the data.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -277,7 +277,8 @@ Wrapper Methods</h2>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Successfully retrieved language code </td></tr>
+    <tr><td class="paramname">gfnNoData</td><td>- No language code found </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
@@ -285,7 +286,7 @@ Wrapper Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> once done with the data.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -297,13 +298,14 @@ Wrapper Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve partner data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">partnerData</td><td>- Populated with the partner data. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
+    <tr><td class="paramname">partnerData</td><td>- Populated with the partner data, if found. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- Partner data successfully retrieved from session data </td></tr>
+    <tr><td class="paramname">gfnNoData</td><td>- No partner data found in session data </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
@@ -311,7 +313,7 @@ Wrapper Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the data.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> once done with the data.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -363,7 +365,7 @@ Wrapper Methods</h2>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> once done with the title list.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>To avoid leaking memory, call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> once done with the title list.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -385,10 +387,11 @@ Wrapper Methods</h2>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section note"><dt>Note</dt><dd>The client data returned by this function is best effort, as not all client devices will report all information. For example, certain browser and TV clients will not report client resolution or will incorrect resolution in certain situations. In the cases the data is not reported, the data returned will be zeroes. Likewise for safezone information, as most clients, such as Windows PC, do not have screen areas unsafe for rendering or input. For more information about safe zones, see the the Mobile Integration Guide in the /doc folder.</dd></dl>
 <table class="doxtable">
 <tr>
 <th>Language </th><th>API  </th></tr>
@@ -736,6 +739,35 @@ Wrapper Methods</h2>
 <tr>
 <th>Language </th><th>API  </th></tr>
 <tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga2148a6c3f952a7731b91b070fb08e30e">GfnSendMessage</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Sends a custom message communication from the app to the client. This message is "fire-and-forget", and does not wait for the message to be delivered to return status. Latency is best effort and not guaranteed.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud or Client</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to communicate between cloud applications and streaming clients.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pchMessage</td><td>- Character string </td></tr>
+    <tr><td class="paramname">length</td><td>- Length of pchMessage in characters</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
+    <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
+    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
+    <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code</dd></dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#ga5999e9e8f42d975ac1b13537c5f44497">GfnRegisterClientInfoCallback</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Registers an application callback with GFN to be called when client info changes</dd></dl>
@@ -774,7 +806,33 @@ Wrapper Methods</h2>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library</td></tr>
+  </table>
+  </dd>
+</dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga35b0e52d38d41ac04854002a0e5e7df0">GfnRegisterMessageCallback</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ae5b74a7732c782eb448f5017115997c8">gfnRegisterMessageCallback</a> to register an application callback to be called when a message has been sent to the application.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Provide a callback function that will be called when a message is sent to the application.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">messageCallbac</td><td>- Function pointer to application code to call when a message has been sent. </td></tr>
+    <tr><td class="paramname">userContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Callback was NULL </td></tr>
+    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- The on-seat dll detected that it was not on a game seat </td></tr>
   </table>
   </dd>
 </dl>

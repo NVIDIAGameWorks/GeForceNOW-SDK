@@ -25,6 +25,7 @@
 //
 // Copyright (c) 2019-2021 NVIDIA Corporation. All rights reserved.
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "GfnRuntimeSdk_Wrapper.h"
@@ -79,6 +80,34 @@ GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* 
     return crCallbackSuccess;
 }
 
+GfnApplicationCallbackResult GFN_CALLBACK MessageCallback(const GfnString* pMessage, void* pContext)
+{
+    printf("Message from client: %s length=%u\n", pMessage->pchString, pMessage->length);
+
+    // Send a message back to the client in response
+    const char* pchFormat = "ACK: %s";
+
+    unsigned int outLength = pMessage->length + 6;
+
+    char* pchTestMessage = malloc(sizeof *pchTestMessage * outLength);
+    outLength = snprintf(pchTestMessage, outLength, "ACK: %s", pMessage->pchString);
+
+    GfnError runtimeError = GfnSendMessage(pchTestMessage, outLength);
+    if (runtimeError == gfnSuccess)
+    {
+        printf("Sent a communication message to the client: %s\n", pchTestMessage);
+    }
+    else
+    {
+        printf("Failed to send a communication message to the client. GfnError: % d\n", (int)runtimeError);
+    }
+
+    free(pchTestMessage);
+    pchTestMessage = NULL;
+
+    return crCallbackSuccess;
+}
+
 GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoUpdateData* pUpdate, const void* pContext)
 {
     if (!pUpdate)
@@ -87,10 +116,22 @@ GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoU
         return crCallbackFailure;
     }
 
+    printf("sizeof GfnClientInfoUpdateData: %d\n", (int)(sizeof(*pUpdate)));
+
     switch (pUpdate->updateType)
     {
     case gfnOs:
         printf("OS changed: %d\n", pUpdate->data.osType);
+        break;
+    case gfnIP:
+        printf("IP changed: %s\n", pUpdate->data.ipV4);
+        break;
+    case gfnClientResolution:
+        printf("Resolution changed: %dx%d\n", pUpdate->data.clientResolution.horizontalPixels, pUpdate->data.clientResolution.verticalPixels);
+        break;
+    case gfnSafeZone:
+        // Safe zone information always comes in as normalized gfnRectLTRB formatted values
+        printf("SafeZone changed: %2.2f, %2.2f, %2.2f, %2.2f\n", pUpdate->data.safeZone.value1, pUpdate->data.safeZone.value2, pUpdate->data.safeZone.value3, pUpdate->data.safeZone.value4);
         break;
     default:
         printf("Unknown client data change type %d\n", pUpdate->updateType);

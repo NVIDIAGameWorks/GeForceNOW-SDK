@@ -43,6 +43,7 @@
 #ifndef GFN_SDK_CAPI_H
 #define GFN_SDK_CAPI_H
 
+
 // Required for streamer / DLL download step in StartStream
 #ifdef _WIN32
 #   pragma comment(lib, "ws2_32.lib")
@@ -50,6 +51,7 @@
 #   pragma comment(lib, "Wldap32.lib")
 #   pragma comment(lib, "version.lib")
 #   pragma comment(lib, "shlwapi.lib")
+#   pragma comment(lib, "Rpcrt4.lib")
 #   pragma comment(lib, "wintrust")
 #   define GFN_CALLBACK __stdcall
 #   define NVGFNSDK_EXPORT __declspec(dllexport)
@@ -78,28 +80,28 @@ typedef char bool;
 #define NVGFNSDK_VERSION_MAJOR 1
 
 /// @brief GFN SDK Minor Version
-#define NVGFNSDK_VERSION_MINOR 11
+#define NVGFNSDK_VERSION_MINOR 12
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_SHORT 1.11
+#define NVGFNSDK_VERSION_SHORT 1.12
 
 /// @brief GFN SDK Patch Version
 #define NVGFNSDK_VERSION_PATCH 0
 
 /// @brief GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 32558885
+#define NVGFNSDK_VERSION_BUILD 32924609
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 1.11.0.32558885
+#define NVGFNSDK_VERSION_LONG 1.12.0.32924609
 
 /// @brief GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "1.11.0.32558885"
-#define NVGFNSDK_VERSION_STR_PROD "1.11.0"
+#define NVGFNSDK_VERSION_STR   "1.12.0.32924609"
+#define NVGFNSDK_VERSION_STR_PROD "1.12.0"
 
 /// @brief GFN SDK Build CL
-#define NVGFNSDK_VERSION_BUILDCL 32558885
-#define NVGFNSDK_VERSION_BUILDH 3255
-#define NVGFNSDK_VERSION_BUILDL 8885
+#define NVGFNSDK_VERSION_BUILDCL 32924609
+#define NVGFNSDK_VERSION_BUILDH 3292
+#define NVGFNSDK_VERSION_BUILDL 4609
 
 
 #ifdef __cplusplus
@@ -143,7 +145,8 @@ typedef char bool;
             gfnInputExpected = -25, ///< API call was expecting input param to have a value
             gfnBinarySignatureInvalid = -26, ///< An attempt to load a binary failed because the digital signature was found to be invalid
             gfnCloudLibraryNotFound = -27, ///< Necessary GFN cloud-based SDK library cannot be found
-            gfnClientLibraryNotFound = -28 ///< Necessary GFN client-based SDK library cannot be found
+            gfnClientLibraryNotFound = -28, ///< Necessary GFN client-based SDK library cannot be found
+            gfnNoData = -29 ///< Requested data is empty or doesn't exist
         } GfnError;
 
         ///
@@ -247,6 +250,18 @@ typedef char bool;
             GfnRectFormat format; ///< rect format as listed in GfnRectFormat
         } GfnRect;
 
+        /// @brief struct to reference a string with length data
+        typedef struct GfnString
+        {
+            const char* pchString;
+            unsigned int length;
+        } GfnString;
+
+        typedef struct GfnResolutionInfo
+        {
+            unsigned int verticalPixels;
+            unsigned int horizontalPixels;
+        } GfnResolutionInfo;
 
 #ifdef __cplusplus
     } // extern "C"

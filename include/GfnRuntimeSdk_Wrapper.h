@@ -208,6 +208,12 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
+/// C        | @ref GfnSendMessage
+///
+/// @copydoc GfnSendMessage
+///
+/// Language | API
+/// -------- | -------------------------------------
 /// C        | @ref GfnRegisterClientInfoCallback
 ///
 /// @copydoc GfnRegisterClientInfoCallback
@@ -218,6 +224,12 @@
 ///
 /// @copydoc GfnRegisterNetworkStatusCallback
 ///
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref GfnRegisterMessageCallback
+///
+/// @copydoc GfnRegisterMessageCallback
 
 #include "GfnRuntimeSdk_CAPI.h"
 
@@ -395,13 +407,14 @@ extern "C"
     ///
     /// @param clientIp - Output IPv4 in string format. Example: "192.168.0.1". Call @ref GfnFree to free the memory.
     ///
-    /// @retval gfnSuccess               - On success
+    /// @retval gfnSuccess               - Successfully retrieved client IP
+    /// @retval gfnNoData                - No IP data found
     /// @retval gfnInvalidParameter      - NULL pointer passed in
     /// @retval gfnCallWrongEnvironment  - If called in a client environment
     /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
     /// @note
-    /// To avoid leaking memory, call @ref gfnFree once done with the data.
+    /// To avoid leaking memory, call @ref GfnFree once done with the data.
     GfnRuntimeError GfnGetClientIpV4(const char** clientIp);
 
     ///
@@ -418,13 +431,14 @@ extern "C"
     ///
     /// @param languageCode - Language code as a string. Example: "en-US". Call @ref GfnFree to free the memory.
     ///
-    /// @retval gfnSuccess               - On success
+    /// @retval gfnSuccess               - Successfully retrieved language code
+    /// @retval gfnNoData                - No language code found
     /// @retval gfnInvalidParameter      - NULL pointer passed in
     /// @retval gfnCallWrongEnvironment  - If called in a client environment
     /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
     /// @note
-    /// To avoid leaking memory, call @ref gfnFree once done with the data.
+    /// To avoid leaking memory, call @ref GfnFree once done with the data.
     GfnRuntimeError GfnGetClientLanguageCode(const char** languageCode);
 
     ///
@@ -466,7 +480,14 @@ extern "C"
     /// @retval gfnCallWrongEnvironment  - If called in a client environment
     /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
-        GfnRuntimeError GfnGetClientInfo(GfnClientInfo* clientInfo);
+    /// @note
+    /// The client data returned by this function is best effort, as not all client devices will report
+    /// all information. For example, certain browser and TV clients will not report client resolution or
+    /// will incorrect resolution in certain situations. In the cases the data is not reported, the data
+    /// returned will be zeroes. Likewise for safezone information, as most clients, such as Windows PC,
+    /// do not have screen areas unsafe for rendering or input. For more information about safe zones,
+    /// see the  the Mobile Integration Guide in the /doc folder.
+    GfnRuntimeError GfnGetClientInfo(GfnClientInfo* clientInfo);
 
         ///
         /// @par Description
@@ -477,7 +498,7 @@ extern "C"
         ///
         /// @par Usage
         /// Call this from a streaming session to find out more information about the session, such
-        /// as session time remaining, or if RTX is enabled for the current session. 
+        /// as session time remaining, or if RTX is enabled for the current session.
         ///
         /// @param sessionInfo               - Pointer to a GfnSessionInfo struct.
 
@@ -490,13 +511,13 @@ extern "C"
         /// If the application has called @ref gfnRegisterSessionInitCallback to be notified when a
         /// user connects, then this API should be called after that callback is triggered.
         /// Certain data, such as session time limit or RTX support, can only be defined when a user
-        /// connects as the values depend on the user type. Calling before that point can result in 
-        /// obtaining incorrect data. 
+        /// connects as the values depend on the user type. Calling before that point can result in
+        /// obtaining incorrect data.
         GfnRuntimeError GfnGetSessionInfo(GfnSessionInfo* sessionInfo);
 
     ///
     /// @par Description
-    /// Calls @ref GfnGetPartnerData to retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call 
+    /// Calls @ref GfnGetPartnerData to retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call
     /// or b) sent using Deep Link parameter.
     ///
     /// @par Environment
@@ -505,20 +526,21 @@ extern "C"
     /// @par Usage
     /// Use during cloud session to retrieve partner data
     ///
-    /// @param partnerData               - Populated with the partner data. Call @ref GfnFree to free the memory.
+    /// @param partnerData              - Populated with the partner data, if found. Call @ref GfnFree to free the memory.
     ///
-    /// @retval gfnSuccess              - On success
+    /// @retval gfnSuccess              - Partner data successfully retrieved from session data
+    /// @retval gfnNoData               - No partner data found in session data
     /// @retval gfnInvalidParameter     - NULL pointer passed in
     /// @retval gfnCallWrongEnvironment - If called in a client environment
     /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
     /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
     /// @note
-    /// To avoid leaking memory, call @ref gfnFree once done with the data.
+    /// To avoid leaking memory, call @ref GfnFree once done with the data.
     GfnRuntimeError GfnGetPartnerData(const char** partnerData);
 
     ///
     /// @par Description
-    /// Calls @ref GfnGetPartnerSecureData to retrieves secure partner data that is either a) passed by the client in the gfnStartStream call 
+    /// Calls @ref GfnGetPartnerSecureData to retrieves secure partner data that is either a) passed by the client in the gfnStartStream call
     /// or b) sent in response to Deep Link nonce validation.
     ///
     /// @par Environment
@@ -527,15 +549,16 @@ extern "C"
     /// @par Usage
     /// Use during cloud session to retrieve secure partner data
     ///
-    /// @param partnerSecureData               - Populated with the secure partner data. Call @ref GfnFree to free the memory.
+    /// @param partnerSecureData         - Populated with the secure partner data, if found. Call @ref GfnFree to free the memory.
     ///
-    /// @retval gfnSuccess              - On success
-    /// @retval gfnInvalidParameter     - NULL pointer passed in
-    /// @retval gfnCallWrongEnvironment - If called in a client environment
+    /// @retval gfnSuccess               - Secure partner data successfully retrieved from session data
+    /// @retval gfnNoData                - No secure partner data found in session data
+    /// @retval gfnInvalidParameter      - NULL pointer passed in
+    /// @retval gfnCallWrongEnvironment  - If called in a client environment
     /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
     /// @note
-    /// To avoid leaking memory, call @ref gfnFree once done with the data.
+    /// To avoid leaking memory, call @ref GfnFree once done with the data.
     GfnRuntimeError GfnGetPartnerSecureData(const char** partnerSecureData);
 
     ///
@@ -587,7 +610,7 @@ extern "C"
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
     ///
     /// @note
-    /// To avoid leaking memory, call @ref gfnFree once done with the title list.
+    /// To avoid leaking memory, call @ref GfnFree once done with the title list.
     GfnRuntimeError GfnGetTitlesAvailable(const char** platformAppIds);
 
     ///
@@ -598,14 +621,14 @@ extern "C"
     /// Cloud
     ///
     /// @par Usage
-    /// Use to free memory after a call to a memory-allocating function and you are finished with the data
+    /// Use to release memory after a call to a memory-allocated function and you are finished with the data.
+    /// Should only be called if the memory is populated with valid data. Calling @ref GfnFree with invalid
+    /// pointer or data will result in an memory exception being thrown.
     ///
-    /// @param data                      - Pointer to data to free
+    /// @param data                      - Pointer to allocated string memory
     ///
-    /// @retval gfnSuccess               - On success
+    /// @retval gfnSuccess               - Memory successfully released
     /// @retval gfnInvalidParameter      - NULL pointer passed in
-    /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
     GfnRuntimeError GfnFree(const char** data);
 
 
@@ -880,6 +903,28 @@ extern "C"
     /// @retval gfnCallWrongEnvironment - The on-seat dll detected that it was not on a game seat
     GfnRuntimeError GfnRegisterSessionInitCallback(SessionInitCallbackSig sessionInitCallback, void* userContext);
 
+    ///
+    /// @par Description
+    /// Calls @ref gfnRegisterMessageCallback to register an application callback to be called when
+    /// a message has been sent to the application.
+    ///
+    /// @par Environment
+    /// Cloud and Client
+    ///
+    /// @par Usage
+    /// Provide a callback function that will be called when a message is sent to the application.
+    ///
+    /// @param messageCallbac           - Function pointer to application code to call when a message has been sent.
+    /// @param userContext              - Pointer to user context, which will be passed unmodified to the
+    ///                                   callback specified. Can be NULL.
+    ///
+    /// @retval gfnSuccess              - On success when running in a GFN environment
+    /// @retval gfnInvalidParameter     - Callback was NULL
+    /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @retval gfnCallWrongEnvironment - The on-seat dll detected that it was not on a game seat
+    GfnRuntimeError GfnRegisterMessageCallback(MessageCallbackSig messageCallback, void* userContext);
+
 
     ///
     /// @par Description
@@ -959,6 +1004,32 @@ extern "C"
     /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
     /// @return Otherwise, appropriate error code
     GfnRuntimeError GfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* zone);
+
+
+    ///
+    /// @par Description
+    /// Sends a custom message communication from the app to the client. This message
+    /// is "fire-and-forget", and does not wait for the message to be delivered to return status.
+    /// Latency is best effort and not guaranteed.
+    ///
+    /// @par Environment
+    /// Cloud or Client
+    ///
+    /// @par Usage
+    /// Use to communicate between cloud applications and streaming clients.
+    ///
+    /// @param pchMessage - Character string
+    /// @param length     - Length of pchMessage in characters
+    ///
+    /// @retval gfnSuccess              - Call was successful
+    /// @retval gfnComError             - There was SDK internal communication error
+    /// @retval gfnInitFailure          - SDK was not initialized
+    /// @retval gfnInvalidParameter     - Invalid parameters provided
+    /// @retval gfnThrottled            - API call was throttled for exceeding limit
+    /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
+    /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
+    /// @return Otherwise, appropriate error code
+    GfnRuntimeError GfnSendMessage(const char* pchMessage, unsigned int length);
 
     /// @}
 #ifdef __cplusplus
