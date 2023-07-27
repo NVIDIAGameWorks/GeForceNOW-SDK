@@ -317,9 +317,10 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     }
     /**
      * Calls into GFN SDK to initiate a new GeForce NOW streaming session and launch the specified
-     * game application. If a valid delegate token is passed in as a parameter it will automatically
-     * authenticate the streaming session and begin streaming immediately. If an empty or invalid
-     * delegate token is passed in then the GeForce NOW streaming client will display a login
+     * game application. 
+     * If the user is logged in to Geforce NOW streaming client, this call will begin streaming 
+     * immediately. 
+     * If the user is not logged in, the Geforce NOW streaming client will display a login
      * window prompting the user to authenticate first.
      */
     else if (command == GFN_SDK_STREAM_ACTION)
@@ -335,45 +336,30 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         if (launchStream)
         {
             LOG(INFO) << "Received request to start a session";
-            if (dict->HasKey("gfnTitleId") && dict->HasKey("authToken") && dict->HasKey("tokenType"))
+            if (dict->HasKey("gfnTitleId"))
             {
                 StartStreamResponse response = { 0 };
                 StartStreamInput startStreamInput = { 0 };
                 uint32_t gfnTitleId = dict->GetInt("gfnTitleId");
                 startStreamInput.uiTitleId = gfnTitleId;
 
-                // NVIDIA IDM authorization token (when NV user has logged in)
-                std::string pchAuthToken = dict->GetString("authToken").ToString();
-                startStreamInput.pchAuthToken = pchAuthToken.c_str();
-                bool hasTokenType = false;
-                std::stringstream ssTokenType(dict->GetString("tokenType"));
-                ssTokenType >> startStreamInput.tokenType;
-                hasTokenType = !ssTokenType.fail() && !ssTokenType.bad();
-
                 // 3rd party IDM token for SSO that is consumed by launcher application running in GFN
                 std::string pchcustAuth = dict->GetString("launcherToken").ToString();
                 startStreamInput.pchPartnerSecureData = pchcustAuth.c_str();
 
-                if (hasTokenType)
-                {
-                    startStreamInput.pchPartnerData = "This is example custom data";
+                startStreamInput.pchPartnerData = "This is example custom data";
 
-                    GfnError err = GfnStartStream(&startStreamInput, &response);
-                    msg = "gfnStartStream = " + std::string(GfnErrorToString(err));
-                    if (err != GfnError::gfnSuccess)
-                    {
-                        LOG(ERROR) << "launch game error: " << msg;
-                    }
-                    else
-                    {
-                        actionSuccess = true;
-                        msg = msg + ", GFN Downloaded & Installed = " + (response.downloaded ? "Yes" : "Not needed");
-                        LOG(INFO) << "launch game response. Downloaded GeForceNOW? : " << response.downloaded;
-                    }
+                GfnError err = GfnStartStream(&startStreamInput, &response);
+                msg = "gfnStartStream = " + std::string(GfnErrorToString(err));
+                if (err != GfnError::gfnSuccess)
+                {
+                    LOG(ERROR) << "launch game error: " << msg;
                 }
                 else
                 {
-                    msg = "An error occurred while parsing tokenType argument to CEF extention";
+                    actionSuccess = true;
+                    msg = msg + ", GFN Downloaded & Installed = " + (response.downloaded ? "Yes" : "Not needed");
+                    LOG(INFO) << "launch game response. Downloaded GeForceNOW? : " << response.downloaded;
                 }
             }
             else

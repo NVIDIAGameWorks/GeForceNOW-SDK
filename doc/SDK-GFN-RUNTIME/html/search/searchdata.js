@@ -4,11 +4,11 @@ var indexSectionsWithContent =
   1: "gst",
   2: "g",
   3: "g",
-  4: "cdfilnoprstuv",
-  5: "abcegimnpst",
+  4: "cdfilnoprsuv",
+  5: "bcegimnpst",
   6: "g",
   7: "cg",
-  8: "afgnt",
+  8: "fgnt",
   9: "acgl",
   10: "n"
 };

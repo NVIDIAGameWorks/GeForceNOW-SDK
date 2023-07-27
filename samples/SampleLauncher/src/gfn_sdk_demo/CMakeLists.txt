@@ -46,7 +46,6 @@ endif()
 # Main executable resources.
 set(EXAMPLE_RESOURCES_SRCS
   resources/gfn_sdk.html
-  resources/redirect.html
   )
 set(EXAMPLE_RESOURCES_SRCS_WINDOWS
   # Resources that embed "gfn_sdk.html" in the executable.

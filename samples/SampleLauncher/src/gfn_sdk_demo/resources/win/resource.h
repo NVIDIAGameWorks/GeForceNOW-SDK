@@ -10,7 +10,6 @@
 #define BINARY 256
 #define IDS_MESSAGE_ROUTER_HTML 1000
 #define IDS_MESSAGE_ROUTER_IMG 1001
-#define IDS_MESSAGE_ROUTER_REDIRECT 1002
 
 // Avoid files associated with MacOS
 #define _X86_

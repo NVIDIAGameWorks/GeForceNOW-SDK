@@ -13,8 +13,6 @@ int GetResourceId(const std::string& resource_path) {
     return IDS_MESSAGE_ROUTER_HTML;
   if (resource_path == "apollo11.jpg")
     return IDS_MESSAGE_ROUTER_IMG;
-  if (resource_path == "redirect.html")
-    return IDS_MESSAGE_ROUTER_REDIRECT;
   return 0;
 }
 

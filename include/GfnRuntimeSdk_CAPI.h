@@ -304,11 +304,6 @@
 // Defining GfnRuntimeError for backwards compatibility
 #define GfnRuntimeError GfnError
 
-/// One of the possible values of AuthType_t. Delegate token provided by NVIDIA IDM
-#define AUTH_NVIDIA_DEFAULT 7
-/// One of the possible values of AuthType_t. JSON Web Token
-#define AUTH_NVIDIA_JWT 8
-
 #ifdef __cplusplus
     extern "C"
     {
@@ -349,15 +344,10 @@
         /// @brief Callback function signation for notifications on status of stop a streaming session.
         typedef void(GFN_CALLBACK* StopStreamCallbackSig)(GfnRuntimeError, void* context);
 
-        /// @brief Type of token to use for GFN session. Valid values include AUTH_NVIDIA_DEFAULT and AUTH_NVIDIA_JWT.
-        typedef unsigned int AuthType_t;
-
         /// @brief Input data for gfnStartStream
         typedef struct StartStreamInput
         {
             unsigned int uiTitleId;             ///< GFN-sourced game-specific unique identifier.
-            const char* pchAuthToken;           ///< NVIDIA IDM Token string
-            AuthType_t tokenType;               ///< Token identifier
             const char* pchPartnerData;         ///< Optional non-secure partner data that is passed to the streaming cloud instance and can be retrieved in that instance of application.
             const char* pchPartnerSecureData;   ///< Optional secure partner data that is guaranteed to be protected through the GFN pipeline.
         } StartStreamInput;
