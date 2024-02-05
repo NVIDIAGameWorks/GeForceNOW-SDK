@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.2.0)
+cmake_minimum_required (VERSION 3.19.0)
 project (GFNSDK)
 
 set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo)
@@ -26,42 +26,55 @@ set(SAMPLES_CEF_URL "" CACHE STRING "(Optional) URL to use to download libcef fo
 set(SAMPLES_CEF_PATH "" CACHE STRING "(Optional) Path to find pre-downloaded CEF")
 
 set_property(CACHE SAMPLES_ARCH PROPERTY STRINGS 64 32)
-if (WIN32)
-    set(USE_STATIC_CRT ON CACHE BOOL "(Windows) Enable to statically link against the CRT")
-endif ()
 option(BUILD_SAMPLES "Build the GFN SDK samples" ON)
+
 ###############################
 
-# Force MSVC static runtime library for each configuration
-# Replace the strings instead of appending /MT(d), because overriding gives a compile error
-# This handles both /MDd -> /MTd, and /MD -> /MT
-foreach(i CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO
-        CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO)
-    string(REGEX REPLACE "/MD" "/MT" ${i} "${${i}}")
-endforeach()
-set(MSVC_RUNTIME "MT")
+# For the GfnSdk distribution, GfnRuntimeSdk.dll is precompiled
+if (NOT TARGET GfnRuntime)
+    add_library(GfnRuntime MODULE IMPORTED)
+    if (WIN32)
+        set_target_properties(GfnRuntime PROPERTIES
+            IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/win/${BUILD_ARCH}/GfnRuntimeSdk.dll
+        )
+    elseif (LINUX)
+        set_target_properties(GfnRuntime PROPERTIES
+            IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/linux/${BUILD_ARCH}/GfnRuntimeSdk.so
+        )
+    else ()
+        message(FATAL_ERROR "Unsupported platform")
+    endif ()
+endif ()
 
-set(GFN_SDK_RUNTIME_SOURCES
+add_library(GfnSdkWrapper STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnRuntimeSdk_CAPI.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnRuntimeSdk_Wrapper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnRuntimeSdk_Wrapper.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnSdk_SecureLoadLibrary.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnSdk_SecureLoadLibrary.c
 )
 
-set(GFN_SDK_COMMON_SOURCES
-    ${GENERATED_GFN_SDK_H}
-)
+if (WIN32)
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:msvcrtd")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:msvcrt")
+    # To enable usage of CMAKE_MSVC_RUNTIME_LIBRARY
+    cmake_policy(SET CMP0091 NEW)
+    # Statically link the CRT to avoid needing to install CRT debug binaries
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    add_library(GfnSdkSecureLoadLibrary STATIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnSdk_SecureLoadLibrary.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnSdk_SecureLoadLibrary.c
+    )
+    target_link_libraries(GfnSdkWrapper PRIVATE GfnSdkSecureLoadLibrary)
+elseif (LINUX)
+    target_link_libraries(GfnSdkWrapper PUBLIC ${CMAKE_DL_LIBS})
+    target_compile_options(GfnSdkWrapper PUBLIC -fPIC)
+endif ()
 
-add_custom_target(Dist SOURCES ${GFN_SDK_RUNTIME_SOURCES} ${GFN_SDK_COMMON_SOURCES})
+target_include_directories(GfnSdkWrapper PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
 if (BUILD_SAMPLES)
     add_subdirectory(samples/CGameAPISample)
+    add_subdirectory(samples/SampleLauncher)
     add_subdirectory(samples/SDKDllDirectRefSample)
-
-    if (USE_STATIC_CRT)
-        add_subdirectory(samples/SampleLauncher)
-    else()
-        message(WARNING "Sample Launcher will NOT be configured since it requires static CRT linkage.")
-    endif()
 endif ()

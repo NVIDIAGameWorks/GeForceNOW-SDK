@@ -1,0 +1,171 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 19,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/_out/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/_out/install/${presetName}"
+            }
+        },
+        {
+            "name": "x64-windows-base",
+            "inherits": "base",
+            "hidden": true,
+            "displayName": "Windows x64",
+            "description": "Sets compilers, ninja generator, x64 architecture, build and install directory",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/_out/install/${presetName}",
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [
+                        "Windows"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "x86-windows-base",
+            "inherits": "base",
+            "hidden": true,
+            "displayName": "Windows x86",
+            "description": "Sets compilers, ninja generator, x86 architecture, build and install directory",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/_out/install/${presetName}",
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [
+                        "Windows"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "x64-windows-debug",
+            "inherits": "x64-windows-base",
+            "displayName": "Windows x64 Debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x64-windows-release",
+            "inherits": "x64-windows-base",
+            "displayName": "Windows x64 Release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "x86-windows-debug",
+            "inherits": "x86-windows-base",
+            "displayName": "Windows x86 Debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x86-windows-release",
+            "inherits": "x86-windows-base",
+            "displayName": "Windows x86 Release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "x64-linux-base",
+            "inherits": "base",
+            "hidden": true,
+            "displayName": "Linux x64",
+            "description": "Sets compilers, ninja generator, x64 architecture, build and install directory",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/_out/install/${presetName}"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [
+                        "Linux"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "x64-linux-debug",
+            "inherits": "x64-linux-base",
+            "displayName": "Linux x64 Debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x64-linux-release",
+            "inherits": "x64-linux-base",
+            "displayName": "Linux x64 Release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "base",
+            "configurePreset": "base",
+            "jobs": 4
+        },
+        {
+            "name": "x64-windows-debug",
+            "inherits": "base",
+            "configurePreset": "x64-windows-debug"
+        },
+        {
+            "name": "x64-windows-release",
+            "inherits": "base",
+            "configurePreset": "x64-windows-release"
+        },
+        {
+            "name": "x86-windows-debug",
+            "inherits": "base",
+            "configurePreset": "x86-windows-debug"
+        },
+        {
+            "name": "x86-windows-release",
+            "inherits": "base",
+            "configurePreset": "x86-windows-release"
+        },
+        {
+            "name": "x64-linux-debug",
+            "inherits": "base",
+            "configurePreset": "x64-linux-debug"
+        },
+        {
+            "name": "x64-linux-release",
+            "inherits": "base",
+            "configurePreset": "x64-linux-release"
+        }
+    ]
+}

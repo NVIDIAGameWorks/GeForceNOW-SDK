@@ -9,6 +9,9 @@
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
 
+#define WINDOW_WIDTH 512
+#define WINDOW_HEIGHT 800
+
 namespace shared {
 
 namespace {
@@ -43,12 +46,12 @@ public:
 
   CefSize GetPreferredSize(CefRefPtr<CefView> view) OVERRIDE {
     // Preferred window size.
-    return CefSize(496, 330);
+    return CefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
   }
 
   CefSize GetMinimumSize(CefRefPtr<CefView> view) OVERRIDE {
     // Minimum window size.
-    return CefSize(496, 330);
+    return CefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
   }
 
   bool CanResize(CefRefPtr<CefWindow> window) OVERRIDE {
@@ -75,7 +78,7 @@ public:
   explicit PopupBrowserViewDelegate() {}
 
   CefSize GetPreferredSize(CefRefPtr<CefView> view) OVERRIDE {
-    return CefSize(500, 500);
+    return CefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
   }
 
 private:
@@ -141,10 +144,13 @@ void CreateBrowser(CefRefPtr<CefClient> client,
     int systemDpi = GetDeviceCaps(screen, LOGPIXELSX);
     // We can't programmatically know the side of the rendered HTML without
     // resizing windows after the fact. Size this to fit the HTML.
-    int dpiAdjustedWidth = MulDiv(512, systemDpi, 96);
-    int dpiAdjustedHeight = MulDiv(730, systemDpi, 96);
+    int dpiAdjustedWidth = MulDiv(WINDOW_WIDTH, systemDpi, 96);
+    int dpiAdjustedHeight = MulDiv(WINDOW_HEIGHT, systemDpi, 96);
     window_info.width = dpiAdjustedWidth;
     window_info.height = dpiAdjustedHeight;
+#else
+    window_info.width = WINDOW_WIDTH;
+    window_info.height = WINDOW_HEIGHT;
 #endif
 
     // Create the browser window.

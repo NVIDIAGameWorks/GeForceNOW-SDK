@@ -9,8 +9,6 @@
 
 if(OS_MACOSX)
   message(FATAL_ERROR "MacOS builds are not supported at this time.")
-elseif(OS_LINUX)
-  message(FATAL_ERROR "Linux builds are not supported at this time.")
 elseif(OS_WINDOWS)
   # Shared Windows resources (version information, icons).
   set(SHARED_RESOURCES_SRCS
@@ -50,7 +48,7 @@ if(OS_MACOSX OR OS_WINDOWS)
 endif()
 
 # Set the configuration-specific binary output directory.
-set(EXAMPLE_TARGET_OUT_DIR "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+set(EXAMPLE_TARGET_OUT_DIR "${CMAKE_BINARY_DIR}/SampleLauncher")
 
 # Set properties common to all example targets.
 macro(SET_EXAMPLE_PROPERTIES target)
@@ -62,7 +60,7 @@ macro(SET_EXAMPLE_PROPERTIES target)
 
   if(OS_MACOSX OR OS_WINDOWS)
     # Place the target in the "examples" folder in Visual Studio and Xcode.
-    set_property(TARGET ${target} PROPERTY FOLDER "Samples")
+    set_property(TARGET ${target} PROPERTY FOLDER "Dist/Samples")
   endif()
 endmacro()
 
@@ -86,15 +84,11 @@ macro(SET_EXAMPLE_EXECUTABLE_TARGET_PROPERTIES target)
     add_custom_command(
       TARGET ${target}
       POST_BUILD
-      COMMAND "mt.exe" -nologo
+      COMMAND ${CMAKE_MT} -nologo
               -manifest \"${CMAKE_CURRENT_SOURCE_DIR}/${SHARED_EXE_MANIFEST}\"
                         \"${CMAKE_CURRENT_SOURCE_DIR}/${SHARED_COMPATIBILITY_MANIFEST}\"
               -outputresource:"${EXAMPLE_TARGET_OUT_DIR}/${target}.exe"\;\#1
-      COMMENT "Adding manifest..."
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${GFN_SDK_LIB_DIR}/GfnRuntimeSdk.dll"
-            "${EXAMPLE_TARGET_OUT_DIR}"
-      COMMENT "Updating manifests and copying SDK DLL to build..."
+      COMMENT "Updating manifests..."
       )
   endif()
 endmacro()

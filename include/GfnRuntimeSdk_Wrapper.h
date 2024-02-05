@@ -233,13 +233,18 @@
 
 #include "GfnRuntimeSdk_CAPI.h"
 
+#include <stddef.h>
+
 #ifdef _WIN32
+    #define CHAR_TYPE wchar_t
     #ifndef WIN32_LEAN_AND_MEAN
         #define WIN32_LEAN_AND_MEAN
     #endif
     #include <windows.h>
     /// @brief Global handle to loaded GFN SDK Library module
     extern HMODULE g_gfnSdkModule;
+#elif __linux__
+    #define CHAR_TYPE char
 #endif
 
 #ifdef __cplusplus
@@ -258,6 +263,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Call as soon as possible during application startup.
@@ -277,18 +285,21 @@ extern "C"
     #define GfnInitializeSdkFromPath GfnInitializeSdkFromPathA
 
     /// @par Description
-    /// Loads the GFN SDK dynamic library from the given path and calls @ref gfnInitializeRuntimeSdk.
+    /// Loads the GFN SDK dynamic library from the given path and calls @ref gfnInitializeRuntimeSdk. (UTF-8 / ASCII version)
     ///
     /// @par Environment
     /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Call as soon as possible during application startup.
     ///
     /// @param language                   - Language to use for any UI, such as GFN download and install progress dialogs.
     ///                                     Defaults to system language if not defined.
-    /// @param sdkLibraryPath             - Fully-quantified path to GFN SDK Library including the name GfnRuntimeSdk.dll,
-    ///                                     note that dll cannot be renamed to any other string.
+    /// @param sdkLibraryPath             - Fully-quantified path to GFN SDK library file including the library filename,
+    ///                                     note that for security reasons, library cannot be renamed to any other string.
     /// @retval gfnSuccess                - If the SDK was initialized and all SDK features are available.
     /// @retval gfnInitSuccessClientOnly  - If the SDK was initialized, but only client-side functionality is available, such as
     ///                                     calls to gfnStartStream. By definition, gfnIsRunningInCloud is expected to return false
@@ -299,18 +310,21 @@ extern "C"
     GfnRuntimeError GfnInitializeSdkFromPathA(GfnDisplayLanguage language, const char* sdkLibraryPath);
 
     /// @par Description
-    /// Loads the GFN SDK dynamic library from the given path and calls @ref gfnInitializeRuntimeSdk.
+    /// Loads the GFN SDK dynamic library from the given path and calls @ref gfnInitializeRuntimeSdk. (Wide char version)
     ///
     /// @par Environment
     /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Call as soon as possible during application startup.
     ///
     /// @param language                   - Language to use for any UI, such as GFN download and install progress dialogs.
     ///                                     Defaults to system language if not defined.
-    /// @param wSdkLibraryPath            - Wide Char string with Fully-quantified path to GFN SDK Library including the
-    ///                                     name GfnRuntimeSdk.dll, note that dll cannot be renamed to any other string.
+    /// @param wSdkLibraryPath            - Wide Char string with fully-quantified path to GFN SDK library file including the library
+    ///                                     filename, note that for security reasons, library cannot be renamed to any other string.
     /// @retval gfnSuccess                - If the SDK was initialized and all SDK features are available.
     /// @retval gfnInitSuccessClientOnly  - If the SDK was initialized, but only client-side functionality is available, such as
     ///                                     calls to gfnStartStream. By definition, gfnIsRunningInCloud is expected to return false
@@ -327,6 +341,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Call during application shutdown or when GFN Runtime API methods are no longer needed.
@@ -341,6 +358,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use to quickly determine whether to enable / disable any low-value GFN cloud environment
@@ -372,6 +392,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows
     ///
     /// @par Usage
     /// Call from an NVIDIA-approved process to securely determine whether running in GFN cloud, and use the
@@ -400,6 +423,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Call this during application start or from the platform client in
@@ -424,6 +450,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Call this during application start or from the platform client in
@@ -447,6 +476,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Call this during application start or from the platform client in order to get
@@ -468,6 +500,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Call this during application start or from the platform client in order to get
@@ -495,6 +530,9 @@ extern "C"
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Call this from a streaming session to find out more information about the session, such
@@ -522,11 +560,15 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use during cloud session to retrieve partner data
     ///
-    /// @param partnerData              - Populated with the partner data, if found. Call @ref GfnFree to free the memory.
+    /// @param partnerData              - Populated with the partner data in string form if found
+    ///                                   Call @ref GfnFree to free the memory
     ///
     /// @retval gfnSuccess              - Partner data successfully retrieved from session data
     /// @retval gfnNoData               - No partner data found in session data
@@ -545,11 +587,15 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use during cloud session to retrieve secure partner data
     ///
-    /// @param partnerSecureData         - Populated with the secure partner data, if found. Call @ref GfnFree to free the memory.
+    /// @param partnerSecureData         - Populated with the secure partner data in string for if found
+    ///                                    Call @ref GfnFree to free the memory
     ///
     /// @retval gfnSuccess               - Secure partner data successfully retrieved from session data
     /// @retval gfnNoData                - No secure partner data found in session data
@@ -568,6 +614,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use to determine if a title is available to be launched from the active GFN cloud instance,
@@ -594,6 +643,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use to retrieve a list of all titles available to launch in the current streaming session,
@@ -619,6 +671,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use to release memory after a call to a memory-allocated function and you are finished with the data.
@@ -639,6 +694,9 @@ extern "C"
     ///
     /// @par Environment
     /// Client
+    /// 
+    /// @par Platform
+    /// Windows
     ///
     /// @par Usage
     /// Register a function to call when stream status changes on the user's client PC
@@ -661,6 +719,9 @@ extern "C"
     ///
     /// @par Environment
     /// Client
+    /// 
+    /// @par Platform
+    /// Windows
     ///
     /// @par Usage
     /// Use to start a streaming session.
@@ -683,6 +744,9 @@ extern "C"
     ///
     /// @par Environment
     /// Client
+    /// 
+    /// @par Platform
+    /// Windows
     ///
     /// @par Usage
     /// Use to start a streaming session.
@@ -710,6 +774,9 @@ extern "C"
     ///
     /// @par Environment
     /// Client
+    /// 
+    /// @par Platform
+    /// Windows
     ///
     /// @par Usage
     /// Use to stop a streaming session started by the same process
@@ -728,6 +795,9 @@ extern "C"
     ///
     /// @par Environment
     /// Client
+    /// 
+    /// @par Platform
+    /// Windows
     ///
     /// @par Usage
     /// Use to start a streaming session.
@@ -754,6 +824,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use to prepare an application for launch on Geforce NOW, and block on the result.
@@ -774,6 +847,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use to notify GFN that your application has exited.
@@ -795,6 +871,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Register an application function to call when Geforce NOW needs to exit the game.
@@ -819,6 +898,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Register an application function to call when Geforce NOW needs to pause the game.
@@ -843,6 +925,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Register a function to call after a successful call to gfnSetupTitle.
@@ -868,6 +953,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Register an application function to call when GFN needs the application to save
@@ -888,6 +976,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Register an application function to call when a GFN user has connected to the game seat
@@ -910,6 +1001,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Provide a callback function that will be called when a message is sent to the application.
@@ -932,6 +1026,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @param clientInfoCallback       - Function pointer to application code to call when GFN client data changes
     ///
@@ -947,6 +1044,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @param networkStatusCallback    - Function pointer to application code to call when network latency changes
     /// @param updateRateMs             - Time interval for updates
@@ -964,6 +1064,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use to notify GFN that your application is ready to be streamed.
@@ -985,6 +1088,9 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use to invoke special events on the client from the GFN cloud environment
@@ -1014,18 +1120,21 @@ extern "C"
     ///
     /// @par Environment
     /// Cloud or Client
+    /// 
+    /// @par Platform
+    /// Windows, Linux
     ///
     /// @par Usage
     /// Use to communicate between cloud applications and streaming clients.
     ///
     /// @param pchMessage - Character string
-    /// @param length     - Length of pchMessage in characters
+    /// @param length     - Length of pchMessage in characters, which cannot exceed 8K in length
     ///
     /// @retval gfnSuccess              - Call was successful
     /// @retval gfnComError             - There was SDK internal communication error
     /// @retval gfnInitFailure          - SDK was not initialized
-    /// @retval gfnInvalidParameter     - Invalid parameters provided
-    /// @retval gfnThrottled            - API call was throttled for exceeding limit
+    /// @retval gfnInvalidParameter     - Invalid parameters provided, or message exceeded allowed length
+    /// @retval gfnThrottled            - API call was throttled for exceeding limit of 30 messages per second
     /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
     /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
     /// @return Otherwise, appropriate error code

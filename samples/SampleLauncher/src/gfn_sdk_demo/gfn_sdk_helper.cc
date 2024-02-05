@@ -28,12 +28,19 @@
 #include "gfn_sdk_demo/gfn_sdk_helper.h"
 
 #include "include/cef_parser.h"
+#include "include/cef_command_line.h"
 #include "shared/client_util.h"
 #include "shared/defines.h"
 #include "shared/main.h"
 #include "GfnRuntimeSdk_Wrapper.h"  //Helper functions that wrap Library-based APIs
-#include "shellapi.h"
 #include <fstream>
+
+#ifdef _WIN32
+#   define HELPER_CALLBACK __stdcall
+#else
+#   define HELPER_CALLBACK
+#endif
+
 
 CefString GFN_SDK_INIT = "GFN_SDK_INIT";
 CefString GFN_SDK_SHUTDOWN = "GFN_SDK_SHUTDOWN";
@@ -56,6 +63,7 @@ CefString GFN_SDK_GET_PARTNER_DATA = "GFN_SDK_GET_PARTNER_DATA";
 CefString GET_SESSION_INFO = "GFN_SDK_GET_SESSION_INFO";
 CefString GFN_SDK_SEND_MESSAGE = "GFN_SDK_SEND_MESSAGE";
 CefString GFN_SDK_REGISTER_MESSAGE_CALLBACK = "GFN_SDK_REGISTER_MESSAGE_CALLBACK";
+CefString GFN_SDK_GET_ADDITIONAL_SUPPORTED_TITLES = "GFN_SDK_GET_ADDITIONAL_SUPPORTED_TITLES";
 
 static CefString DictToJson(CefRefPtr<CefDictionaryValue> dict)
 {
@@ -99,16 +107,21 @@ static CefString GfnErrorToString(GfnError err)
     case GfnError::gfnClientLibraryNotFound: return "GFN SDK API client library not found";
     case GfnError::gfnCloudLibraryNotFound: return "GFN SDK API cloud library not found";
     case GfnError::gfnNoData: return "Requested data is empty or does not exist";
+    case GfnError::gfnNotAuthorized: return "API Call failed because it was called from unauthorized process";
+    case GfnError::gfnBackendError: return "Failed to communicate with the GFN backend service";
     default: return "Unknown Error";
     }
 }
 
 static void logGfnSdkData()
 {
+#ifdef _WIN32
     std::wstring appDataPath;
     shared::TryGetSpecialFolderPath(shared::SD_COMMONAPPDATA, appDataPath);
     std::wstring dataFilePath = appDataPath + L"\\NVIDIA Corporation\\GfnRuntimeSdk\\GFNSDK_Data.json";
-
+#else
+    std::string dataFilePath = "/var/opt/nvidia/GfnRuntimeSdk/GFNSDK_Data.json";
+#endif
     std::ifstream ifs(dataFilePath);
     if (!ifs)
     {
@@ -131,14 +144,14 @@ static void logGfnSdkData()
 }
 
 // Callback function for handling stream status callbacks
-static void __stdcall handleStreamStatusCallback(GfnStreamStatus status, void* context);
-static void __stdcall handleNetworkStatusCallback(GfnNetworkStatusUpdateData* pNetworkStatus, void* context);
-static void __stdcall handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, void* context);
+static void HELPER_CALLBACK handleStreamStatusCallback(GfnStreamStatus status, void* context);
+static void HELPER_CALLBACK handleNetworkStatusCallback(GfnNetworkStatusUpdateData* pNetworkStatus, void* context);
+static void HELPER_CALLBACK handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, void* context);
 static CefMessageRouterBrowserSide::Callback* s_registerStreamStatusCallback = nullptr;
 static CefMessageRouterBrowserSide::Callback* s_registerNetworkStatusCallback = nullptr;
 static CefMessageRouterBrowserSide::Callback* s_registerClientInfoCallback = nullptr;
 
-static void __stdcall handleMessageCallback(GfnString* pStrData, void* context);
+static void HELPER_CALLBACK handleMessageCallback(GfnString* pStrData, void* context);
 static CefMessageRouterBrowserSide::Callback* s_registerMessageCallback = nullptr;
 
 static GfnError initGFN()
@@ -214,13 +227,13 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         if (err != GfnError::gfnSuccess)
         {
             LOG(ERROR) << "Failed to get if running in cloud. Error: " << err;
-            return true;
         }
 
-        LOG(INFO) << "is enabled: " << enabled;
+        LOG(INFO) << "Cloud environment : " << enabled;
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         response_dict->SetBool("enabled", enabled);
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
 
         CefString response(DictToJson(response_dict));
         callback->Success(response);
@@ -236,20 +249,18 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     else if (command == GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE)
     {
         GfnIsRunningInCloudAssurance assurance = GfnIsRunningInCloudAssurance::gfnNotCloud;
-        CefString errorMessage;
 
         GfnError err = GfnIsRunningInCloudSecure(&assurance);
         if (err != GfnError::gfnSuccess)
         {
-            LOG(ERROR) << "Failed to get if running in cloud. Error: " << err;
-            return true;
+            LOG(ERROR) << "Failed to get if running in cloud. Error: " << GfnErrorToString(err);
         }
 
         LOG(INFO) << "Cloud environment assurance value: " << assurance;
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
         response_dict->SetInt("assurance", assurance);
-        response_dict->SetString("errorMessage", errorMessage);
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
 
         CefString response(DictToJson(response_dict));
         callback->Success(response);
@@ -317,9 +328,9 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     }
     /**
      * Calls into GFN SDK to initiate a new GeForce NOW streaming session and launch the specified
-     * game application. 
-     * If the user is logged in to Geforce NOW streaming client, this call will begin streaming 
-     * immediately. 
+     * game application.
+     * If the user is logged in to Geforce NOW streaming client, this call will begin streaming
+     * immediately.
      * If the user is not logged in, the Geforce NOW streaming client will display a login
      * window prompting the user to authenticate first.
      */
@@ -520,7 +531,6 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         }
         return true;
     }
-
     /**
      * Registers for callback notifications during a streaming session.
      */
@@ -658,19 +668,12 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     }
     else if (command == GET_OVERRIDE_URI)
     {
-        int argc = 0;
-        LPWSTR* cmdLine = CommandLineToArgvW(GetCommandLineW(), &argc);
-        LPWSTR override_uri = L"";
-        for (int i = 0; i < argc; i++)
+        CefString override_uri = "";
+        CefRefPtr<CefCommandLine> command_line = CefCommandLine::GetGlobalCommandLine();
+
+        if (command_line->HasSwitch("override_uri"))
         {
-            if (wcscmp(cmdLine[i], L"--override_uri") == 0)
-            {
-                if (i + 1 < argc)
-                {
-                    override_uri = cmdLine[i + 1];
-                }
-                break;
-            }
+            override_uri = command_line->GetSwitchValue("override_uri");
         }
 
         CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
@@ -707,12 +710,26 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     callback->Success(response);
     return true;
     }
+    else if (command == GFN_SDK_GET_ADDITIONAL_SUPPORTED_TITLES)
+    {
+        CefRefPtr<CefListValue> titles_list = CefListValue::Create();
+
+        // Custom title CMS ids could be added here to titles_list
+
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        response_dict->SetList("titles", titles_list);
+
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
+
+        return true;
+    }
     LOG(ERROR) << "Unknown command value: " << command;
 
     return false;
 }
 
-void __stdcall handleStreamStatusCallback(GfnStreamStatus status, void* context)
+void HELPER_CALLBACK handleStreamStatusCallback(GfnStreamStatus status, void* context)
 {
     if (s_registerStreamStatusCallback)
     {
@@ -724,7 +741,7 @@ void __stdcall handleStreamStatusCallback(GfnStreamStatus status, void* context)
     }
 }
 
-void __stdcall handleNetworkStatusCallback(GfnNetworkStatusUpdateData* pNetworkStatus, void* context)
+void HELPER_CALLBACK handleNetworkStatusCallback(GfnNetworkStatusUpdateData* pNetworkStatus, void* context)
 {
     if (!pNetworkStatus)
     {
@@ -739,7 +756,7 @@ void __stdcall handleNetworkStatusCallback(GfnNetworkStatusUpdateData* pNetworkS
         s_registerNetworkStatusCallback->Success(response);
     }
 }
-void __stdcall handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, void* context)
+void HELPER_CALLBACK handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, void* context)
 {
     if (!pClientUpdate)
     {
@@ -776,7 +793,7 @@ void __stdcall handleClientInfoCallback(GfnClientInfoUpdateData* pClientUpdate, 
     }
 }
 
-void __stdcall handleMessageCallback(GfnString* pStrData, void* context)
+void HELPER_CALLBACK handleMessageCallback(GfnString* pStrData, void* context)
 {
     if (s_registerMessageCallback)
     {

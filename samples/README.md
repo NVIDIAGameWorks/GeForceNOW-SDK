@@ -1,46 +1,41 @@
-This directory contains sample projectors that demonstrate use of the GeForce Now (GFN) Runtime API.
+This directory contains sample projects that demonstrate proper use of the
+various APIs that are part of GeForce NOW (GFN) SDK. Each sample is designed
+to provide examples of API usage in the most comment integration scenarios.
 
-Sample Overview:
-====================================================================================================
+## Sample Overview
+
 CGameAPISample:
-    This sample demonstrates usage of the application-focused APIs to control behavior of a
-    title running in the GeForce NOW environment. The sample focuses on use of callbacks to notify
-    a title of environment state changes.
-
-SDKDllDirectRefSample:
-    This sample demonstrates basic SDK usage without relying on the wrapper helper functions. This
-    can be useful for partners who are unable to utilize the wrapper in their environment.
+This C-based simple command-line sample demonstrates usage of the game-focused
+APIs to detect the GeForce NOW cloud environment and control behavior of a game
+in that environment. This sample focuses on use of callbacks to notify a title
+of GeForce NOW cloud environment state changes.
     
 SampleLauncher:
-    This sample demonstrates usage of the Launcher/Publisher-focused APIs, including getting a list
-    of supported titles as well as invoking GeForce NOW to start a streaming session of a title. 
+This C++-based sample demonstrates usage of the Launcher/Publisher application-
+focused APIs, including getting a list of supported titles supported by GeForce
+NOW, as well as invoking the GeForce NOW Windows client to start a streaming
+session of a title. This sample is meant to be run on both the local client and
+GeForce NOW cloud environment to understand how all the APIs behave in each 
+environment.
     
-    In addition, this sample is CEF-based to provide a view of how a CEF-based Launcher application
-    can make use of the API. Sample source is a fork of the CEF project's example source found at
-    https://bitbucket.org/chromiumembedded/cef-project/src.
+In addition to supporting both execution environments, this sample is built on
+Chromium Embedded Framework (CEF) to provide a view of how a CEF-based 
+application can make use of the API. The sample source is a fork of the CEF 
+project's example source found at 
+https://bitbucket.org/chromiumembedded/cef-project/src.
+
+When building for Linux, this sample requires the X11-dev libraries be
+installed to compile successfully.
     
-    For applications that are not CEF-based, users can focus on API calls as found in the 
-    src/gfn_sdk_demo/gfn_sdk_helper.cc file.
+For applications that are not CEF-based, users can focus on API calls as found in
+[SampleLauncher's gfn_sdk_helper.cc file](./SampleLauncher/src/gfn_sdk_demo/gfn_sdk_helper.cc).
 
-Building:
-====================================================================================================
-Prerequisites:
-    Visual Studio 2015 or later is required to build the samples against the GFN Runtime API static
-    libraries.
+SDKDllDirectRefSample:
+This C-based sample demonstrates basic SDK usage without relying on the wrapper
+helper functions. This can be useful for partners who are unable to utilize the
+wrapper in their build environment or want finer control on SDK library loading
+and how the library exports are called from an application.
 
-    Version 3.11 or later of cmake or later is required to generate the Visual Studio solution.
-    Please visit( https://cmake.org/download/ ) to install or update.
+## Building the Samples
 
-Generating Visual Studio Solution:
-    There is a BATCH file at the root of the distribution package that provides sample generation of
-    GfnRuntimeSdk.sln against your latest Visual Studio installation with x86 Debug target in a new
-    folder called "build". For more advanced or custom usage, invoke cmake directly. Example for 
-    generating a Visual Studio 2017 solution with x64 targets:
-        mkdir build
-        cd build
-        cmake .. -G "Visual Studio 15 2017" -A x64
-
-Compiling:
-    Once the solution is built, simply run or debug the samples, as the generator will correctly 
-    set links back to the GFN Runtime API include and lib folders.
-    
+Please see the [root README](./README.md) for details on how to build the samples.

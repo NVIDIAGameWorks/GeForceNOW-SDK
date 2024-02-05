@@ -108,7 +108,7 @@ else ()
         elseif (APPLE)
             message( FATAL_ERROR "MacOS builds are not supported at this time." )
         elseif (LINUX)
-            message( FATAL_ERROR "Linux builds are not supported at this time." )
+            set(OS_STRING linux)
         endif ()
 
         if (SAMPLES_ARCH STREQUAL "32")
@@ -147,7 +147,16 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake")
 find_package(CEF REQUIRED)
 
 # CEF isn't careful about Release vs RelWithDebInfo/MinSizeRel
+# Handle different generators here
 string(REPLACE "$<CONFIGURATION>" "$<$<CONFIG:Debug>:Debug>$<$<NOT:$<CONFIG:Debug>>:Release>" CEF_BINARY_DIR ${CEF_BINARY_DIR})
+string(REPLACE "RelWithDebInfo" "Release" CEF_BINARY_DIR ${CEF_BINARY_DIR})
+
+if (OS_LINUX)
+    list(APPEND CEF_CXX_COMPILER_FLAGS "-Wno-error=attributes")
+endif ()
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    list(APPEND CEF_CXX_COMPILER_FLAGS "-Wno-undefined-var-template")
+endif ()
 
 #
 # Define CEF-based targets.
@@ -157,7 +166,7 @@ string(REPLACE "$<CONFIGURATION>" "$<$<CONFIG:Debug>:Debug>$<$<NOT:$<CONFIG:Debu
 # Comes from the libcef_dll/CMakeLists.txt file in the binary distribution
 # directory.
 add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
-set_target_properties(libcef_dll_wrapper PROPERTIES FOLDER Helpers)
+set_target_properties(libcef_dll_wrapper PROPERTIES FOLDER install)
 
 # Include application targets.
 # Comes from the <target>/CMakeLists.txt file in the current directory.

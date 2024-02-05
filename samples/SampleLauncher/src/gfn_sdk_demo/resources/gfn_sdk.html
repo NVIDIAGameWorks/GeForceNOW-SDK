@@ -5,8 +5,8 @@
         body {
             left: 0;
             top: 0;
-            width: 496px;
-            height: 330px;
+            width: 512px;
+            height: 800px;
             background: #191919;
             margin: 0 !important;
             overflow: hidden;
@@ -17,9 +17,25 @@
             padding: 8px;
         }
 
-        .coverart {
+        .coverart-container {
+            display: flex;
             width: 480px;
             height: 270px;
+        }
+
+        .coverart {
+            display: inline;
+            flex: 1;
+            width: 100%;
+            height: 100%;
+        }
+
+        .coverart-backup {
+            display: none;
+            flex: 1;
+            color: white;
+            text-align: center;
+            font-size: 16px;
         }
 
         .nv-button {
@@ -76,6 +92,7 @@
         }
 
         .nv-container {
+            width: 480px;
             margin-top: 8px;
             display: flex;
             flex-direction: row;
@@ -86,18 +103,23 @@
         }
 
         .nv-nested-container {
-            display: inline-flex;
+            width: 480px;
+            margin-top: 8px;
+            display: flex;
+            flex-direction: row;
             margin-left: 8px;
+            align-items: center;
         }
 
         .input {
             height: 20px;
             margin: 0px 8px 0px 8px;
+            width: 100%;
         }
 
         .input-label {
             white-space: normal;
-            width: 70px;
+            width: 100px;
             margin-left: 12px;
             vertical-align: middle;
         }
@@ -110,12 +132,8 @@
             color: #FFFFFFB3;
             background: #292929;
             border-color: #FFFFFFB3;
-            flex: auto;
-            height: 316px;
-        }
-
-        #login-panel {
-            vertical-align: middle;
+            height: 350px;
+            width: 100%;
         }
 
         .flyout-container {
@@ -152,7 +170,7 @@
 
         .flyout-button {
             border: 2px solid black;
-            width: 170px;
+            width: 200px;
             height: 44px;
         }
 
@@ -165,7 +183,10 @@
     <div class="parent">
         <div>
             <button class="nv-button nv-chevron" disabled id="previous-game" onclick="nextGame(-1)"><</button>
-            <img id="cover-art" class="coverart" />
+            <div id="cover-art-container" class="coverart-container">
+                <img id="cover-art" class="coverart" />
+                <div id="art-backup" class="coverart-backup"></div>
+            </div>
             <button class="nv-button nv-chevron nv-chevron-right-align" disabled id="next-game" onclick="nextGame(1)">></button>
         </div>
         <div id="ip-address" class="nv-container" style="display: none">
@@ -176,22 +197,22 @@
                 <button class="nv-button">SDK Calls ></button>
             </div>
             <div class="flyout" id="api-button-container">
-                <button class="nv-button-disabled flyout-button" disabled id="stream-action" onclick="performStreamAction()">Start<br />Stream</button>
-                <button class="nv-button-disabled flyout-button" disabled id="send-message" onclick="sendMessage('SampleLauncher: Ping')">Send Message to Game</button>
+                <button class="nv-button-disabled flyout-button" disabled id="stream-action" onclick="performStreamAction()">Start Stream</button>
+                <button class="nv-button-disabled flyout-button" disabled id="send-message" onclick="sendMessage('SampleLauncher: Ping')">Send Message To Game</button>
                 <button class="nv-button flyout-button" id="init-control" onclick="toggleSdkInit()">Shutdown SDK</button>
-                <button class="nv-button flyout-button" onclick="getRunningInCloud()">Check if Cloud</button>
-                <button class="nv-button flyout-button" onclick="isRunningInCloudSecure()">Check if Cloud Secure</button>
-                <button class="nv-button flyout-button" onclick="getClientIp()">Get Client IP</button>
-                <button class="nv-button flyout-button" onclick="getClientCountryCode()">Get Client Country Code</button>
-                <button class="nv-button flyout-button" onclick="getClientLanguageCode()">Get Client Language Code</button>
-                <button class="nv-button flyout-button" onclick="getClientInfo()">Get Client Info</button>
-                <button class="nv-button flyout-button" onclick="getSessionInfo()">Get Session Info</button>
-                <button class="nv-button flyout-button" onclick="getPartnerData()">Get Partner Data</button>
-                <button class="nv-button flyout-button" onclick="getPartnerSecureData()">Get Partner Secure Data</button>
+                <button class="nv-button flyout-button" id="is-running-in-cloud" onclick="getRunningInCloud()">Check If Cloud</button>
+                <button class="nv-button flyout-button" id="is-running-in-cloud-secure" onclick="isRunningInCloudSecure()">Check If Cloud Secure</button>
+                <button class="nv-button flyout-button" id="client-ip" onclick="getClientIp()">Get Client IP</button>
+                <button class="nv-button flyout-button" id="client-country-code" onclick="getClientCountryCode()">Get Client Country Code</button>
+                <button class="nv-button flyout-button" id="client-language-code" onclick="getClientLanguageCode()">Get Client Language Code</button>
+                <button class="nv-button flyout-button" id="client-info" onclick="getClientInfo()">Get Client Info</button>
+                <button class="nv-button flyout-button" id="session-info" onclick="getSessionInfo()">Get Session Info</button>
+                <button class="nv-button flyout-button" id="partner-data" onclick="getPartnerData()">Get Partner Data</button>
+                <button class="nv-button flyout-button" id="partner-secure-data" onclick="getPartnerSecureData()">Get Partner Secure Data</button>
             </div>
             <div id="login-panel" class="nv-nested-container">
-                <span class="input-label">Launcher <br /> Token:</span>
-                <input id="launcherToken" type="text" class="input" size="32" />
+                <span class="input-label">Launcher Token:</span>
+                <input id="launcherToken" type="text" class="input">
             </div>
         </div>
         <div id="stream-status" class="nv-container">
@@ -203,18 +224,9 @@
     </div>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.494.0.min.js"></script>
     <script language="JavaScript">
-
-        var launcherName = null;
-        var launcherGameId = null;
         var gfnTitleId = null;
-        var nvidiaToken = null;
-        var oauthWindow = null;
-        var userToken = null;
         var gameIndex = 0;
         var supportedTitlesAsJson = null;
-        var preferredAuthType = 'AUTH_NVIDIA_DEFAULT';
-        // These defines mirror the ones in GfnRuntimeSdk_CAPI.h
-        var AUTH_NVIDIA_DEFAULT = '7';
         var streamRunning = false;
         var isSDKEnabled = false;
 
@@ -377,9 +389,9 @@
         }
 
         /**
-            * Uses the secure version of the cloud check API to check if running in GFN environment. This
-            * requires the sample application to be registered per Cloud Check API guide.
-            */
+         * Uses the secure version of the cloud check API to check if running in GFN environment. This
+         * requires the sample application to be registered per Cloud Check API guide.
+         **/
         function isRunningInCloudSecure() {
             return new Promise((resolve, reject) => {
                 window.cefQuery({
@@ -478,9 +490,32 @@
                             return response.json();
                         })
                         .then(function (responseJson) {
-                            return responseJson.data.apps.items;
+                            let returnList = responseJson.data.apps.items;
+                            return getAdditionalSupportedTitles().then(function (add_response) {
+                                if (add_response && add_response.length > 0) {
+                                    returnList = [...add_response, ...returnList];
+                                }
+                                return returnList;
+                            });
                         })
                 })
+        }
+
+        /**
+         * Queries the native helper for any additional titles that should be shown in the list.
+         */
+        function getAdditionalSupportedTitles() {
+            return new Promise((resolve, reject) => {
+                window.cefQuery({
+                    request: JSON.stringify({
+                        command: 'GFN_SDK_GET_ADDITIONAL_SUPPORTED_TITLES',
+                    }),
+                    onSuccess: function (response) {
+                        var data = JSON.parse(response);
+                        resolve(data.titles);
+                    },
+                });
+            });
         }
 
         /**
@@ -575,9 +610,22 @@
             // For this sample application, we utilize GFN artwork services. If you wish to utilize the
             // same services, contact NVIDIA for more information on doing so.
             var cover = document.getElementById('cover-art');
+            var backup = document.getElementById('art-backup');
 
             gfnTitleId = parseInt(supportedTitlesAsJson[gameIndex].variants[0].id);
-            cover.src = supportedTitlesAsJson[gameIndex].variants[0].images.TV_BANNER;
+
+            const banner = supportedTitlesAsJson[gameIndex].variants[0].images.TV_BANNER;
+            if (banner) {
+                cover.src = banner;
+                cover.style.display = 'inline';
+                backup.innerHTML = '';
+                backup.style.display = 'none';
+            } else {
+                cover.src = '';
+                cover.style.display = 'none';
+                backup.innerHTML = supportedTitlesAsJson[gameIndex].title;
+                backup.style.display = 'inline';
+            }
 
             var lastIndex = supportedTitlesAsJson.length - 1;
             setStatus('GFN Game ' + gameIndex + ' of ' + lastIndex + ':  ' + JSON.stringify(supportedTitlesAsJson[gameIndex]));
@@ -616,7 +664,12 @@
                 case false:
                     toggleButton.innerText = 'Shutdown SDK';
                     setStatus('Re-Initializing SDK.');
-                    initializeSdk();
+                    initializeSdk().then(function () {
+                        isRunningInCloud().then(function (isCloud) {
+                            setButtonState(isCloud);
+                            updateStreamButton();
+                        });
+                    });
 
                     const apiContainer = document.getElementById('api-button-container');
                     for (var child of apiContainer.children) {
@@ -779,50 +832,54 @@
             });
         }
 
-        function enableButtons(enable) {
-            if (enable) {
-                document.getElementById('next-game').setAttribute("class", 'nv-button nv-chevron nv-chevron-right-align');
-                document.getElementById('previous-game').setAttribute("class", 'nv-button nv-chevron');
-                if (this.isSDKEnabled) {
-                    document.getElementById('stream-action').setAttribute("class", 'nv-button flyout-button');
-                }
+        function setButtonState(isCloud) {
+            if (isCloud) {
+                // is cloud system, disable all client-specific buttons
+                document.getElementById('next-game').setAttribute("class", 'nv-button-disabled nv-chevron nv-chevron-right-align');
+                document.getElementById('next-game').disabled = true;
+                document.getElementById('previous-game').setAttribute("class", 'nv-button-disabled nv-chevron');
+                document.getElementById('previous-game').disabled = true;
             }
             else {
-                document.getElementById('next-game').setAttribute("class", 'nv-button-disabled nv-chevron nv-chevron-right-align');
-                document.getElementById('previous-game').setAttribute("class", 'nv-button-disabled nv-chevron');
-                document.getElementById('stream-action').setAttribute("class", 'nv-button-disabled flyout-button');
-                document.getElementById('send-message').setAttribute("class", 'nv-button-disabled flyout-button');
-            }
+                // is client, enable client specific buttons and disable all cloud-specific buttons
+                document.getElementById('next-game').setAttribute("class", 'nv-button nv-chevron nv-chevron-right-align');
+                document.getElementById('next-game').disabled = false;
+                document.getElementById('previous-game').setAttribute("class", 'nv-button nv-chevron');
+                document.getElementById('previous-game').disabled = false;
+                document.getElementById('stream-action').setAttribute("class", 'nv-button flyout-button');
+                document.getElementById('stream-action').disabled = false;
 
-            document.getElementById('next-game').disabled = !enable;
-            document.getElementById('previous-game').disabled = !enable;
-            document.getElementById('stream-action').disabled = !enable;
-            document.getElementById('send-message').disabled = !enable;
+                document.getElementById('client-ip').setAttribute("class", 'nv-button-disabled flyout-button');
+                document.getElementById('client-ip').disabled = true;
+                document.getElementById('client-country-code').setAttribute("class", 'nv-button-disabled flyout-button');
+                document.getElementById('client-country-code').disabled = true;
+                document.getElementById('client-language-code').setAttribute("class", 'nv-button-disabled flyout-button');
+                document.getElementById('client-language-code').disabled = true;
+                document.getElementById('client-info').setAttribute("class", 'nv-button-disabled flyout-button');
+                document.getElementById('client-info').disabled = true;
+                document.getElementById('session-info').setAttribute("class", 'nv-button-disabled flyout-button');
+                document.getElementById('session-info').disabled = true;
+                document.getElementById('partner-data').setAttribute("class", 'nv-button-disabled flyout-button');
+                document.getElementById('partner-data').disabled = true;
+                document.getElementById('partner-secure-data').setAttribute("class", 'nv-button-disabled flyout-button');
+                document.getElementById('partner-secure-data').disabled = true;
+            }
         }
 
         function updateStreamButton() {
             if (streamRunning == false) {
                 document.getElementById('stream-action').innerHTML = 'Start <br> Stream';
+                document.getElementById('stream-action').disabled = false;
+
                 document.getElementById('send-message').disabled = true;
                 document.getElementById('send-message').setAttribute("class", 'nv-button-disabled flyout-button');
             }
             else {
                 document.getElementById('stream-action').innerHTML = 'Stop <br> Stream';
+                document.getElementById('stream-action').disabled = false;
+
                 document.getElementById('send-message').disabled = false;
                 document.getElementById('send-message').setAttribute("class", 'nv-button flyout-button');
-            }
-        }
-
-        function surfaceDemoTitle() {
-            // For simplicity of testing the SDK, make sure the Apollo 11 demo is first in the list
-            var apollo11Index = null;
-            supportedTitlesAsJson.find(function (entry, index) {
-                if (entry.variants[0].id === "16032111") {
-                    apollo11Index = index;
-                }
-            });
-            if (apollo11Index) {
-                supportedTitlesAsJson[0] = supportedTitlesAsJson.splice(apollo11Index, 1, supportedTitlesAsJson[0])[0];
             }
         }
 
@@ -832,6 +889,7 @@
                 // decide if we should get the supported titles
                 isRunningInCloudSecure();
                 isRunningInCloud().then(function (isCloud) {
+                    setButtonState(isCloud);
                     if (!isCloud) {
                         registerStreamStatusCallback();
                         registerMessageCallback(function (resp) {
@@ -848,9 +906,7 @@
                                     setStatus('removing title ' + JSON.stringify(title));
                                 }
                             }
-                            surfaceDemoTitle();
                             nextGame(0);
-                            enableButtons(true);
                         }, function (error) {
                             setStatus('getSupportedTitles failed with ' + error);
                         });

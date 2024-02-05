@@ -27,6 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
+   &#160;<span id="projectnumber">2.1.0.33843515</span>
    </div>
   </td>
  </tr>
@@ -192,6 +193,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#ga6095bb54551cc3f04ff74c362640f8a6">GfnAppReady</a> to notify GFN that an application is ready to be displayed.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to notify GFN that your application is ready to be streamed.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -227,6 +229,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to free memory allocated by <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a></dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to release memory after a call to a memory-allocated function and you are finished with the data. Should only be called if the memory is populated with valid data. Calling <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> with invalid pointer or data will result in an memory exception being thrown.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -269,6 +272,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Gets user's client country code using ISO 3166-1 Alpha-2 country code.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's country code.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -305,6 +309,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Gets user's client data.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the data on the user's client.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -341,6 +346,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga8c41a40828a5bd9a0cf087a0fd2757a8">gfnGetClientIp</a> to get user client's IP address.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -378,6 +384,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga95ddfe6fabeec68eb40b2ffa28d604ec">gfnGetClientLanguageCode</a> to gets user's client language code in the form "&lt;lang&gt;-&lt;country&gt;" using a standard ISO 639-1 language code and ISO 3166-1 Alpha-2 country code.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's language and country settings.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -415,10 +422,11 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#ga9223905a2b1279a175f9b5bdbc40838c">GfnGetPartnerData</a> to retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent using Deep Link parameter.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve partner data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">partnerData</td><td>- Populated with the partner data, if found. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
+    <tr><td class="paramname">partnerData</td><td>- Populated with the partner data in string form if found Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory</td></tr>
   </table>
   </dd>
 </dl>
@@ -452,10 +460,11 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#gab4760d499a669358847649c9dc44a433">GfnGetPartnerSecureData</a> to retrieves secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent in response to Deep Link nonce validation.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve secure partner data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">partnerSecureData</td><td>- Populated with the secure partner data, if found. Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory.</td></tr>
+    <tr><td class="paramname">partnerSecureData</td><td>- Populated with the secure partner data in string for if found Call <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> to free the memory</td></tr>
   </table>
   </dd>
 </dl>
@@ -489,6 +498,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Gets various information about the current streaming session</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this from a streaming session to find out more information about the session, such as session time remaining, or if RTX is enabled for the current session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -524,6 +534,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a> to retrieves all titles that can be launched in the current game streaming session.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to retrieve a list of all titles available to launch in the current streaming session, for example, to add "Play" buttons to all titles instead of calling gfnIsTitleAvailable on each title.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -560,6 +571,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Loads the GFN SDK dynamic library and calls <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk</a>. By default, the function expects the library to be in the same folder as the loading process's executable. For security reasons, the dynamic library is loaded by fully-quanitified path. If the GFN SDK library is packaged in another folder, you will need to locally modify the function to reference that location.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call as soon as possible during application startup.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -603,13 +615,14 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section user"><dt>Description</dt><dd>Loads the GFN SDK dynamic library from the given path and calls <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk</a>.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Loads the GFN SDK dynamic library from the given path and calls <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk</a>. (UTF-8 / ASCII version)</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call as soon as possible during application startup.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">language</td><td>- Language to use for any UI, such as GFN download and install progress dialogs. Defaults to system language if not defined. </td></tr>
-    <tr><td class="paramname">sdkLibraryPath</td><td>- Fully-quantified path to GFN SDK Library including the name GfnRuntimeSdk.dll, note that dll cannot be renamed to any other string. </td></tr>
+    <tr><td class="paramname">sdkLibraryPath</td><td>- Fully-quantified path to GFN SDK library file including the library filename, note that for security reasons, library cannot be renamed to any other string. </td></tr>
   </table>
   </dd>
 </dl>
@@ -649,13 +662,14 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section user"><dt>Description</dt><dd>Loads the GFN SDK dynamic library from the given path and calls <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk</a>.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Loads the GFN SDK dynamic library from the given path and calls <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk</a>. (Wide char version)</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call as soon as possible during application startup.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">language</td><td>- Language to use for any UI, such as GFN download and install progress dialogs. Defaults to system language if not defined. </td></tr>
-    <tr><td class="paramname">wSdkLibraryPath</td><td>- Wide Char string with Fully-quantified path to GFN SDK Library including the name GfnRuntimeSdk.dll, note that dll cannot be renamed to any other string. </td></tr>
+    <tr><td class="paramname">wSdkLibraryPath</td><td>- Wide Char string with fully-quantified path to GFN SDK library file including the library filename, note that for security reasons, library cannot be renamed to any other string. </td></tr>
   </table>
   </dd>
 </dl>
@@ -687,6 +701,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga3b33985a46d6bd20fdea2c4865dc6a0f">gfnIsRunningInCloud</a> to determine if calling application is running in GFN environment, and without requiring process registration.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to quickly determine whether to enable / disable any low-value GFN cloud environment specific application logic, for example, to block any calls to <a class="el" href="group__wrapper.html#ga8b35031da8034f2c2e85f2f1b8ec127c">GfnStartStream()</a> to avoid an error, or to know if GetTitlesAvailable can be called without an error.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>This API is meant to fill the need to quickly determine if the call looks to be in the GFN cloud environment. It purposefully trades off resource-intensive checks for fast response. Do not tie any logic or features of value to this API as the call stack could be tampered with. For that purpose, use <a class="el" href="group__wrapper.html#ga6fa2dbe2bfa3e67cd41963bf28ac5e65">GfnIsRunningInCloudSecure</a>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -723,6 +738,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gaf5ab33bd8cd24cb26cda5bacf1764e3f">gfnIsRunningInCloudSecure</a> to determine if calling application is running in GFN environment, and what level of security assurance that the result is valid.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call from an NVIDIA-approved process to securely determine whether running in GFN cloud, and use the GfnIsRunningInCloudAssurance value to decide the risk to enable any application specific logic for that environment.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>This API must be called from a process that has been registered with NVIDIA, or it will return an error. Refer to the Cloud Check API Guide on how to get your application registered. To prevent man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance to decide if the check was certain enough without tampering to enable the logic or feature associated with the API call.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -768,6 +784,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gaa8b07a70503f2a24b6625fc5a7eef9cb">gfnIsTitleAvailable</a> to determines if a specific title is available to launch in current streaming session.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to determine if a title is available to be launched from the active GFN cloud instance, for example, to show a "Play" button in a platform launcher's UI.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -814,6 +831,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Registers an application callback with GFN to be called when client info changes</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">clientInfoCallback</td><td>- Function pointer to application code to call when GFN client data changes</td></tr>
@@ -856,6 +874,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__callbacks.html#ga1bcb62aa8313bbe205ea4cb40246ee72">gfnRegisterExitCallback</a> to register an application function to call when Geforce NOW needs to exit the game.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to exit the game.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -902,6 +921,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__callbacks.html#gaf315563a9205712a40e7a842af2ac91b">gfnRegisterInstallCallback</a> to register an application callback with Geforce NOW to be called after a successful call to <a class="el" href="group__launcher.html#gac3fd7e969aeaf3992dbb4e8220cacc6d">gfnSetupTitle</a>.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register a function to call after a successful call to gfnSetupTitle.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -948,6 +968,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ae5b74a7732c782eb448f5017115997c8">gfnRegisterMessageCallback</a> to register an application callback to be called when a message has been sent to the application.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Provide a callback function that will be called when a message is sent to the application.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1000,6 +1021,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Registers an application callback with GFN to be called when network latency changes</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">networkStatusCallback</td><td>- Function pointer to application code to call when network latency changes </td></tr>
@@ -1044,6 +1066,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__callbacks.html#gaf1965f1ccce59f6748ea4eed3df4edc0">gfnRegisterPauseCallback</a> to register an application callback with Geforce NOW to be called when Geforce NOW needs to pause the game on the user's behalf.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to pause the game.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1090,6 +1113,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a432fb9b340f4ee95166d537feee44ea0">gfnRegisterSaveCallback</a> to register an application callback with GFN to be called when GFN needs the application to save user progress.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when GFN needs the application to save</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1134,6 +1158,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ac19b823f27eaffd4bd318eaf0fa02449">gfnRegisterSessionInitCallback</a> to register an application callback to be called when a GFN user has connected to the game seat.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a GFN user has connected to the game seat</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1180,6 +1205,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a63f79659507415464e65d3feb96ba15a">gfnRegisterStreamStatusCallback</a> to register a callback that gets called on the user's PC when the streaming session state changes.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register a function to call when stream status changes on the user's client PC</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1225,11 +1251,12 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Sends a custom message communication from the app to the client. This message is "fire-and-forget", and does not wait for the message to be delivered to return status. Latency is best effort and not guaranteed.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud or Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to communicate between cloud applications and streaming clients.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pchMessage</td><td>- Character string </td></tr>
-    <tr><td class="paramname">length</td><td>- Length of pchMessage in characters</td></tr>
+    <tr><td class="paramname">length</td><td>- Length of pchMessage in characters, which cannot exceed 8K in length</td></tr>
   </table>
   </dd>
 </dl>
@@ -1238,8 +1265,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
     <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
     <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
-    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided, or message exceeded allowed length </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit of 30 messages per second </td></tr>
     <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
   </table>
@@ -1281,6 +1308,7 @@ Functions</h2></td></tr>
 <dl class="section user"><dt>Description</dt><dd>Sends Active zone coordinates to GFN Client</dd></dl>
 <p>TO BE DEPRECATED SOON</p>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment Note : Marked for deprecation</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1322,6 +1350,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gac3fd7e969aeaf3992dbb4e8220cacc6d">gfnSetupTitle</a> to notify Geforce NOW that an application should be readied for launch.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to prepare an application for launch on Geforce NOW, and block on the result.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1358,6 +1387,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__general.html#gaef511b26bef12e55c0c12ea4911005a7">gfnShutdownRuntimeSdk</a> to releases the SDK and resources and disconnects from GFN backend and then unloads unloads the GFN SDK Library.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call during application shutdown or when GFN Runtime API methods are no longer needed. </dd></dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
@@ -1394,6 +1424,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream</a> to request GFN client to start a streaming session of an application in a synchronous (blocking) fashion.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to start a streaming session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1453,6 +1484,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gac080be91f1f7c784b42147101ece1c93">gfnStartStreamAsync</a> to request GFN client to start a streaming session of an application in an asynchronous fashion.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to start a streaming session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1492,6 +1524,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gaf187e90d0ba2eb566244c2d302fed86e">gfnStopStream</a> to request GFN client to stop a streaming session of an application in a synchronous (blocking) fashion.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to stop a streaming session started by the same process</dd></dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
@@ -1537,6 +1570,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga2392b3feb76dc6e77cc32d39c7193428">gfnStopStreamAsync</a> to request GFN client to stop a streaming session of an application in an asynchronous fashion.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to start a streaming session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1586,6 +1620,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#gac34f26953cd4f1ff82f37f0f84de8332">GfnTitleExited</a> to notify GFN that an application has exited.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to notify GFN that your application has exited.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">

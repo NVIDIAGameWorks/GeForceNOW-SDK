@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>GfnSdkDevelopment: Native Runtime API Reference</title>
+<title>GfnSdkDevelopment: Native Runtime Application Programming Interface Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -27,6 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
+   &#160;<span id="projectnumber">2.1.0.33843515</span>
    </div>
   </td>
  </tr>
@@ -80,33 +81,23 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">Native Runtime API Reference </div>  </div>
+<div class="title">Native Runtime Application Programming Interface Reference </div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><h1><a class="anchor" id="introduction"></a>
 Introduction</h1>
-<p>The NVIDIA GFN Runtime SDK provides a set of interfaces to allow game developers and game publishers to interact with parts of the NVIDIA GeForce NOW ecosystem. Integration is provided by various means, from native C interfaces to RESTful Web API calls, depending on the feature of the SDK.</p>
-<div class="image">
-<img src="ecosystem.png" alt="ecosystem.png"/>
-</div>
-<p>This document provides details of how to integrate the native APIs of GFN Runtime SDK features into your application and its developer and deployment processes.</p>
+<p>The NVIDIA GFN Runtime SDK provides an Application Programming Interface (API) to allow game and application developers to interact with parts of the NVIDIA GeForce NOW ecosystem. Overall integration is provided by various interfaces, from the native C interfaces described in this documentation, to RESTful endpoint calls, depending on the feature of the SDK.</p>
+<p>This documenation focuses solely on the native C interfaces, and provides the specifications of each of the native APIs of GFN Runtime SDK, as well as the requires to use the APIs. For example usage, refer to the Quick Start documentation and the sample applications provided in the ./samples folder.</p>
 <h1><a class="anchor" id="overview"></a>
 Overview</h1>
-<p>The GFN Runtime SDK provides a dynamic library with API exports as defined in this document, which is distributed with and loaded by the game/application that utilizes the APIs. The loading of this library should be done in a way that validates the authenticity of the binary via checking for a valid digital signature, and that signature is from NVIDIA Corporation.</p>
-<p>The behavior of the APIs depends on the environment the application is running in; either on a client/user system or in the GeForce NOW (GFN) cloud environment. Each API defines which of the environments it is designed to run in.</p>
-<p>On client systems, this library checks for the presence of the GeForce NOW (GFN) client installation when any of the gfnStartStream API variants is called. If the client is not present, then the library will initiate a download and installation of the latest GFN client, presenting UI to the user for the download and installation process. If the GFN client is present, but out of date, then a similar download and install process to update the client will take place before the streaming session will start.</p>
-<p>Once the GFN client is installed, all API actions are deferred to the GFN client. This design allows the dynamic library to stay as thin as possible in the application, and provides backward and forward compatibility to new GFN client packages.</p>
-<p>Many of the APIs are no-ops depending on the environment they apply to only to either local client or GFN cloud environments. In those cases, API calls will return a well-defined error code to denote the call was not applicable to the environment.</p>
-<p>Some of the APIs are used solely for authentication purposes in Account Linking and Single Sign-On scenarios. For more information about NVIDIA's Account Linking and Single Sign-On model, please refer to the SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf document in the /doc folder.</p>
-<p>For additional high-level overview, please refer to the SDK primer available as part of the documentation section of the SDK's repository.</p>
+<p>The GFN Runtime SDK provides a dynamic library with API exports as defined in this document, which is distributed with and loaded by the game/application that utilizes the APIs. The loading of this library should be done in a way that validates the authenticity of the binary. For example, on Windows, checking for a valid digital signature, and that signature is from NVIDIA Corporation.</p>
+<p>The behavior of the APIs depends on the environment the application is running in; either on a client/user system or in the GeForce NOW (GFN) cloud environment. Each API defines which of the environments it is designed to run in. Some of the APIs can execute in only one of the environments; either the local client or GFN cloud environment. These APIs will return a well-defined error code "gfnCallWrongEnvironment" to denote when call was not applicable to the execution environment.</p>
+<p>For additional high-level overview, please refer to the SDK primer available as part of the documentation section of the SDK's repository. For references on correct API calls for the most common of integration scenarios, please prefer to the SDK Quick Start Guide.</p>
 <h1><a class="anchor" id="keyconcepts"></a>
 Key Concepts</h1>
 <p>GFN Runtime API methods are used to make requests from or to notify the GFN backend.</p>
 <p>When your application is operating outside of the GFN environment, these methods are simple stubs that incur almost no cost, so it's safe to add these to your main build.</p>
 <p>The calling convention differs by which API you've selected to use. In most cases, the methods return a GfnRuntimeError result, which can be used by the application to check for errors. In addition, some methods are asynchronous by nature, but provide synchronous variants when possible.</p>
-<div class="image">
-<img src="sequence.png" alt="sequence.png"/>
-</div>
 <h1><a class="anchor" id="apiReference"></a>
 API Reference</h1>
 <h2><a class="anchor" id="general_section"></a>
@@ -120,6 +111,7 @@ General / Common methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Should be called at application startup and prior to any other GFN Runtime API methods. The SDK features which become available as a result of initializing the Geforce NOW SDK are dependent on the type of environment in which the SDK operates (client or cloud).</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call as soon as possible during application startup.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -144,6 +136,7 @@ General / Common methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Releases the SDK, and frees up memory allocated by GFN and disconnects from GFN backend.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call during application shutdown or when GFN Runtime API methods are no longer needed.</dd></dl>
 <h2><a class="anchor" id="launcher_game_section"></a>
 Launcher or Game Specific Methods</h2>
@@ -156,6 +149,7 @@ Launcher or Game Specific Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Quickly determines if the calling application is running in GFN environment or not with a low security assurance, and without requiring process registration.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to quickly determine whether to enable / disable any low-value GFN cloud environment specific application logic, for example, to block any calls to <a class="el" href="group__launcher.html#gaa2d0aa6c6d9325ff2ff5e2beb82c47d6">gfnStartStream()</a> to avoid an error, or to know if <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a> can be called without an error.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>This API is meant to fill the need to quickly determine if the call looks to be in the GFN cloud environment. It purposefully trades off resource-intensive checks for fast response. Do not tie any logic or features of value to this API as the call stack could be tampered with. For that purpose, use <a class="el" href="group__launcher.html#gaf5ab33bd8cd24cb26cda5bacf1764e3f">gfnIsRunningInCloudSecure</a>.</dd></dl>
 <dl class="retval"><dt>Return values</dt><dd>
@@ -173,6 +167,7 @@ Launcher or Game Specific Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Determines if calling application is running in GFN environment or not, and what degree of security assurance is assigned to the result.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call from an NVIDIA-approved process to securely determine whether running in GFN cloud, and use the GfnIsRunningInCloudAssurance value to decide the risk to enable any application specific logic for that environment.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>This API must be called from a process that has been registered with NVIDIA, or it will return an error. Refer to the Cloud Check API Guide on how to get your application registered. To prevent man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance to decide if the check was certain enough without tampering to enable the logic or feature associated with the API call.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -196,6 +191,7 @@ Launcher or Game Specific Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Releases memory allocated by Get functions such as, but not limited to, <a class="el" href="group__launcher.html#ga16c67cdee702190faf8b8682f760a339">gfnGetPartnerData</a>, <a class="el" href="group__launcher.html#gaeddedbabbd2d5da5d525bb737b26c820">gfnGetPartnerSecureData</a>, or <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a></dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to release memory after a call to a memory-allocated function and you are finished with the data. Should only be called if the memory is populated with valid data. Calling <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> with invalid pointer or data will result in an memory exception being thrown.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -218,6 +214,7 @@ Launcher or Game Specific Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Determines if a specific title is available to launch in current streaming session</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to determine if a title is available to be streamed from the active GFN cloud instance, for example, to show a "Play" button in a platform launcher's UI.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -240,6 +237,7 @@ Launcher or Game Specific Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Retrieves all titles that can be launched in the current game streaming session</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to retrieve a list of all titles available to launch in the current streaming session, for example, to add "Play" buttons to all titles instead of calling gfnIsTitleAvailable on each title.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -264,6 +262,7 @@ Launcher or Game Specific Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Notifies Geforce NOW that an application should be readied for launch. Geforce NOW will make the build files associated with the application available at the path returned in the SetupTitleResult struct passed in to the ConfirmTitleSetup callback provided by the caller. Additionally, Geforce NOW will set all necessary settings to optimize for the Geforce NOW cloud environment, and download any associated user data, including save files.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to prepare an application for launch on Geforce NOW, and block on the result.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -289,6 +288,7 @@ Launcher or Game Specific Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Notifies GFN that an application has exited. GFN will then start the shutdown process for that application. Note that this is for use by platform clients only and assumes the application has already completed execution. To shutdown from within an application itself, gfnShutdownRuntimeSDK is used.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to notify GFN that your application has exited.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -314,6 +314,7 @@ Launcher or Game Specific Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Since applications running under Geforce NOW run in the Geforce NOW data centers, any IP queries made by the Application will return IPs associated with the data center, not the user's external client IP, as seen by Internet queries. This SDK call allows the application to obtain the user's client IP in the IPv4 format so that developers can make regional business decisions for the user based on it versus the region of the data center the user is connected to for game streaming sessions.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -341,6 +342,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Gets user's client language code in the form "&lt;lang&gt;-&lt;country&gt;" using a standard ISO 639-1 language code and ISO 3166-1 Alpha-2 country code.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's language and country settings.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -367,6 +369,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Gets user’s client country code using ISO 3166-1 Alpha-2 country code.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's country code.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -392,6 +395,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Gets various information about the local client system and environment</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get various information about the client that launched the streaming session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -417,6 +421,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Gets various information about the current streaming session</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this from a streaming session to find out more information about the session, such as session time remaining, or if RTX is enabled for the current session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -442,6 +447,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Requests GFN client to start a streamed session of an application in a synchronous (blocking) fashion.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to start a streaming session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -469,6 +475,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Requests GFN client to start a streamed session of an application in an asynchronous fashion</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to start a streaming session.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -487,6 +494,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Requests GFN client to stop the active streaming session of an application in a synchronous (blocking) fashion.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to request the streaming session be stopped</dd></dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
@@ -506,6 +514,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Requests GFN client to stop the active streaming session of an application in aynchronous fashion.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to request the streaming session be stopped</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -523,10 +532,11 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Retrieves non-secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent using Deep Link parameter.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve partner data based in during session initialization.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchPartnerData</td><td>- Populated with the partner data, if found Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done with data</td></tr>
+    <tr><td class="paramname">ppchPartnerData</td><td>- Populated with the partner data in string form if found Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done with data</td></tr>
   </table>
   </dd>
 </dl>
@@ -549,10 +559,11 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Retrieves secure partner data that is either a) passed by the client in the gfnStartStream call or b) sent in response to Deep Link nonce validation.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use during cloud session to retrieve secure partner data</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ppchPartnerSecureData</td><td>- Populated with the secure partner data, if found Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
+    <tr><td class="paramname">ppchPartnerSecureData</td><td>- Populated with the secure partner data in string form if found Call <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to release the memory when done.</td></tr>
   </table>
   </dd>
 </dl>
@@ -575,6 +586,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Notifies GFN that an application is ready to be displayed.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to notify GFN that your application is ready to be displayed.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -598,6 +610,7 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Defines active zone coordinates for GFN to interact with.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to invoke special events on the client from the GFN cloud environment</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -628,11 +641,12 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 </table>
 <dl class="section user"><dt>Description</dt><dd>Sends a custom message communication from the app to the client. This message is "fire-and-forget", and does not wait for the message to be delivered to return status. Latency is best effort and not guaranteed.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud or Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to communicate between cloud applications and streaming clients.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pchMessage</td><td>- Character string </td></tr>
-    <tr><td class="paramname">length</td><td>- Length of pchMessage in characters</td></tr>
+    <tr><td class="paramname">length</td><td>- Length of pchMessage in characters, which cannot exceed 8K in length</td></tr>
   </table>
   </dd>
 </dl>
@@ -641,8 +655,8 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
     <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
     <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
     <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
-    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
-    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided, or message exceeded allowed length </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit of 30 messages per second </td></tr>
     <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
   </table>
@@ -660,6 +674,7 @@ Callback-related Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Register an application function to call when Geforce NOW needs to exit the game.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to exit the game.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -685,6 +700,7 @@ Callback-related Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Register an application callback with Geforce NOW to be called when Geforce NOW needs to pause the game on the user's behalf. For Multiplayer games, it is recommended that this is implemented similar to a client disconnect.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to pause the game.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -710,6 +726,7 @@ Callback-related Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Register an application callback with Geforce NOW to be called after a successful call to <a class="el" href="group__launcher.html#gac3fd7e969aeaf3992dbb4e8220cacc6d">gfnSetupTitle</a>. Typically, the callback would handle any additional installation steps that are necessary after Geforce NOW performs its own setup for a given title.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register a function to call after a successful call to gfnSetupTitle.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -735,6 +752,7 @@ Callback-related Methods</h2>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Register a callback that gets called on the user's PC when the streaming session state changes</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register a function to call when stream status changes on the user's client PC</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -757,6 +775,8 @@ Callback-related Methods</h2>
 <td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ac19b823f27eaffd4bd318eaf0fa02449">gfnRegisterSessionInitCallback</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when a GFN user has connected to the game seat</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a GFN user has connected to the game seat</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -781,7 +801,9 @@ Callback-related Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#abae3540f316b5bbd5e72b0071d3f3d5a">gfnRegisterClientInfoCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when certain client info that is part of GetClientInfo API changes</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when certain client info that is part of <a class="el" href="group__launcher.html#ga0a78ef87b1164626048c7c88b9de3284">gfnGetClientInfo</a> API changes</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a the client information from the GFN user's client system has changed</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -807,6 +829,8 @@ Callback-related Methods</h2>
 <td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#acaa9b6d41eac3e072f93f33429bba5e5">gfnRegisterNetworkStatusCallback</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when client latency changes</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a the network latency from the GFN user's client system has changed</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -833,6 +857,8 @@ Callback-related Methods</h2>
 <td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ae5b74a7732c782eb448f5017115997c8">gfnRegisterMessageCallback</a> </td></tr>
 </table>
 <dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when a message is sent to the application.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Provide a callback function that will be called when a message is sent to the application.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">

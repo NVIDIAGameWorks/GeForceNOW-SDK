@@ -778,25 +778,6 @@ static BOOL gfnInteralPreloadCryptDlls()
     return ret;
 }
 
-static BOOL gfnInteralGetSignerInfoTimeStamp(PCMSG_SIGNER_INFO pSignerInfo, FILETIME* pFiletime)
-{
-#ifndef szOID_RSA_signingTime
-#define szOID_RSA_signingTime   "1.2.840.113549.1.9.5"
-#endif
-    DWORD dwSize = sizeof(FILETIME), n;
-    for (n = 0; n < pSignerInfo->AuthAttrs.cAttr; n++)
-    {
-        if (lstrcmpA(pSignerInfo->AuthAttrs.rgAttr[n].pszObjId, szOID_RSA_signingTime))
-            continue;
-
-        return pfnCryptDecodeObjectEx(ENCODING, szOID_RSA_signingTime,
-            pSignerInfo->AuthAttrs.rgAttr[n].rgValue[0].pbData,
-            pSignerInfo->AuthAttrs.rgAttr[n].rgValue[0].cbData,
-            0, NULL, (PVOID)pFiletime, &dwSize);
-    }
-    return FALSE;
-}
-
 static BOOL gfnInternalGetSignerInfoTimeStamp(PCMSG_SIGNER_INFO pSignerInfo, FILETIME* pFiletime)
 {
 #ifndef szOID_RSA_signingTime
@@ -1332,7 +1313,7 @@ static BOOL gfnInternalVerifyFileSignatureInfo(
             goto verifyFileSignatureInfoDone;
         }
 
-        if (!gfnInteralGetSignerInfoTimeStamp(pSignerInfo, &signingtime))
+        if (!gfnInternalGetSignerInfoTimeStamp(pSignerInfo, &signingtime))
         {
             memset(&signingtime, 0, sizeof(signingtime));
         }

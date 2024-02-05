@@ -26,14 +26,46 @@
 // Copyright (c) 2019-2021 NVIDIA Corporation. All rights reserved.
 
 #include <stdio.h>
-#include <tchar.h>
-#include <windows.h>            // For GetAsyncKeyState
 #include "SampleModule.h"
+
+
+#ifdef _WIN32
+#   include <conio.h>
+#elif __linux__
+#   include <termios.h>
+#   include <unistd.h>
+#endif
 
 bool g_MainDone = false;
 int g_pause_call_counter = 0;
 const char* platformAppId = "GeForce NOW SDK - Sample C App";
 const char* platformId = "GeForce NOW SDK - Sample Test Platform";
+#define CLOUD_CHECK_MIN_NONCE_SIZE 16
+
+static char getKeyPress() {
+#ifdef _WIN32
+    return _getch();
+#else
+    struct termios oldt, newt;
+    char ch;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    ch = getchar();
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    return ch;
+#endif
+}
+
+static void waitForSpaceBar() {
+    printf("\n\nApplication: In main application loop; Press space bar to exit...\n\n");
+    char c;
+    do
+    {
+        c = getKeyPress();
+    } while (c != ' ');
+}
 
 // Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
 // Application callbacks are registered with the SDK after it is initialized if running in Cloud mode.
@@ -115,20 +147,22 @@ void ApplicationShutdown()
 }
 
 // Example application main
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
+    GfnError runtimeError = gfnSuccess;
+
     ApplicationInitialize();
 
-    // Sample C API call
+    // Simple Cloud Check API call
     bool bIsCloudEnvironment = false;
     GfnIsRunningInCloud(&bIsCloudEnvironment);
-    printf("\nApplication executing in Geforce NOW environment: %s\n", (bIsCloudEnvironment == true) ? "true" : "false");
+    printf("\nGfnIsRunningInCloud: Application executing in Geforce NOW environment: %s\n", (bIsCloudEnvironment == true) ? "true" : "false");
 
     if (bIsCloudEnvironment) // More sample C API calls.
     {
         GfnError runtimeError = gfnSuccess;
 
-        char* clientIp = NULL;
+        char const* clientIp = NULL;
         runtimeError = GfnGetClientIpV4(&clientIp);
         if (runtimeError == gfnSuccess)
         {
@@ -139,7 +173,7 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("Failed to retrieve Geforce NOW Client I.P. GfnError: %d\n", (int) runtimeError);
         }
 
-        char* clientLanguageCode = NULL;
+        char const* clientLanguageCode = NULL;
         runtimeError = GfnGetClientLanguageCode(&clientLanguageCode);
         if (runtimeError == gfnSuccess)
         {
@@ -160,7 +194,7 @@ int _tmain(int argc, _TCHAR* argv[])
         {
             printf("Failed to retrieve Geforce NOW client Country code. GfnError: %d\n", (int)runtimeError);
         }
-        char* partnerSecureData = NULL;
+        char const* partnerSecureData = NULL;
         runtimeError = GfnGetPartnerSecureData(&partnerSecureData);
         if (GFNSDK_SUCCEEDED(runtimeError)) {
             printf("GfnGetPartnerSecureData: [%s]\n", partnerSecureData);
@@ -170,7 +204,7 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("Failed to retrieve PartnerSecureData\n");
         }
 
-        char* partnerData = NULL;
+        char const* partnerData = NULL;
         runtimeError = GfnGetPartnerData(&partnerData);
         if (GFNSDK_SUCCEEDED(runtimeError)) {
             printf("GfnGetPartnerData: [%s]\n", partnerData);
@@ -228,19 +262,10 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     // Application main loop
-    printf("\n\nApplication: In main application loop; Press space bar to exit...\n\n");
-    GetAsyncKeyState(' '); // Clear space bar change bit
-    while (!g_MainDone)
-    {
-        // Do application stuff here..
-        if (GetAsyncKeyState(' ') != 0)
-        {
-            g_MainDone = true;
-        }
-    }
+    waitForSpaceBar();
 
     // Notify Title exited
-    GfnRuntimeError runtimeError = GfnTitleExited(platformId, platformAppId);
+    runtimeError = GfnTitleExited(platformId, platformAppId);
     if (runtimeError == gfnSuccess)
     {
         printf("GFN Title Exited\n");

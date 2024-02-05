@@ -2,9 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
-if(OS_LINUX)
-  message(FATAL_ERROR "Linux builds are not supported at this time.")
-elseif(OS_MACOSX)
+if(OS_MACOSX)
   message(FATAL_ERROR "MacOS builds are not supported at this time.")
 endif()
 
@@ -88,6 +86,7 @@ if(OS_LINUX)
   SET_EXAMPLE_LIBRARY_TARGET_PROPERTIES(${SHARED_TARGET})
   add_dependencies(${SHARED_TARGET} libcef_dll_wrapper)
   target_link_libraries(${SHARED_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+  target_include_directories(${SHARED_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
   # Copy binary and resource files to the target output directory.
   COPY_FILES("${SHARED_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${EXAMPLE_TARGET_OUT_DIR}")
@@ -124,6 +123,7 @@ if(OS_MACOSX)
   SET_EXAMPLE_LIBRARY_TARGET_PROPERTIES(${SHARED_TARGET})
   add_dependencies(${SHARED_TARGET} libcef_dll_wrapper "${SHARED_HELPER_TARGET}")
   target_link_libraries(${SHARED_TARGET} libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+  target_include_directories(${SHARED_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
 endif()
 
 

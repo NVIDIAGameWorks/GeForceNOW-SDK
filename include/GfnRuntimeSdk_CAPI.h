@@ -37,51 +37,39 @@
  * API definitions
  */
 ///
-/// @mainpage Native Runtime API Reference
+/// @mainpage Native Runtime Application Programming Interface Reference
 ///
 /// @section introduction Introduction
-/// The NVIDIA GFN Runtime SDK provides a set of interfaces to allow game developers and game
-/// publishers to interact with parts of the NVIDIA GeForce NOW ecosystem. Integration is provided
-/// by various means, from native C interfaces to RESTful Web API calls, depending on the feature
-/// of the SDK.
-///
-/// @image html ecosystem.png
-///
-/// This document provides details of how to integrate the native APIs of GFN Runtime SDK features
-/// into your application and its developer and deployment processes.
+/// The NVIDIA GFN Runtime SDK provides an Application Programming Interface (API)
+/// to allow game and application developers to interact with parts of the NVIDIA
+/// GeForce NOW ecosystem. Overall integration is provided by various interfaces,
+/// from the native C interfaces described in this documentation, to RESTful
+/// endpoint calls, depending on the feature of the SDK. 
+/// 
+/// This documenation focuses solely on the native C interfaces, and provides the
+/// specifications of each of the native APIs of GFN Runtime SDK, as well as the
+/// requires to use the APIs. For example usage, refer to the Quick Start 
+/// documentation and the sample applications provided in the ./samples folder.
 ///
 /// @section overview Overview
 ///
-/// The GFN Runtime SDK provides a dynamic library with API exports as defined in this document,
-/// which is distributed with and loaded by the game/application that utilizes the APIs. The loading
-/// of this library should be done in a way that validates the authenticity of the binary via checking
-/// for a valid digital signature, and that signature is from NVIDIA Corporation.
+/// The GFN Runtime SDK provides a dynamic library with API exports as defined in
+/// this document, which is distributed with and loaded by the game/application that
+/// utilizes the APIs. The loading of this library should be done in a way that
+/// validates the authenticity of the binary. For example, on Windows, checking for
+/// a valid digital signature, and that signature is from NVIDIA Corporation.
 ///
-/// The behavior of the APIs depends on the environment the application is running in; either on a
-/// client/user system or in the GeForce NOW (GFN) cloud environment. Each API defines which of the
-/// environments it is designed to run in.
+/// The behavior of the APIs depends on the environment the application is running in;
+/// either on a client/user system or in the GeForce NOW (GFN) cloud environment. Each
+/// API defines which of the environments it is designed to run in. Some of the APIs
+/// can execute in only one of the environments; either the local client or GFN cloud
+/// environment. These APIs will return a well-defined error code "gfnCallWrongEnvironment"
+/// to denote when call was not applicable to the execution environment.
 ///
-/// On client systems, this library checks for the presence of the GeForce NOW (GFN) client
-/// installation when any of the gfnStartStream API variants is called. If the client is not present,
-/// then the library will initiate a download and installation of the latest GFN client, presenting UI
-/// to the user for the download and installation process. If the GFN client is present, but out of date,
-/// then a similar download and install process to update the client will take place before the
-/// streaming session will start.
-///
-/// Once the GFN client is installed, all API actions are deferred to the GFN client. This design allows
-/// the dynamic library to stay as thin as possible in the application, and provides backward and forward
-/// compatibility to new GFN client packages.
-///
-/// Many of the APIs are no-ops depending on the environment they apply to only to either local client or
-/// GFN cloud environments. In those cases, API calls will return a well-defined error code to denote the
-/// call was not applicable to the environment.
-///
-/// Some of the APIs are used solely for authentication purposes in Account Linking and
-/// Single Sign-On scenarios. For more information about NVIDIA's Account Linking and Single Sign-On
-/// model, please refer to the SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf document in the /doc folder.
-///
-/// For additional high-level overview, please refer to the SDK primer available as part of the
-/// documentation section of the SDK's repository.
+/// For additional high-level overview, please refer to the SDK primer available as
+/// part of the documentation section of the SDK's repository. For references on 
+/// correct API calls for the most common of integration scenarios, please prefer to
+/// the SDK Quick Start Guide.
 ///
 /// @section keyconcepts Key Concepts
 ///
@@ -96,8 +84,6 @@
 /// cases, the methods return a GfnRuntimeError result, which can be used by the
 /// application to check for errors. In addition, some methods are asynchronous
 /// by nature, but provide synchronous variants when possible.
-///
-/// @image html sequence.png
 ///
 /// @section apiReference API Reference
 /// @subsection general_section General / Common methods
@@ -533,6 +519,9 @@
         ///
         /// @par Environment
         /// Cloud and Client
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Call as soon as possible during application startup.
@@ -555,6 +544,9 @@
         /// @par Environment
         /// Cloud and Client
         ///
+        /// @par Platform
+        /// Windows, Linux
+        ///
         /// @par Usage
         /// Call during application shutdown or when GFN Runtime API methods are no longer needed.
         NVGFNSDK_EXPORT void NVGFNSDKApi gfnShutdownRuntimeSdk();
@@ -571,6 +563,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Register an application function to call when Geforce NOW needs to exit the game.
@@ -596,6 +591,9 @@
         /// @par Environment
         /// Cloud
         ///
+        /// @par Platform
+        /// Windows, Linux
+        /// 
         /// @par Usage
         /// Register an application function to call when Geforce NOW needs to pause the game.
         ///
@@ -620,6 +618,9 @@
         /// @par Environment
         /// Cloud
         ///
+        /// @par Platform
+        /// Windows, Linux
+        /// 
         /// @par Usage
         /// Register a function to call after a successful call to gfnSetupTitle.
         ///
@@ -642,6 +643,9 @@
         ///
         /// @par Environment
         /// Client
+        /// 
+        /// @par Platform
+        /// Windows
         ///
         /// @par Usage
         /// Register a function to call when stream status changes on the user's client PC
@@ -663,6 +667,12 @@
         /// to save user progress. It is recommended that this be implemented as an autosave if
         /// such a feature is supported by your application.
         ///
+        /// @par Environment
+        /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
+        /// 
         /// @par Usage
         /// Register an application function to call when GFN needs the application to save
         ///
@@ -680,6 +690,12 @@
         /// @par Description
         /// Register an application callback with GFN to be called when a GFN user has connected to the game seat
         ///
+        /// @par Environment
+        /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
+        /// 
         /// @par Usage
         /// Register an application function to call when a GFN user has connected to the game seat
         ///
@@ -700,6 +716,12 @@
         /// @par Description
         /// Register an application callback with GFN to be called when a message is sent to the application.
         ///
+        /// @par Environment
+        /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
+        /// 
         /// @par Usage
         /// Provide a callback function that will be called when a message is sent to the application.
         ///
@@ -716,8 +738,14 @@
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterMessageCallback(MessageCallbackSig messageCallback, void* pUserContext);
         ///
         /// @par Description
-        /// Register an application callback with GFN to be called when certain client info that is part of @ref GetClientInfo API changes
+        /// Register an application callback with GFN to be called when certain client info that is part of @ref gfnGetClientInfo API changes
         ///
+        /// @par Environment
+        /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
+        /// 
         /// @par Usage
         /// Register an application function to call when a the client information from the GFN user's client system has changed
         ///
@@ -737,6 +765,12 @@
         /// @par Description
         /// Register an application callback with GFN to be called when client latency changes
         ///
+        /// @par Environment
+        /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
+        /// 
         /// @par Usage
         /// Register an application function to call when a the network latency from the GFN user's client system has changed
         ///
@@ -768,6 +802,9 @@
         ///
         /// @par Environment
         /// Cloud and Client
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use to quickly determine whether to enable / disable any low-value GFN cloud environment
@@ -795,6 +832,9 @@
         ///
         /// @par Environment
         /// Cloud and Client
+        /// 
+        /// @par Platform
+        /// Windows
         ///
         /// @par Usage
         /// Call from an NVIDIA-approved process to securely determine whether running in GFN cloud, and use the
@@ -822,6 +862,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use to determine if a title is available to be streamed from the active GFN cloud instance,
@@ -841,6 +884,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use to retrieve a list of all titles available to launch in the current streaming session,
@@ -868,6 +914,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use to prepare an application for launch on Geforce NOW, and block on the result.
@@ -890,6 +939,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use to notify GFN that your application has exited.
@@ -914,6 +966,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Call this during application start or from the platform client in
@@ -941,6 +996,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Call this during application start or from the platform client in
@@ -964,6 +1022,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Call this during application start or from the platform client in order to get
@@ -984,6 +1045,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Call this during application start or from the platform client in order to get
@@ -1011,6 +1075,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Call this from a streaming session to find out more information about the session, such
@@ -1037,6 +1104,9 @@
         ///
         /// @par Environment
         /// Client
+        /// 
+        /// @par Platform
+        /// Windows
         ///
         /// @par Usage
         /// Use to start a streaming session.
@@ -1053,6 +1123,9 @@
         ///
         /// @par Environment
         /// Client
+        /// 
+        /// @par Platform
+        /// Windows
         ///
         /// @par Usage
         /// Use to start a streaming session.
@@ -1074,6 +1147,9 @@
         ///
         /// @par Environment
         /// Client
+        /// 
+        /// @par Platform
+        /// Windows
         ///
         /// @par Usage
         /// Use to request the streaming session be stopped
@@ -1091,6 +1167,9 @@
         ///
         /// @par Environment
         /// Client
+        /// 
+        /// @par Platform
+        /// Windows
         ///
         /// @par Usage
         /// Use to request the streaming session be stopped
@@ -1107,11 +1186,14 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use during cloud session to retrieve partner data based in during session initialization.
         ///
-        /// @param ppchPartnerData          - Populated with the partner data, if found
+        /// @param ppchPartnerData          - Populated with the partner data in string form if found
         ///                                   Call @ref gfnFree to release the memory when done with data
         ///
         /// @retval gfnSuccess              - Partner data successfully retrieved from session data
@@ -1129,11 +1211,14 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use during cloud session to retrieve secure partner data
         ///
-        /// @param ppchPartnerSecureData     - Populated with the secure partner data, if found
+        /// @param ppchPartnerSecureData     - Populated with the secure partner data in string form if found
         ///                                    Call @ref gfnFree to release the memory when done.
         ///
         /// @retval gfnSuccess               - Secure partner data successfully retrieved from session data
@@ -1152,6 +1237,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use to release memory after a call to a memory-allocated function and you are finished with the data.
@@ -1171,6 +1259,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use to notify GFN that your application is ready to be displayed.
@@ -1188,6 +1279,9 @@
         ///
         /// @par Environment
         /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use to invoke special events on the client from the GFN cloud environment
@@ -1214,18 +1308,21 @@
         ///
         /// @par Environment
         /// Cloud or Client
+        /// 
+        /// @par Platform
+        /// Windows, Linux
         ///
         /// @par Usage
         /// Use to communicate between cloud applications and streaming clients.
         ///
         /// @param pchMessage - Character string
-        /// @param length     - Length of pchMessage in characters
+        /// @param length     - Length of pchMessage in characters, which cannot exceed 8K in length
         ///
         /// @retval gfnSuccess              - Call was successful
         /// @retval gfnComError             - There was SDK internal communication error
         /// @retval gfnInitFailure          - SDK was not initialized
-        /// @retval gfnInvalidParameter     - Invalid parameters provided
-        /// @retval gfnThrottled            - API call was throttled for exceeding limit
+        /// @retval gfnInvalidParameter     - Invalid parameters provided, or message exceeded allowed length
+        /// @retval gfnThrottled            - API call was throttled for exceeding limit of 30 messages per second
         /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
         /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
         /// @return Otherwise, appropriate error code

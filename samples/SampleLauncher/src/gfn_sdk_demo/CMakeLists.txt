@@ -2,9 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
-if(OS_LINUX)
-  message(FATAL_ERROR "Linux builds are not supported at this time.")
-elseif(OS_MACOSX)
+if(OS_MACOSX)
   message(FATAL_ERROR "MacOS builds are not supported at this time.")
 endif()
 
@@ -14,15 +12,18 @@ endif()
 
 # Main executable sources.
 set(EXAMPLE_SRCS
-  ${GFN_SDK_RUNTIME_SOURCES}
   ../minimal/main_minimal.cc
-  app_browser_impl.cc
   client_impl.cc
   client_impl.h
   gfn_sdk_helper.cc
   gfn_sdk_helper.h
   )
 set(EXAMPLE_SRCS_WINDOWS
+  app_browser_win_impl.cc
+  resource_util_win_impl.cc
+  )
+set(EXAMPLE_SRCS_LINUX
+  app_browser_impl.cc
   resource_util_win_impl.cc
   )
 APPEND_PLATFORM_SOURCES(EXAMPLE_SRCS)
@@ -84,7 +85,18 @@ if(OS_LINUX)
   add_executable(${EXAMPLE_TARGET} ${EXAMPLE_SRCS})
   SET_EXAMPLE_EXECUTABLE_TARGET_PROPERTIES(${EXAMPLE_TARGET})
   add_dependencies(${EXAMPLE_TARGET} shared)
-  target_link_libraries(${EXAMPLE_TARGET} shared)
+  target_link_libraries(${EXAMPLE_TARGET} shared GfnSdkWrapper)
+  
+  target_include_directories(${EXAMPLE_TARGET} PRIVATE ${GFN_SDK_DIST_DIR}/samples/Common)
+
+  # Copy SDK .so to output directory to bring the sample up to date
+  set(_gfn_runtime_so "${CMAKE_BINARY_DIR}/SampleLauncher/GfnRuntimeSdk.so")
+  add_custom_command(
+      OUTPUT "${_gfn_runtime_so}"
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GfnRuntime> ${_gfn_runtime_so}
+  )
+  target_sources(${EXAMPLE_TARGET} PRIVATE "${_gfn_runtime_so}")
 
   # Copy resource files to the target output directory.
   COPY_FILES("${EXAMPLE_TARGET}" "${EXAMPLE_RESOURCES_SRCS}" "${CMAKE_CURRENT_SOURCE_DIR}" "${EXAMPLE_TARGET_OUT_DIR}/${EXAMPLE_TARGET}_files")
@@ -173,8 +185,8 @@ if(OS_WINDOWS)
   add_executable(${EXAMPLE_TARGET} WIN32 ${EXAMPLE_SRCS})
   SET_EXAMPLE_EXECUTABLE_TARGET_PROPERTIES(${EXAMPLE_TARGET})
   add_dependencies(${EXAMPLE_TARGET} shared)
-  target_link_libraries(${EXAMPLE_TARGET} shared)
-
+  target_link_libraries(${EXAMPLE_TARGET} shared GfnSdkWrapper)
+  
   target_link_libraries(${EXAMPLE_TARGET}
     crypt32.lib
     Wldap32.lib
@@ -183,67 +195,63 @@ if(OS_WINDOWS)
     PRIVATE
       ${GFN_SDK_DIST_DIR}/include
       ${CMAKE_BINARY_DIR}/../include
+      ${GFN_SDK_DIST_DIR}/samples/Common
   )
   target_compile_features(${EXAMPLE_TARGET} PRIVATE cxx_std_17)
   set_source_files_properties(${EXAMPLE_TARGET} PROPERTIES COMPILE_FLAGS "/wd4996")
   target_compile_definitions(${EXAMPLE_TARGET} PRIVATE GFN_SDK_WRAPPER_LOG=1 FEATURECONFIG_HEADER)
 
+  # Copy SDK dll to output directory to bring the sample up to date
+  set(_gfn_runtime_dll "${CMAKE_BINARY_DIR}/SampleLauncher/GfnRuntimeSdk.dll")
+  add_custom_command(
+      OUTPUT "${_gfn_runtime_dll}"
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GfnRuntime> ${_gfn_runtime_dll}
+  )
+  target_sources(${EXAMPLE_TARGET} PRIVATE "${_gfn_runtime_dll}")
 endif()
 
-if (SAMPLES_INSTALL_ROOT)
-    set(EXAMPLE_INSTALL_FILES
-      ${libcef_download_SOURCE_DIR}/Resources/cef.pak
-      ${libcef_download_SOURCE_DIR}/Resources/icudtl.dat
-    )
+set(EXAMPLE_INSTALL_FILES
+  ${libcef_download_SOURCE_DIR}/Resources/cef.pak
+  ${libcef_download_SOURCE_DIR}/Resources/icudtl.dat
+)
 
-    set(EXAMPLE_INSTALL_FILES_DEBUG
-      ${libcef_download_SOURCE_DIR}/Debug/chrome_elf.dll
-      ${libcef_download_SOURCE_DIR}/Debug/libcef.dll
-      ${libcef_download_SOURCE_DIR}/Debug/natives_blob.bin
-      ${libcef_download_SOURCE_DIR}/Debug/snapshot_blob.bin
-      ${libcef_download_SOURCE_DIR}/Debug/v8_context_snapshot.bin
-    )
+if (WIN32)
+  set(EXAMPLE_INSTALL_FILES_DEBUG
+    ${libcef_download_SOURCE_DIR}/Debug/chrome_elf.dll
+    ${libcef_download_SOURCE_DIR}/Debug/libcef.dll
+    ${libcef_download_SOURCE_DIR}/Debug/natives_blob.bin
+    ${libcef_download_SOURCE_DIR}/Debug/snapshot_blob.bin
+    ${libcef_download_SOURCE_DIR}/Debug/v8_context_snapshot.bin
+  )
 
-    set(EXAMPLE_INSTALL_FILES_RELEASE
-      ${libcef_download_SOURCE_DIR}/Release/chrome_elf.dll
-      ${libcef_download_SOURCE_DIR}/Release/libcef.dll
-      ${libcef_download_SOURCE_DIR}/Release/natives_blob.bin
-      ${libcef_download_SOURCE_DIR}/Release/snapshot_blob.bin
-      ${libcef_download_SOURCE_DIR}/Release/v8_context_snapshot.bin
-    )
+  set(EXAMPLE_INSTALL_FILES_RELEASE
+    ${libcef_download_SOURCE_DIR}/Release/chrome_elf.dll
+    ${libcef_download_SOURCE_DIR}/Release/libcef.dll
+    ${libcef_download_SOURCE_DIR}/Release/natives_blob.bin
+    ${libcef_download_SOURCE_DIR}/Release/snapshot_blob.bin
+    ${libcef_download_SOURCE_DIR}/Release/v8_context_snapshot.bin
+  )
+elseif (LINUX)
+  set(EXAMPLE_INSTALL_FILES_DEBUG
+    ${libcef_download_SOURCE_DIR}/Debug/libcef.so
+    ${libcef_download_SOURCE_DIR}/Debug/libEGL.so
+    ${libcef_download_SOURCE_DIR}/Debug/libGLESv2.so
+    ${libcef_download_SOURCE_DIR}/Debug/natives_blob.bin
+    ${libcef_download_SOURCE_DIR}/Debug/snapshot_blob.bin
+    ${libcef_download_SOURCE_DIR}/Debug/v8_context_snapshot.bin
+  )
 
-    install(TARGETS ${EXAMPLE_TARGET}
-      DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
-      COMPONENT sample_bins
-    )
-    install(FILES $<TARGET_PDB_FILE:${EXAMPLE_TARGET}>
-        DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}/symbols
-        COMPONENT sample_bins
-    )
-    install(FILES ${EXAMPLE_INSTALL_FILES}
-      DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
-      COMPONENT sample_bins
-    )
-    install(FILES ${EXAMPLE_INSTALL_FILES_DEBUG}
-      CONFIGURATIONS Debug
-      DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
-      COMPONENT sample_bins
-    )
-    install(FILES ${EXAMPLE_INSTALL_FILES_RELEASE}
-      CONFIGURATIONS Release MinSizeRel RelWithDebInfo
-      DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
-      COMPONENT sample_bins
-    )
-    
-    install(FILES
-      ${CMAKE_BINARY_DIR}/$<CONFIG>/GfnRuntimeSdk.dll
-      DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}
-      COMPONENT sample_bins
-    )
-
-    install(FILES
-      ${CMAKE_BINARY_DIR}/$<CONFIG>/GfnRuntimeSdk.pdb
-      DESTINATION ${PACK_SAMPLE_LAUNCHER_ROOT}/symbols
-      COMPONENT sample_bins
-    )
+  set(EXAMPLE_INSTALL_FILES_RELEASE
+    ${libcef_download_SOURCE_DIR}/Release/libcef.so
+    ${libcef_download_SOURCE_DIR}/Release/libEGL.so
+    ${libcef_download_SOURCE_DIR}/Release/libGLESv2.so
+    ${libcef_download_SOURCE_DIR}/Release/natives_blob.bin
+    ${libcef_download_SOURCE_DIR}/Release/snapshot_blob.bin
+    ${libcef_download_SOURCE_DIR}/Release/v8_context_snapshot.bin
+  )
 endif ()
+
+set(SAMPLE_LAUNCHER_INSTALL_FILES         "${EXAMPLE_INSTALL_FILES}" CACHE INTERNAL "Example Install Files")
+set(SAMPLE_LAUNCHER_INSTALL_FILES_DEBUG   "${EXAMPLE_INSTALL_FILES_DEBUG}" CACHE INTERNAL "Example Install Files Debug")
+set(SAMPLE_LAUNCHER_INSTALL_FILES_RELEASE "${EXAMPLE_INSTALL_FILES_RELEASE}" CACHE INTERNAL "Example Install Files Release")

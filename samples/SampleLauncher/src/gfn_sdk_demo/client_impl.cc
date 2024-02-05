@@ -9,19 +9,17 @@
 
 #include "shared/client_util.h"
 #include "shared/resource_util.h"
-#include "shared/resources/win/resource.h"
 
 #include "GfnRuntimeSdk_Wrapper.h"
 
 #ifdef WIN32
+#include "shared/resources/win/resource.h"
 #include <ShellScalingApi.h>
 #endif
 
 namespace message_router {
 
 namespace {
-
-const char kTestMessageName[] = "MessageRouterTest";
 
 typedef enum {
     DEV_TOOLS_HEIGHT = 600,
@@ -115,10 +113,13 @@ void Client::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
   browser_ct_++;
 
+#ifdef WIN32
   HWND windowHandle = static_cast<HWND>(browser->GetHost()->GetWindowHandle());
   HICON iconHandle = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_GFNICON));
   SendMessage(windowHandle, WM_SETICON, ICON_SMALL, (LPARAM)iconHandle);
   SendMessage(windowHandle, WM_SETICON, ICON_BIG, (LPARAM)iconHandle);
+#endif // WIN32
+
   shared::g_browserHost = browser->GetHost();
 
   // Call the default shared implementation.

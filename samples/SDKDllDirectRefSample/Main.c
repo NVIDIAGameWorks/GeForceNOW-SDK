@@ -26,14 +26,33 @@
 // Copyright (c) 2019-2021 NVIDIA Corporation. All rights reserved.
 
 #include <stdio.h>
-#include <tchar.h>
-#include <windows.h>            // For GetAsyncKeyState
+#include <string.h>
 #include "SampleModule.h"
-#include "GfnSdk_SecureLoadLibrary.h"
 
+#ifdef _WIN32
+#include <tchar.h>
+#include <windows.h>    // For GetAsyncKeyState
+#include "GfnSdk_SecureLoadLibrary.h"
+#define PLATFORM_MAX_PATH MAX_PATH
+typedef _TCHAR CHAR_TYPE;
+typedef HMODULE HANDLE_TYPE;
+#elif defined(__linux__)
+#include <unistd.h>
+#include <termios.h>
+#include <dlfcn.h>      // dlopen
+#include <libgen.h>     // dirname
+#include <limits.h>     // PATH_MAX
+#define PLATFORM_MAX_PATH PATH_MAX
+typedef char CHAR_TYPE;
+typedef void* HANDLE_TYPE;
+#else
+#error "Unsupported platform"
+#endif
+
+HANDLE_TYPE gfnSdkModule = NULL;
 bool g_MainDone = false;
 int g_pause_call_counter = 0;
-HMODULE gfnSdkModule = NULL;
+
 
 typedef GfnRuntimeError(*gfnInitializeRuntimeSdkSig)(GfnDisplayLanguage displayLanguage);
 typedef void (*gfnShutdownRuntimeSdkSig)(void);
@@ -46,6 +65,11 @@ static void ShutdownRuntimeSdk();
 static void IsRunningInCloud(bool* bIsCloudEnvironment);
 static GfnRuntimeError GetClientInfo(GfnClientInfo* info);
 static GfnRuntimeError RegisterClientInfoCallback(ClientInfoCallbackSig cbFn);
+
+static void GetSharedLibraryPath(CHAR_TYPE* path);
+static HANDLE_TYPE LoadSdkLibrary();
+static void* GetSymbol(HANDLE_TYPE library, char* name);
+static void ApplicationMainLoop();
 
 // Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
 // Application callbacks are registered with the SDK after it is initialized if running in Cloud mode.
@@ -90,7 +114,11 @@ void ApplicationShutdown()
 }
 
 // Example application main
-int _tmain(int argc, _TCHAR* argv[])
+#ifdef _WIN32
+int _tmain(int argc, CHAR_TYPE* argv[])
+#elif defined(__linux__)
+int main(int argc, CHAR_TYPE* argv[])
+#endif
 {
     ApplicationInitialize();
 
@@ -122,16 +150,7 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     // Application main loop
-    printf("\n\nApplication: In main application loop; Press space bar to exit...\n\n");
-    GetAsyncKeyState(' '); // Clear space bar change bit
-    while (!g_MainDone)
-    {
-        // Do application stuff here..
-        if (GetAsyncKeyState(' ') != 0)
-        {
-            g_MainDone = true;
-        }
-    }
+    ApplicationMainLoop();
 
     // Application Shutdown
     // It's safe to call ShutdownShieldXLinkSDK even if the SDK was not initialized.
@@ -144,22 +163,15 @@ static GfnRuntimeError InitSdk()
 {
     GfnRuntimeError ret = gfnSuccess;
     GfnRuntimeError clientStatus = gfnSuccess;
-    // For security reasons, it is preferred to check the digital signature before loading the DLL.
-    // Such code is not provided here to reduce code complexity and library size, and in favor of
-    // any internal libraries built for this purpose.
-#ifdef _DEBUG
-    gfnSdkModule = LoadLibraryW(L".\\GfnRuntimeSdk.dll");
-#else
-    gfnSdkModule = gfnSecureLoadClientLibraryW(L".\\GfnRuntimeSdk.dll", 0);
-#endif
+    
+    gfnSdkModule = LoadSdkLibrary();
     if (gfnSdkModule == NULL)
     {
-        printf("Not able to load client library. LastError=0x%08X\n", GetLastError());
         ret = gfnDllNotPresent;
     }
     else
     {
-        gfnInitializeRuntimeSdkSig initFn = (gfnInitializeRuntimeSdkSig)GetProcAddress(gfnSdkModule, "gfnInitializeRuntimeSdk");
+        gfnInitializeRuntimeSdkSig initFn = (gfnInitializeRuntimeSdkSig)GetSymbol(gfnSdkModule, "gfnInitializeRuntimeSdk");
         if (initFn == NULL)
         {
             ret = gfnAPINotFound;
@@ -186,21 +198,150 @@ static void ShutdownRuntimeSdk()
 {
     if (!!gfnSdkModule)
     {
-        ((gfnShutdownRuntimeSdkSig)GetProcAddress(gfnSdkModule, "gfnShutdownRuntimeSdk"))();
+        ((gfnShutdownRuntimeSdkSig)GetSymbol(gfnSdkModule, "gfnShutdownRuntimeSdk"))();
     }
 }
 
 static void IsRunningInCloud(bool* bIsCloudEnvironment)
 {
-    *bIsCloudEnvironment = ((gfnIsRunningInCloudSig)GetProcAddress(gfnSdkModule, "gfnIsRunningInCloud"))();
+    *bIsCloudEnvironment = ((gfnIsRunningInCloudSig)GetSymbol(gfnSdkModule, "gfnIsRunningInCloud"))();
 }
 
 static GfnRuntimeError RegisterClientInfoCallback(ClientInfoCallbackSig cbFn)
 {
-    return ((gfnRegisterClientInfoCallbackSig)GetProcAddress(gfnSdkModule, "gfnRegisterClientInfoCallback"))(cbFn, NULL);
+    return ((gfnRegisterClientInfoCallbackSig)GetSymbol(gfnSdkModule, "gfnRegisterClientInfoCallback"))(cbFn, NULL);
 }
 
 static GfnRuntimeError GetClientInfo(GfnClientInfo* info)
 {
-    return ((gfnGetClientInfoSig)GetProcAddress(gfnSdkModule, "gfnGetClientInfo"))(info);
+    return ((gfnGetClientInfoSig)GetSymbol(gfnSdkModule, "gfnGetClientInfo"))(info);
+}
+
+static void GetSharedLibraryPath(CHAR_TYPE* path)
+{
+#ifdef _WIN32
+    _tcscat(&path[0], _T(".\\GfnRuntimeSdk.dll"));
+#elif defined(__linux__)
+    char buffer[PLATFORM_MAX_PATH];
+    ssize_t len;
+
+    // Get the absolute path of the executable
+    len = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+
+    // Check for errors
+    if (len == -1) {
+        return;
+    }
+
+    // Null-terminate the string
+    buffer[len] = '\0';
+
+    // Get the directory path, excluding the executable name
+    char* directory = dirname(buffer);
+    strncpy(path, directory, PLATFORM_MAX_PATH);
+
+    // Append "GfnRuntimeSdk.so" to the directory path
+    if (strlen(path) + strlen("/GfnRuntimeSdk.so") + 1 > PLATFORM_MAX_PATH) {
+        printf("ERROR: Could not get default client library path name: Path too long");
+        return;
+    }
+
+    strcat(path, "/GfnRuntimeSdk.so");
+#endif
+} 
+
+static HANDLE_TYPE LoadSdkLibrary()
+{
+    HANDLE_TYPE handle = NULL;
+    CHAR_TYPE libpath[PLATFORM_MAX_PATH];
+    memset(libpath, 0, sizeof(libpath) / sizeof(CHAR_TYPE));
+    GetSharedLibraryPath(libpath);
+
+    // For security reasons, it is preferred to check the digital signature before loading the DLL.
+    // Such code is not provided here to reduce code complexity and library size, and in favor of
+    // any internal libraries built for this purpose.
+#ifdef _WIN32
+#   ifdef _DEBUG
+        handle = LoadLibrary(libpath);
+#   else
+        handle = gfnSecureLoadClientLibraryW(libpath, 0);
+#   endif
+#elif __linux__
+    handle = dlopen(libpath, RTLD_LAZY);
+#endif
+
+    if (!handle)
+    {
+#ifdef _WIN32
+        printf("Not able to load client library. LastError=0x%08X\n", GetLastError());
+#elif __linux__
+        printf("Not able to load client library. dlerror=%s\n", dlerror());
+#endif
+    }
+
+    return handle;
+}
+
+static void* GetSymbol(HANDLE_TYPE library, char* name)
+{
+#ifdef _WIN32
+    return (void*)GetProcAddress(library, name);
+#elif defined(__linux__)
+    return dlsym(library, name);
+#endif
+}
+
+static void ApplicationMainLoop()
+{
+    printf("\n\nApplication: In main application loop; Press space bar to exit...\n\n");
+#ifdef _WIN32
+    GetAsyncKeyState(' '); // Clear space bar change bit
+    while (!g_MainDone)
+    {
+        // Do application stuff here..
+        if (GetAsyncKeyState(' ') != 0)
+        {
+            g_MainDone = true;
+        }
+    }
+#elif defined(__linux__)
+    char ch;
+
+    struct termios orig_termios;
+    struct termios new_termios;
+
+    // make sure to flush the input to prevent any old input from being read
+    tcflush(0, TCIFLUSH);
+
+    // Get the current settings (which we will restore)
+    tcgetattr(0, &orig_termios);
+    
+    // Copy the settings to new_termios and modify them
+    new_termios = orig_termios;
+    new_termios.c_lflag &= ~ICANON; // Disable canonical mode
+    new_termios.c_lflag &= ~ECHO; // Disable echo
+    new_termios.c_cc[VMIN] = 1; // Set minimum read characters to 1
+    new_termios.c_cc[VTIME] = 0; // Set timeout to 0 deciseconds
+
+    // Set the new attributes
+    tcsetattr(0, TCSANOW, &new_termios);
+
+    while (!g_MainDone)
+    {
+        // Do application stuff here..
+        if (read(0, &ch, 1) < 0)
+        {
+            // No key read
+            usleep(100000); // Sleep for 100ms
+            continue;
+        }
+
+        if (ch == ' ')
+        {
+            g_MainDone = true;
+        }
+    }
+
+    tcsetattr(0, TCSANOW, &orig_termios);
+#endif
 }

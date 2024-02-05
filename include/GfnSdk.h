@@ -80,28 +80,28 @@ typedef char bool;
 #define NVGFNSDK_VERSION_MAJOR 2
 
 /// @brief GFN SDK Minor Version
-#define NVGFNSDK_VERSION_MINOR 0
+#define NVGFNSDK_VERSION_MINOR 1
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_SHORT 2.0
+#define NVGFNSDK_VERSION_SHORT 2.1
 
 /// @brief GFN SDK Patch Version
 #define NVGFNSDK_VERSION_PATCH 0
 
 /// @brief GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 33103756
+#define NVGFNSDK_VERSION_BUILD 33843515
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 2.0.0.33103756
+#define NVGFNSDK_VERSION_LONG 2.1.0.33843515
 
 /// @brief GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "2.0.0.33103756"
-#define NVGFNSDK_VERSION_STR_PROD "2.0.0"
+#define NVGFNSDK_VERSION_STR   "2.1.0.33843515"
+#define NVGFNSDK_VERSION_STR_PROD "2.1.0"
 
 /// @brief GFN SDK Build CL
-#define NVGFNSDK_VERSION_BUILDCL 33103756
-#define NVGFNSDK_VERSION_BUILDH 3310
-#define NVGFNSDK_VERSION_BUILDL 3756
+#define NVGFNSDK_VERSION_BUILDCL 33843515
+#define NVGFNSDK_VERSION_BUILDH 3384
+#define NVGFNSDK_VERSION_BUILDL 3515
 
 
 #ifdef __cplusplus
@@ -146,7 +146,9 @@ typedef char bool;
             gfnBinarySignatureInvalid = -26, ///< An attempt to load a binary failed because the digital signature was found to be invalid
             gfnCloudLibraryNotFound = -27, ///< Necessary GFN cloud-based SDK library cannot be found
             gfnClientLibraryNotFound = -28, ///< Necessary GFN client-based SDK library cannot be found
-            gfnNoData = -29 ///< Requested data is empty or doesn't exist
+            gfnNoData = -29, ///< Requested data is empty or doesn't exist
+            gfnNotAuthorized = -30, ///<API Call failed because it was called from unauthorized process
+            gfnBackendError = -31 ///<Failed to communicate with the GFN backend service
         } GfnError;
 
         ///
@@ -160,7 +162,7 @@ typedef char bool;
         ///
         /// @retval true - GfnRuntimeError value indicates success
         /// @retval false - GfnRuntimeError value indicates failure
-        inline bool GFNSDK_SUCCEEDED(GfnError code)
+        static inline bool GFNSDK_SUCCEEDED(GfnError code)
         {
             return code >= 0;
         }
@@ -176,7 +178,7 @@ typedef char bool;
         ///
         /// @retval true - GfnRuntimeError value indicates failure
         /// @retval false - GfnRuntimeError value indicates success
-        inline bool GFNSDK_FAILED(GfnError code)
+        static inline bool GFNSDK_FAILED(GfnError code)
         {
             return code < 0;
         }

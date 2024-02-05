@@ -47,6 +47,7 @@ bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefClient>& client,
                    CefBrowserSettings& settings,
                    bool* no_javascript_access) {
+#if defined(OS_WIN)
   CEF_REQUIRE_UI_THREAD();
 
   // Adjust window dimensions for system DPI settings
@@ -57,6 +58,7 @@ bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
   windowInfo.width = dpiAdjustedWidth;
   windowInfo.height = dpiAdjustedHeight;
 
+#endif
   return false;
 }
 
