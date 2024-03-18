@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['normalized',['normalized',['../struct_gfn_rect.html#a2fb4ff627b633d23a7395d4eed88966e',1,'GfnRect']]]
+  ['locale',['locale',['../struct_gfn_client_info.html#aa17100ee781465fe24f7bb4de3d5496d',1,'GfnClientInfo']]]
 ];

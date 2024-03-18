@@ -419,6 +419,36 @@ extern "C"
 
     ///
     /// @par Description
+    /// Determines if calling application is running in GFN environment or not. It also provides a 
+    /// cryptographically signed response if requested, which can be verified either locally or via 3rd party backend.
+    /// Refer to the Cloud Check API Guide on how to validate attestation data in response.
+    ///
+    /// @par Environment
+    /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows
+    ///
+    /// @par Usage
+    /// This API can be used from any execution context - privileged or not. 
+    ///
+    /// @param challenge                 - Optional input parameter, that can be used to pass in nonce data.
+    ///                                    If a non-null challenge is passed in, then the response parameter is mandatory.
+    /// 
+    /// @param response                  - Optional output parameter, that receives the signed attestation response from the API.
+    /// 
+    /// @param isCloudEnvironment        - Optional output parameter, that receives true value if the caller is in the GFN environment.
+    ///
+    /// @retval gfnSuccess               - On success indicates cloud check was performed successfully.
+    /// @retval gfnInvalidParameter      - NULL pointer passed in response parameter when challenge parameter is nonzero.
+    /// @retval gfnNotAuthorized         - Indicates the application is either not properly onboarded (missing allow - list),
+    ///                                    or the application attempted to perform cloud check in an unsafe environment (patched game seat).
+    /// @retval gfnBackendError          - Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment.
+    /// @retval gfnThrottled             - API call was throttled for exceeding limit
+    GfnRuntimeError GfnCloudCheck(const GfnCloudCheckChallenge* challenge, GfnCloudCheckResponse* response, bool* isCloudEnvironment);
+
+    ///
+    /// @par Description
     /// Calls @ref gfnGetClientIp to get user client's IP address.
     ///
     /// @par Environment

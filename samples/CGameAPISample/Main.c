@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include "SampleModule.h"
 
+#include "GfnCloudCheckUtils.h"
 
 #ifdef _WIN32
 #   include <conio.h>
@@ -158,10 +159,50 @@ int main(int argc, char* argv[])
     GfnIsRunningInCloud(&bIsCloudEnvironment);
     printf("\nGfnIsRunningInCloud: Application executing in Geforce NOW environment: %s\n", (bIsCloudEnvironment == true) ? "true" : "false");
 
-    if (bIsCloudEnvironment) // More sample C API calls.
-    {
-        GfnError runtimeError = gfnSuccess;
+    //CloudCheck API call with response validation
+    bool bCloudCheck = false;
 
+    // Generate a nonce, the minimum nonce size requirement is 16 bytes.
+    char nonce[CLOUD_CHECK_MIN_NONCE_SIZE] = { 0 };
+    if (!GfnCloudCheckGenerateNonce(nonce, CLOUD_CHECK_MIN_NONCE_SIZE))
+    {
+        printf("GenerateNonce Failed\n");
+    }
+    else
+    {
+        GfnCloudCheckChallenge challenge = { nonce, CLOUD_CHECK_MIN_NONCE_SIZE };
+        GfnCloudCheckResponse response = { NULL, 0 };
+        runtimeError = GfnCloudCheck(&challenge, &response, &bCloudCheck);
+        if (runtimeError == gfnSuccess)
+        {
+            printf("\nGfnCloudCheck: Application executing in Geforce NOW environment: %s\n", (bCloudCheck == true) ? "true" : "false");
+            if (response.attestationData != NULL)
+            {
+                if (GfnCloudCheckVerifyAttestationData(response.attestationData, challenge.nonce, challenge.nonceSize))
+                {
+                    printf("CloudCheck response validated\n");
+                }
+                else
+                {
+                    printf("CloudCheck response validation failed\n\n");
+                }
+                GfnFree(&response.attestationData);
+            }
+        }
+        else
+        {
+            if (runtimeError == gfnThrottled)
+            {
+                printf("GfnCloudCheck: API call rate limit exceeded\n");
+            }
+            else
+            {
+                printf("GfnCloudCheck: Failed to check if running in Geforce NOW Cloud environment: %d\n", (int)runtimeError);
+            }
+        }
+    }
+    if (bCloudCheck) // More sample C API calls.
+    {
         char const* clientIp = NULL;
         runtimeError = GfnGetClientIpV4(&clientIp);
         if (runtimeError == gfnSuccess)

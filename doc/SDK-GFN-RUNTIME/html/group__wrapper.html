@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
-   &#160;<span id="projectnumber">2.1.0.33843515</span>
+   &#160;<span id="projectnumber">2.2.0.34024877</span>
    </div>
   </td>
  </tr>
@@ -109,6 +109,8 @@ Functions</h2></td></tr>
 <tr class="separator:gaa109bc7e726c5991c2efcbce8e4c0f64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6fa2dbe2bfa3e67cd41963bf28ac5e65"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga6fa2dbe2bfa3e67cd41963bf28ac5e65">GfnIsRunningInCloudSecure</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#aecdb9af8ee15731faeebae2fcec76c7b">GfnIsRunningInCloudAssurance</a> *assurance)</td></tr>
 <tr class="separator:ga6fa2dbe2bfa3e67cd41963bf28ac5e65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga16fc681dae0a1d909741cf7f63aa0709"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga16fc681dae0a1d909741cf7f63aa0709">GfnCloudCheck</a> (const <a class="el" href="struct_gfn_cloud_check_challenge.html">GfnCloudCheckChallenge</a> *challenge, <a class="el" href="struct_gfn_cloud_check_response.html">GfnCloudCheckResponse</a> *response, <a class="el" href="_gfn_sdk_8h.html#ad5c9d4ba3dc37783a528b0925dc981a0">bool</a> *isCloudEnvironment)</td></tr>
+<tr class="separator:ga16fc681dae0a1d909741cf7f63aa0709"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1de5d6792f2d658886fe2be992945e69"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga1de5d6792f2d658886fe2be992945e69">GfnGetClientIpV4</a> (const char **clientIp)</td></tr>
 <tr class="separator:ga1de5d6792f2d658886fe2be992945e69"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga20ea89be27f64ca0a15c397b112541d3"><td class="memItemLeft" align="right" valign="top">GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__wrapper.html#ga20ea89be27f64ca0a15c397b112541d3">GfnGetClientLanguageCode</a> (const char **languageCode)</td></tr>
@@ -208,6 +210,60 @@ Functions</h2></td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GFN SDK Library </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ga16fc681dae0a1d909741cf7f63aa0709"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GfnRuntimeError GfnCloudCheck </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_gfn_cloud_check_challenge.html">GfnCloudCheckChallenge</a> *&#160;</td>
+          <td class="paramname"><em>challenge</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_gfn_cloud_check_response.html">GfnCloudCheckResponse</a> *&#160;</td>
+          <td class="paramname"><em>response</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="_gfn_sdk_8h.html#ad5c9d4ba3dc37783a528b0925dc981a0">bool</a> *&#160;</td>
+          <td class="paramname"><em>isCloudEnvironment</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Determines if calling application is running in GFN environment or not. It also provides a cryptographically signed response if requested, which can be verified either locally or via 3rd party backend. Refer to the Cloud Check API Guide on how to validate attestation data in response.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>This API can be used from any execution context - privileged or not.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">challenge</td><td>- Optional input parameter, that can be used to pass in nonce data. If a non-null challenge is passed in, then the response parameter is mandatory.</td></tr>
+    <tr><td class="paramname">response</td><td>- Optional output parameter, that receives the signed attestation response from the API.</td></tr>
+    <tr><td class="paramname">isCloudEnvironment</td><td>- Optional output parameter, that receives true value if the caller is in the GFN environment.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success indicates cloud check was performed successfully. </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in response parameter when challenge parameter is nonzero. </td></tr>
+    <tr><td class="paramname">gfnNotAuthorized</td><td>- Indicates the application is either not properly onboarded (missing allow - list), or the application attempted to perform cloud check in an unsafe environment (patched game seat). </td></tr>
+    <tr><td class="paramname">gfnBackendError</td><td>- Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment. </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
   </table>
   </dd>
 </dl>

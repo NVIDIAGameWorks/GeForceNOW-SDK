@@ -41,12 +41,16 @@
 #   define HELPER_CALLBACK
 #endif
 
+#include "GfnCloudCheckUtils.h"
+#define CLOUD_CHECK_MIN_NONCE_SIZE 16
 
 CefString GFN_SDK_INIT = "GFN_SDK_INIT";
 CefString GFN_SDK_SHUTDOWN = "GFN_SDK_SHUTDOWN";
 CefString GFN_SDK_STREAM_ACTION = "GFN_SDK_STREAM_ACTION";
 CefString GFN_SDK_IS_RUNNING_IN_CLOUD = "GFN_SDK_IS_RUNNING_IN_CLOUD";
 CefString GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE = "GFN_SDK_IS_RUNNING_IN_CLOUD_SECURE";
+CefString GFN_SDK_CLOUD_CHECK_WITH_VALIDATION = "GFN_SDK_CLOUD_CHECK_WITH_VALIDATION";
+CefString GFN_SDK_CLOUD_CHECK_NO_VALIDATION = "GFN_SDK_CLOUD_CHECK_NO_VALIDATION";
 CefString GFN_SDK_GET_CLIENT_IP = "GFN_SDK_GET_CLIENT_IP";
 CefString GFN_SDK_GET_CLIENT_COUNTRY_CODE = "GFN_SDK_GET_CLIENT_COUNTRY_CODE";
 CefString GFN_SDK_GET_CLIENT_LANGUAGE_CODE = "GFN_SDK_GET_CLIENT_LANGUAGE_CODE";
@@ -265,6 +269,77 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         CefString response(DictToJson(response_dict));
         callback->Success(response);
 
+        return true;
+    }
+    /**
+    * Calls into GFN SDK securely to determine whether the sample launcher is being executed inside
+    * a NVIDIA GeForce NOW game seat. This version passes a nonce in challenge and validates the response
+    */
+    else if (command == GFN_SDK_CLOUD_CHECK_WITH_VALIDATION)
+    {
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        bool bCloudCheck = false;
+        char nonce[CLOUD_CHECK_MIN_NONCE_SIZE] = { 0 };
+        if (!GfnCloudCheckGenerateNonce(nonce, CLOUD_CHECK_MIN_NONCE_SIZE))
+        {
+            LOG(ERROR) << "Generate nonce failed";
+            response_dict->SetString("errorMessage", CefString("Generate nonce failed"));
+        }
+        else
+        {
+            GfnCloudCheckChallenge challenge = { nonce, CLOUD_CHECK_MIN_NONCE_SIZE };
+            GfnCloudCheckResponse response = { NULL, 0 };
+
+            GfnError err = GfnCloudCheck(&challenge, &response, &bCloudCheck);
+            if (err != GfnError::gfnSuccess)
+            {
+                LOG(ERROR) << "Cloud check API error: " << GfnErrorToString(err);
+            }
+            else
+            {
+                if (response.attestationData != NULL)
+                {
+                    if (GfnCloudCheckVerifyAttestationData(response.attestationData, challenge.nonce, challenge.nonceSize))
+                    {
+                        LOG(INFO) << "CloudCheck response validated";
+                    }
+                    else
+                    {
+                        LOG(INFO) << "CloudCheck response validation failed";
+                    }
+                    GfnFree(&response.attestationData);
+                }
+            }
+            response_dict->SetBool("isCloudEnvironment", bCloudCheck);
+            response_dict->SetString("errorMessage", GfnErrorToString(err));
+        }
+
+        LOG(INFO) << "Cloud environment : " << bCloudCheck;
+        CefString resp(DictToJson(response_dict));
+        callback->Success(resp);
+        return true;
+    }
+    /**
+    * Calls into GFN SDK securely to determine whether the sample launcher is being executed inside
+    * a NVIDIA GeForce NOW game seat. This version passes null value for challenge and response and gets
+    * the boolean value that indicates cloud environment.
+    **/
+    else if (command == GFN_SDK_CLOUD_CHECK_NO_VALIDATION)
+    {
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        bool bCloudCheckSimple = false;
+
+        GfnError err = GfnCloudCheck(nullptr, nullptr, &bCloudCheckSimple);
+        if (err != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "Cloud check API (simple) error: " << GfnErrorToString(err);
+        }
+        response_dict->SetBool("isCloudEnvironment", bCloudCheckSimple);
+        response_dict->SetString("errorMessage", GfnErrorToString(err));
+
+        LOG(INFO) << "Cloud environment : " << bCloudCheckSimple;
+        CefString resp(DictToJson(response_dict));
+        callback->Success(resp);
         return true;
     }
     /**

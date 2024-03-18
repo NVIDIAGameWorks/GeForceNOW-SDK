@@ -86,7 +86,8 @@ if(OS_LINUX)
   SET_EXAMPLE_EXECUTABLE_TARGET_PROPERTIES(${EXAMPLE_TARGET})
   add_dependencies(${EXAMPLE_TARGET} shared)
   target_link_libraries(${EXAMPLE_TARGET} shared GfnSdkWrapper)
-  
+  target_link_libraries(${EXAMPLE_TARGET} shared SampleCommonUtils)
+
   target_include_directories(${EXAMPLE_TARGET} PRIVATE ${GFN_SDK_DIST_DIR}/samples/Common)
 
   # Copy SDK .so to output directory to bring the sample up to date
@@ -186,7 +187,8 @@ if(OS_WINDOWS)
   SET_EXAMPLE_EXECUTABLE_TARGET_PROPERTIES(${EXAMPLE_TARGET})
   add_dependencies(${EXAMPLE_TARGET} shared)
   target_link_libraries(${EXAMPLE_TARGET} shared GfnSdkWrapper)
-  
+  target_link_libraries(${EXAMPLE_TARGET} shared SampleCommonUtils)
+
   target_link_libraries(${EXAMPLE_TARGET}
     crypt32.lib
     Wldap32.lib
@@ -199,7 +201,7 @@ if(OS_WINDOWS)
   )
   target_compile_features(${EXAMPLE_TARGET} PRIVATE cxx_std_17)
   set_source_files_properties(${EXAMPLE_TARGET} PROPERTIES COMPILE_FLAGS "/wd4996")
-  target_compile_definitions(${EXAMPLE_TARGET} PRIVATE GFN_SDK_WRAPPER_LOG=1 FEATURECONFIG_HEADER)
+  target_compile_definitions(${EXAMPLE_TARGET} PRIVATE FEATURECONFIG_HEADER)
 
   # Copy SDK dll to output directory to bring the sample up to date
   set(_gfn_runtime_dll "${CMAKE_BINARY_DIR}/SampleLauncher/GfnRuntimeSdk.dll")

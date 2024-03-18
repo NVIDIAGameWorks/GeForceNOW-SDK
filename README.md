@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 2.1
+# NVIDIA GeForce NOW SDK Release 2.2
 
 ## At a Glance
 
@@ -18,13 +18,10 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* Add support for Linux to allow integration with native Linux applications that will run on Linux seats in GFN.
-* Reworked the cmake files to leverage presets so that partners can take advantage of Visual Studio's support for cmake instead of needing to generate a solution first.
-* Added a new [Quick Start Guide](./doc/SDK-GFN-QUICK-START-GUIDE.pdf) to allow partners to find out what APIs they need to use and leverage code snippets to integrate quickly.
-* Expanded this README with specific steps for building the SDK and samples for all supported Operating Systems.
-* Renamed the [GFN IP API Guide](./doc/SDK-GFN-IP-API-GUIDE.pdf) as well as expanded content to clarify use.
-* Switched Windows builds of samples to statically link the C Runtime (CRT) to allow debug builds to run on without installing the debug version of the CRT.
-* Fixed a few crashes that can occur in specific scenarios.
+* Added a new GFN Cloud Check API, gfnCloudCheck, which allows additional validation of results with challenge information.
+    * API is available on Windows only for now. Please see the [Cloud Check V3 API Guide](./doc/SDK-GFN-CLOUD-API.pdf) for extensive information about this API.
+    * A set of utilities on working with this API is provided in ./samples under the /Common folder.
+* Added a new stand-alone Cloud Check API Sample.
 
 ## GeForce NOW Developer Portal
 
@@ -51,7 +48,6 @@ The distribution is laid out as below:
 ├─── LICENSE.samplelauncher.thirdparty
 ├─── LICENSE.thirdparty
 ├─── README.md
-├─── README.txt
 |
 ├─── doc
 |   │   SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf
@@ -60,7 +56,7 @@ The distribution is laid out as below:
 |   │   SDK-GFN-MOBILE-TOUCH-INTEGRATION-GUIDE.pdf
 |   │   SDK-GFN-IP-API-GUIDE.pdf
 |   │   SDK-GFN-PRIMER.pdf
-|   │   SDK-GFN-QUICK-START-GUIDER.pdf
+|   │   SDK-GFN-QUICK-START-GUIDE.pdf
 |   └───SDK-GFN-RUNTIME
 |       └───index.html
 |
@@ -85,6 +81,8 @@ The distribution is laid out as below:
 └───samples
     |   README.md
     ├───CGameAPISample
+    ├───CloudCheckAPI
+    ├───Common
     ├───SampleLauncher
     └───SDKDllDirectRefSample
 

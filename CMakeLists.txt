@@ -12,6 +12,13 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
     set(SAMPLES_ARCH "32" CACHE STRING "Build architecture for sample apps")
 endif()
 
+if (WIN32)
+    # To enable usage of CMAKE_MSVC_RUNTIME_LIBRARY
+    cmake_policy(SET CMP0091 NEW)
+    # Statically link the CRT to avoid needing to install CRT debug binaries
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif ()
+
 ##### Cache Configuration #####
 set(GFN_SDK_DIST_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Location of the GFN SDK root")
 
@@ -21,7 +28,8 @@ if(NOT GFN_SDK_LIB_DIR)
     )
 endif()
 
-set(SAMPLES_INSTALL_ROOT "" CACHE STRING "(Optional) location to install sample launcher with cmake install command")
+set(SAMPLE_LAUNCHER_INSTALL_ROOT "" CACHE STRING "(Optional) location to install sample launcher with cmake install command")
+set(SAMPLE_CLOUDCHECKAPI_INSTALL_ROOT "" CACHE STRING "(Optional) location to install Cloud Check API sample with cmake install command")
 set(SAMPLES_CEF_URL "" CACHE STRING "(Optional) URL to use to download libcef for launcher sample")
 set(SAMPLES_CEF_PATH "" CACHE STRING "(Optional) Path to find pre-downloaded CEF")
 
@@ -53,12 +61,6 @@ add_library(GfnSdkWrapper STATIC
 )
 
 if (WIN32)
-    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:msvcrtd")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:msvcrt")
-    # To enable usage of CMAKE_MSVC_RUNTIME_LIBRARY
-    cmake_policy(SET CMP0091 NEW)
-    # Statically link the CRT to avoid needing to install CRT debug binaries
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     add_library(GfnSdkSecureLoadLibrary STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnSdk_SecureLoadLibrary.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnSdk_SecureLoadLibrary.c
@@ -73,8 +75,14 @@ target_include_directories(GfnSdkWrapper PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+target_compile_definitions(GfnSdkWrapper PRIVATE
+    GFN_SDK_WRAPPER_LOG=1
+)
+
 if (BUILD_SAMPLES)
+    add_subdirectory(samples/Common)
     add_subdirectory(samples/CGameAPISample)
+    add_subdirectory(samples/CloudCheckAPI)
     add_subdirectory(samples/SampleLauncher)
     add_subdirectory(samples/SDKDllDirectRefSample)
 endif ()

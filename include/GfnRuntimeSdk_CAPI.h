@@ -118,6 +118,12 @@
 ///
 /// Language | API
 /// -------- | -------------------------------------
+/// C        | @ref gfnCloudCheck
+///
+/// @copydoc gfnCloudCheck
+///
+/// Language | API
+/// -------- | -------------------------------------
 /// C        | @ref gfnFree
 ///
 /// @copydoc gfnFree
@@ -474,6 +480,20 @@
             char sessionId[SESSION_ID_SIZE];         ///< NVIDIA-defined unique indentifier for the session
             bool sessionRTXEnabled;                  ///< Defines if RTX support is enabled for the session
         } GfnSessionInfo;
+
+         /// @brief Challenge data passed in to @ref gfnCloudCheck API
+        typedef struct GfnCloudCheckChallenge
+        {
+            const char* nonce;      ///< A pointer to randomly generated data to be used as the payload of the challenge message. If set to nullptr GFN SDK will generate a random challenge on its own.
+            unsigned int nonceSize; ///< The size of the data pointed to by nonce. It is recommended that nonce is at least 16 byte (128 bit) long.
+        } GfnCloudCheckChallenge;
+
+        /// @brief Response data received in the @ref gfnCloudCheck API
+        typedef struct GfnCloudCheckResponse
+        {
+            const char* attestationData;        ///< If the cloud check is successful, the attestationData is cryptographically signed message containing the same nonce that was provided in the challenge; otherwise, this field is set to nullptr.
+            unsigned int attestationDataSize;   ///< The size of the attestationData field in case it is not empty; zero otherwise
+        } GfnCloudCheckResponse;
 
         // ============================================================================================
         // Callback signatures
@@ -855,6 +875,36 @@
         ///
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnIsRunningInCloudSecure(GfnIsRunningInCloudAssurance* assurance);
+
+        ///
+        /// @par Description
+        /// Determines if calling application is running in GFN environment or not. It also provides a 
+        /// cryptographically signed response if requested, which can be verified either locally or via 3rd party backend.
+        /// Refer to the Cloud Check API Guide on how to validate attestation data in response.
+        ///
+        /// @par Environment
+        /// Cloud and Client
+        /// 
+        /// @par Platform
+        /// Windows
+        ///
+        /// @par Usage
+        /// This API can be used from any execution context - privileged or not. 
+        ///
+        /// @param challenge                 - Optional input parameter, that can be used to pass in nonce data.
+        ///                                    If a non-null challenge is passed in, then the response parameter is mandatory.
+        /// 
+        /// @param response                  - Optional output parameter, that receives the signed attestation response from the API.
+        /// 
+        /// @param isCloudEnvironment        - Optional output parameter, that receives true value if the caller is in the GFN environment.
+        ///
+        /// @retval gfnSuccess               - On success indicates cloud check was performed successfully.
+        /// @retval gfnInvalidParameter      - NULL pointer passed in response parameter when challenge parameter is nonzero.
+        /// @retval gfnNotAuthorized         - Indicates the application is either not properly onboarded (missing allow - list),
+        ///                                    or the application attempted to perform cloud check in an unsafe environment (patched game seat).
+        /// @retval gfnBackendError          - Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment.
+        /// @retval gfnThrottled             - API call was throttled for exceeding limit
+        NVGFNSDK_EXPORT GfnRuntimeError gfnCloudCheck(const GfnCloudCheckChallenge* challenge, GfnCloudCheckResponse* response, bool* isCloudEnvironment);
 
         ///
         /// @par Description

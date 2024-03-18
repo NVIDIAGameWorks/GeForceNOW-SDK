@@ -9,6 +9,12 @@ This C-based simple command-line sample demonstrates usage of the game-focused
 APIs to detect the GeForce NOW cloud environment and control behavior of a game
 in that environment. This sample focuses on use of callbacks to notify a title
 of GeForce NOW cloud environment state changes.
+
+CloudCheckAPI:
+This C-based simple command-line sample demonstrates usage of the APIs dedicated
+to checking if running in the GFN cloud environment. It is designed to be run
+in both client and cloud environments to provide expected results in each of
+the environments.
     
 SampleLauncher:
 This C++-based sample demonstrates usage of the Launcher/Publisher application-

@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
-   &#160;<span id="projectnumber">2.1.0.33843515</span>
+   &#160;<span id="projectnumber">2.2.0.34024877</span>
    </div>
   </td>
  </tr>
@@ -93,6 +93,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga3b33985a46d6bd20fdea2c4865dc6a0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf5ab33bd8cd24cb26cda5bacf1764e3f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gaf5ab33bd8cd24cb26cda5bacf1764e3f">gfnIsRunningInCloudSecure</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#aecdb9af8ee15731faeebae2fcec76c7b">GfnIsRunningInCloudAssurance</a> *assurance)</td></tr>
 <tr class="separator:gaf5ab33bd8cd24cb26cda5bacf1764e3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab4968bc9c0a46f6be51a6b622e737cc0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gab4968bc9c0a46f6be51a6b622e737cc0">gfnCloudCheck</a> (const <a class="el" href="struct_gfn_cloud_check_challenge.html">GfnCloudCheckChallenge</a> *challenge, <a class="el" href="struct_gfn_cloud_check_response.html">GfnCloudCheckResponse</a> *response, <a class="el" href="_gfn_sdk_8h.html#ad5c9d4ba3dc37783a528b0925dc981a0">bool</a> *isCloudEnvironment)</td></tr>
+<tr class="separator:gab4968bc9c0a46f6be51a6b622e737cc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa8b07a70503f2a24b6625fc5a7eef9cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_sdk_8h.html#ad5c9d4ba3dc37783a528b0925dc981a0">bool</a> <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gaa8b07a70503f2a24b6625fc5a7eef9cb">gfnIsTitleAvailable</a> (const char *pchPlatformAppId)</td></tr>
 <tr class="separator:gaa8b07a70503f2a24b6625fc5a7eef9cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga70ea27f47639201d48de5d3006b20481"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a> (const char **ppchPlatformAppIds)</td></tr>
@@ -173,6 +175,60 @@ Functions</h2></td></tr>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="gab4968bc9c0a46f6be51a6b622e737cc0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError gfnCloudCheck </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_gfn_cloud_check_challenge.html">GfnCloudCheckChallenge</a> *&#160;</td>
+          <td class="paramname"><em>challenge</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_gfn_cloud_check_response.html">GfnCloudCheckResponse</a> *&#160;</td>
+          <td class="paramname"><em>response</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="_gfn_sdk_8h.html#ad5c9d4ba3dc37783a528b0925dc981a0">bool</a> *&#160;</td>
+          <td class="paramname"><em>isCloudEnvironment</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Determines if calling application is running in GFN environment or not. It also provides a cryptographically signed response if requested, which can be verified either locally or via 3rd party backend. Refer to the Cloud Check API Guide on how to validate attestation data in response.</dd></dl>
+<dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>This API can be used from any execution context - privileged or not.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">challenge</td><td>- Optional input parameter, that can be used to pass in nonce data. If a non-null challenge is passed in, then the response parameter is mandatory.</td></tr>
+    <tr><td class="paramname">response</td><td>- Optional output parameter, that receives the signed attestation response from the API.</td></tr>
+    <tr><td class="paramname">isCloudEnvironment</td><td>- Optional output parameter, that receives true value if the caller is in the GFN environment.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- On success indicates cloud check was performed successfully. </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in response parameter when challenge parameter is nonzero. </td></tr>
+    <tr><td class="paramname">gfnNotAuthorized</td><td>- Indicates the application is either not properly onboarded (missing allow - list), or the application attempted to perform cloud check in an unsafe environment (patched game seat). </td></tr>
+    <tr><td class="paramname">gfnBackendError</td><td>- Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment. </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
   </table>
   </dd>
 </dl>

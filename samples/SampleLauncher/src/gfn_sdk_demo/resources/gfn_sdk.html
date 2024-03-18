@@ -202,6 +202,8 @@
                 <button class="nv-button flyout-button" id="init-control" onclick="toggleSdkInit()">Shutdown SDK</button>
                 <button class="nv-button flyout-button" id="is-running-in-cloud" onclick="getRunningInCloud()">Check If Cloud</button>
                 <button class="nv-button flyout-button" id="is-running-in-cloud-secure" onclick="isRunningInCloudSecure()">Check If Cloud Secure</button>
+                <button class="nv-button flyout-button" id="cloud-check-validation" onclick="cloudCheckWithValidation()">Check If Cloud<br>(With Validation)</button>
+                <button class="nv-button flyout-button" id="cloud-check-no-validation" onclick="cloudCheckNoValidation()">Check If Cloud<br>(No Validation)</button>
                 <button class="nv-button flyout-button" id="client-ip" onclick="getClientIp()">Get Client IP</button>
                 <button class="nv-button flyout-button" id="client-country-code" onclick="getClientCountryCode()">Get Client Country Code</button>
                 <button class="nv-button flyout-button" id="client-language-code" onclick="getClientLanguageCode()">Get Client Language Code</button>
@@ -403,6 +405,46 @@
                         setStatus('Secure GFN cloud check result: ' + data.errorMessage);
                         setStatus('Assurance value of running in GFN cloud environment: ' + data.assurance);
                         resolve(data.assurance);
+                    }
+                });
+            });
+        }
+
+        /**
+         * Uses the new secure version of Cloud Check API to check if running in GFN environment. This requires API to be called by passing
+         * nonce as challenge input. The application then validates the response received.
+         **/
+        function cloudCheckWithValidation() {
+            return new Promise((resolve, reject) => {
+                window.cefQuery({
+                    request: JSON.stringify({
+                        command: 'GFN_SDK_CLOUD_CHECK_WITH_VALIDATION'
+                    }),
+                    onSuccess: function (response) {
+                        var data = JSON.parse(response);
+                        setStatus('GFN CloudCheck with validation result: ' + data.errorMessage);
+                        setStatus(data.isCloudEnvironment ? 'CloudCheck with validation: Client is running on a cloud GFN game seat' : 'CloudCheck with validation: Client is not running on a cloud GFN game seat');
+                        resolve(data.isCloudEnvironment);
+                    }
+                });
+            });
+        }
+
+        /**
+         * Uses the new secure version of Cloud Check API to check if running in GFN environment.
+         * This case demonstrates how the API can be used with null values for challenge and response.
+         **/
+        function cloudCheckNoValidation() {
+            return new Promise((resolve, reject) => {
+                window.cefQuery({
+                    request: JSON.stringify({
+                        command: 'GFN_SDK_CLOUD_CHECK_NO_VALIDATION'
+                    }),
+                    onSuccess: function (response) {
+                        var data = JSON.parse(response);
+                        setStatus('GFN CloudCheck with no validation result: ' + data.errorMessage);
+                        setStatus(data.isCloudEnvironment ? 'CloudCheck with no validation: Client is running on a cloud GFN game seat' : 'CloudCheck with no validation: Client is not running on a cloud GFN game seat');
+                        resolve(data.isCloudEnvironment);
                     }
                 });
             });
