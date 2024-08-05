@@ -28,4 +28,38 @@
 #include <stdio.h>
 #include "GfnRuntimeSdk_CAPI.h"
 
+#ifdef _WIN32
+#include <windows.h>    // For GetAsyncKeyState
+typedef HMODULE HANDLE_TYPE;
+#elif defined(__linux__)
+#include <dlfcn.h>      // dlsym
+typedef void* HANDLE_TYPE;
+#else
+#error "Unsupported platform"
+#endif
+
+extern HANDLE_TYPE gfnSdkModule;
+
+static void* GetSymbol(HANDLE_TYPE library, char* name)
+{
+#ifdef _WIN32
+    return (void*)GetProcAddress(library, name);
+#elif defined(__linux__)
+    return dlsym(library, name);
+#endif
+}
+
+extern GfnApplicationCallbackResult GFN_CALLBACK ExitApp(void* pContext);
+
+extern GfnApplicationCallbackResult GFN_CALLBACK PauseApp(void* pContext);
+
+extern GfnApplicationCallbackResult GFN_CALLBACK InstallApp(TitleInstallationInformation* pInfo, void* pContext);
+
+extern GfnApplicationCallbackResult GFN_CALLBACK AutoSave(void* pContext);
+
+
+extern GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* pContext);
+
 extern GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoUpdateData* data, const void* pContext);
+
+extern GfnApplicationCallbackResult GFN_CALLBACK HandleNetworkStatusChanges(GfnNetworkStatusUpdateData* pUpdate, const void* pContext);

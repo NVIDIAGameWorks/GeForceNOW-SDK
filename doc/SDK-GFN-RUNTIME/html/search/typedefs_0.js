@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['bool',['bool',['../_gfn_sdk_8h.html#ad5c9d4ba3dc37783a528b0925dc981a0',1,'GfnSdk.h']]]
+  ['clientinfocallbacksig',['ClientInfoCallbackSig',['../_gfn_runtime_sdk___c_a_p_i_8h.html#af8cf87633ab1ce4e56a2b9f8b71a4306',1,'GfnRuntimeSdk_CAPI.h']]]
 ];

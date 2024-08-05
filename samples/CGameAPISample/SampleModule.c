@@ -34,6 +34,10 @@ extern bool g_MainDone;
 
 GfnApplicationCallbackResult GFN_CALLBACK ExitApp(void* pContext)
 {
+    // Callback for when GeForce NOW will begin to shutdown the session.
+    // This normally occurs when the user choses to close the streaming window instead of the title
+    // being streamed to the window.
+    // Applications responding to this callback should trigger their shutdown activities.
     printf("Application exiting...\n");
     g_MainDone = true;
     return crCallbackSuccess;
@@ -41,6 +45,9 @@ GfnApplicationCallbackResult GFN_CALLBACK ExitApp(void* pContext)
 
 GfnApplicationCallbackResult GFN_CALLBACK PauseApp(void* pContext)
 {
+    // Callback for when GeForce NOW requests the application to pause.
+    // This normally occurs when the user changes focus away from the streaming window.
+    // Applications should enter their paused state, and wait for direct input from user to resume.
     // For the sake of example, imagine we treat the context like an int and print
     // the number of times an application pause has been requested by the SDK.
     printf("Application paused (%d call(s)).\n", *((int*) pContext) + 1);
@@ -50,6 +57,8 @@ GfnApplicationCallbackResult GFN_CALLBACK PauseApp(void* pContext)
 
 GfnApplicationCallbackResult GFN_CALLBACK InstallApp(TitleInstallationInformation* pInfo, void* pContext)
 {
+    // Callback for when GeForce NOW finished installing the requested application.
+    // Any last install configuration steps should be performed at this time.
     printf("\"Completing\" title setup for: %s.\n\tBuild path: %s\n\tMetadata path: %s\n",
         pInfo->pchPlatformAppId, pInfo->pchBuildPath, pInfo->pchMetadataPath);
     return crCallbackSuccess;
@@ -57,17 +66,23 @@ GfnApplicationCallbackResult GFN_CALLBACK InstallApp(TitleInstallationInformatio
 
 GfnApplicationCallbackResult GFN_CALLBACK AutoSave(void* pContext)
 {
-    printf("AutoSave\n");
+    // Callback for when GeForce NOW requests the application to save its state, including user data.
+    // This can occur during shutdown, which GFN needs the save data to save as part of the user's account state
+    // so they do not lose progress for the next GeForce NOW streaming session.
+    printf("AutoSave triggered.\n");
     return crCallbackSuccess;
 }
 
 
 GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* pContext)
 {
+    // Callback for when GeForce NOW a user connects to the game seat to start a streaming session.
+    // This is used in Pre-Warm launch flows to alert a pre-launched title to load user data for the
+    // connected user and start a streaming session.
+    // Respond within 30 seconds with a call to gfnAppReady API
     printf("SessionInit: %s\n", params);
-
     // Report that the application is ready for streaming to begin
-    GfnError runtimeError = GfnAppReady(false, "Abcd");
+    GfnError runtimeError = GfnAppReady(true, "Abcd");
     if (runtimeError == gfnSuccess)
     {
         printf("Reported 'AppReady' with success to the SDK\n");
@@ -110,6 +125,8 @@ GfnApplicationCallbackResult GFN_CALLBACK MessageCallback(const GfnString* pMess
 
 GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoUpdateData* pUpdate, const void* pContext)
 {
+    // Callback for when GeForce NOW detects client-sourced data changes.
+    // This can occur when a user rotates their mobile device or resumes the session on a different device.
     if (!pUpdate)
     {
         printf("Client info callback received invalid data\n");
@@ -130,7 +147,8 @@ GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoU
         printf("Resolution changed: %dx%d\n", pUpdate->data.clientResolution.horizontalPixels, pUpdate->data.clientResolution.verticalPixels);
         break;
     case gfnSafeZone:
-        // Safe zone information always comes in as normalized gfnRectLTRB formatted values
+        // Safe zone information always comes in as normalized gfnRectLTRB formatted values.
+        // See Mobile Integration Guide for more information.
         printf("SafeZone changed: %2.2f, %2.2f, %2.2f, %2.2f\n", pUpdate->data.safeZone.value1, pUpdate->data.safeZone.value2, pUpdate->data.safeZone.value3, pUpdate->data.safeZone.value4);
         break;
     default:
@@ -141,6 +159,8 @@ GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoU
 }
 GfnApplicationCallbackResult GFN_CALLBACK HandleNetworkStatusChanges(GfnNetworkStatusUpdateData* pUpdate, const void* pContext)
 {
+    // Callback for when GeForce NOW detects changes to network latency.
+    // Use the new value to decide latency related decisions, such as input delay or matchmaking.
     if (!pUpdate)
     {
         printf("Network perf callback received invalid data\n");

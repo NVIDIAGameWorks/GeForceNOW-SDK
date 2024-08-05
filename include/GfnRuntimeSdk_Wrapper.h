@@ -732,7 +732,7 @@ extern "C"
     /// Register a function to call when stream status changes on the user's client PC
     ///
     /// @param streamStatusCallback      - Function pointer to application code to call after
-    ///                                    the Geforce NOW streamer changes state
+    ///                                    the GeForce NOW streamer changes state
     /// @param userContext               - Pointer to user context, which will be passed unmodified to the
     ///                                    registered callback. Can be NULL
     ///
@@ -850,7 +850,7 @@ extern "C"
 
     ///
     /// @par Description
-    /// Calls @ref gfnSetupTitle to notify Geforce NOW that an application should be readied for launch.
+    /// Calls @ref gfnSetupTitle to notify GeForce NOW that an application should be readied for launch.
     ///
     /// @par Environment
     /// Cloud
@@ -859,21 +859,21 @@ extern "C"
     /// Windows, Linux
     ///
     /// @par Usage
-    /// Use to prepare an application for launch on Geforce NOW, and block on the result.
+    /// Use to prepare an application for launch on GeForce NOW, and block on the result.
     ///
     /// @param platformAppId             - Identifier of the requested application to setup
     ///
     /// @retval gfnSuccess               - On success
     /// @retval gfnInvalidParameter      - NULL pointer passed in
     /// @retval gfnCallWrongEnvironment  - If called in a client environment
-    /// @retval gfnSetupTitleFailure     - The Geforce NOW SDK failed to set up the title
+    /// @retval gfnSetupTitleFailure     - The GeForce NOW SDK failed to set up the title
     /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
     /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
     GfnRuntimeError GfnSetupTitle(const char* platformAppId);
 
     ///
     /// @par Description
-    /// Calls @ref GfnTitleExited to notify GFN that an application has exited.
+    /// Calls @ref gfnTitleExited to notify GFN that an application has exited.
     ///
     /// @par Environment
     /// Cloud
@@ -890,14 +890,14 @@ extern "C"
     /// @retval gfnSuccess               - On success
     /// @retval gfnInvalidParameter      - NULL pointer passed in
     /// @retval gfnCallWrongEnvironment  - If called in a client environment
-    /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
+    /// @retval gfnCloudLibraryNotFound  - GeForce NOW SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound           - The API was not found in the GeForce NOW SDK Library
     GfnRuntimeError GfnTitleExited(const char* platformId, const char* platformAppId);
 
     ///
     /// @par Description
-    /// Calls @ref gfnRegisterExitCallback to register an application function to call when Geforce NOW
-    /// needs to exit the game.
+    /// Calls @ref gfnRegisterExitCallback to register an application function that is called when
+    /// the user has requested to end the GeForce NOW session.
     ///
     /// @par Environment
     /// Cloud
@@ -906,25 +906,28 @@ extern "C"
     /// Windows, Linux
     ///
     /// @par Usage
-    /// Register an application function to call when Geforce NOW needs to exit the game.
+    /// Register an application function that is called when GeForce NOW will end the current session.
+    /// Note: This callback function allows an application to respond to a user's request to end a session,
+    /// for example, to perform a clean exit of the application. The application is given 5 seconds to 
+    /// perform activities and return from the callback function before session shutdown activities continue.
     ///
-    /// @param exitCallback             - Function pointer to application code to call when Geforce NOW
-    ///                                   needs to exit the game.
+    /// @param exitCallback             - Function pointer to application code to call when GeForce NOW
+    ///                                   will begin to shut down the current session.
     /// @param userContext              - Pointer to user context, which will be passed unmodified to the
     ///                                   registered callback. Can be NULL.
     ///
-    /// @retval gfnSuccess              - On success, when running in a Geforce NOW environment
+    /// @retval gfnSuccess              - On success, when running in a GeForce NOW environment
     /// @retval gfnInvalidParameter     - If exitCallback function pointer is NULL
     /// @retval gfnCallWrongEnvironment - If callback could not be registered since this function
     ///                                   was called outside of a cloud execution environment
-    /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @retval gfnCloudLibraryNotFound - GeForce NOW SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
     GfnRuntimeError GfnRegisterExitCallback(ExitCallbackSig exitCallback, void* userContext);
 
     ///
     /// @par Description
-    /// Calls @ref gfnRegisterPauseCallback to register an application callback with Geforce NOW
-    /// to be called when Geforce NOW needs to pause the game on the user's behalf.
+    /// Calls @ref gfnRegisterPauseCallback to register an application callback with GeForce NOW
+    /// to be called when GeForce NOW needs to pause the game on the user's behalf.
     ///
     /// @par Environment
     /// Cloud
@@ -933,24 +936,26 @@ extern "C"
     /// Windows, Linux
     ///
     /// @par Usage
-    /// Register an application function to call when Geforce NOW needs to pause the game.
+    /// Register an application function to call when GeForce NOW needs to pause the game.
+    /// Note: Callback should return as soon as the game process is paused. 
+    /// Resuming should occur when the user interacts with the game UI.
     ///
     /// @param pauseCallback            - Function pointer to application code to call when
-    ///                                   Geforce NOW needs to pause the game
+    ///                                   GeForce NOW needs to pause the game
     /// @param userContext              - Pointer to user context, which will be passed unmodified to the
     ///                                   registered callback. Can be NULL.
     ///
-    /// @retval gfnSuccess              - On success, when running in a Geforce NOW environment
+    /// @retval gfnSuccess              - On success, when running in a GeForce NOW environment
     /// @retval gfnInvalidParameter     - If pauseCallback function pointer is NULL
     /// @retval gfnCallWrongEnvironment - If callback could not be registered since this function
     ///                                   was called outside of a cloud execution environment
-    /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @retval gfnCloudLibraryNotFound - GeForce NOW SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
     GfnRuntimeError GfnRegisterPauseCallback(PauseCallbackSig pauseCallback, void* userContext);
 
     ///
     /// @par Description
-    /// Calls @ref gfnRegisterInstallCallback to register an application callback with Geforce NOW
+    /// Calls @ref gfnRegisterInstallCallback to register an application callback with GeForce NOW
     /// to be called after a successful call to @ref gfnSetupTitle.
     ///
     /// @par Environment
@@ -963,22 +968,22 @@ extern "C"
     /// Register a function to call after a successful call to gfnSetupTitle.
     ///
     /// @param installCallback          - Function pointer to application code to call after
-    ///                                   Geforce NOW successfully performs its own title setup.
+    ///                                   GeForce NOW successfully performs its own title setup.
     /// @param userContext              - Pointer to user context, which will be passed unmodified to the
     ///                                   registered callback. Can be NULL.
     ///
-    /// @retval gfnSuccess              - On success, when running in a Geforce NOW environment
+    /// @retval gfnSuccess              - On success, when running in a GeForce NOW environment
     /// @retval gfnInvalidParameter     - If installCallback function pointer is NULL
     /// @retval gfnCallWrongEnvironment - If callback could not be registered since this function
     ///                                   was called outside of a cloud execution environment
-    /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
+    /// @retval gfnCloudLibraryNotFound - GeForce NOW SDK cloud-side library could not be found
     /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
     GfnRuntimeError GfnRegisterInstallCallback(InstallCallbackSig installCallback, void* userContext);
 
     ///
     /// @par Description
-    /// Calls @ref gfnRegisterSaveCallback to register an application callback with GFN to be
-    /// called when GFN needs the application to save user progress.
+    /// Calls @ref gfnRegisterSaveCallback to register an application callback with GeForce NOW to be
+    /// called when GeForce NOW needs the application to save user progress.
     ///
     ///
     /// @par Environment
@@ -988,21 +993,23 @@ extern "C"
     /// Windows, Linux
     ///
     /// @par Usage
-    /// Register an application function to call when GFN needs the application to save
+    /// Register an application function to call when GeForce NOW needs the application to save game or user data.
+    /// The callback function should trigger the save of game state and return when completed.
     ///
     /// @param saveCallback             - Function pointer to application code to call when GFN needs the application to save
     /// @param userContext              - Pointer to user context, which will be passed unmodified to the
     ///                                   callback specified. Can be NULL.
     ///
-    /// @retval gfnSuccess              - On success when running in a GFN environment
-    /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @retval gfnSuccess              - On success when running in a GeForce NOW environment
+    /// @retval gfnCloudLibraryNotFound - GeForce NOW SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
     GfnRuntimeError GfnRegisterSaveCallback(SaveCallbackSig saveCallback, void* userContext);
 
     ///
     /// @par Description
-    /// Calls @ref gfnRegisterSessionInitCallback to register an application callback to be called when a GFN user has
-    /// connected to the game seat.
+    /// Calls @ref gfnRegisterSessionInitCallback to register an application callback with GeForce NOW to be called when
+    /// a GeForce NOW user has connected to the game seat to start a streaming session. This callback is used as part of
+    /// the Pre-warm feature. 
     ///
     /// @par Environment
     /// Cloud
@@ -1011,23 +1018,28 @@ extern "C"
     /// Windows, Linux
     ///
     /// @par Usage
-    /// Register an application function to call when a GFN user has connected to the game seat
+    /// Register an application function to call when a GeForce NOW user has connected to the game seat to allow the game to load
+    /// user-specific data and start game play for the user. Callback should return once loading is complete and user
+    /// can interact with the game.
+    /// Note: The callback function is given 30 second to complete and call @ref GfnAppReady. If this time elapses, before the 
+    /// function is called, the session will begin streaming frames to the user even if the game is still loading user data.
     ///
     /// @param sessionInitCallback      - Function pointer to application code to call when the user has connected
     /// @param userContext              - Pointer to user context, which will be passed unmodified to the
     ///                                   callback specified. Can be NULL.
     ///
-    /// @retval gfnSuccess              - On success when running in a GFN environment
+    /// @retval gfnSuccess              - On success when running in a GeForce NOW environment
     /// @retval gfnInvalidParameter     - Callback was NULL
-    /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @retval gfnCloudLibraryNotFound - GeForce NOW SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
     /// @retval gfnCallWrongEnvironment - The on-seat dll detected that it was not on a game seat
     GfnRuntimeError GfnRegisterSessionInitCallback(SessionInitCallbackSig sessionInitCallback, void* userContext);
 
     ///
     /// @par Description
-    /// Calls @ref gfnRegisterMessageCallback to register an application callback to be called when
-    /// a message has been sent to the application.
+    /// Calls @ref gfnRegisterMessageCallback to register an application callback with GeForce NOW to be called when a message
+    /// is sent to the application via the SendMessage feature as part of GeForce NOW's support for two-way communication 
+    /// between client application and the game application running in the game seat.
     ///
     /// @par Environment
     /// Cloud and Client
@@ -1036,23 +1048,23 @@ extern "C"
     /// Windows, Linux
     ///
     /// @par Usage
-    /// Provide a callback function that will be called when a message is sent to the application.
+    /// Provide a callback function that will be called when a message is sent to the application from the SendMessage feature.
     ///
-    /// @param messageCallbac           - Function pointer to application code to call when a message has been sent.
+    /// @param messageCallback          - Function pointer to application code to call when a message has been sent.
     /// @param userContext              - Pointer to user context, which will be passed unmodified to the
     ///                                   callback specified. Can be NULL.
     ///
-    /// @retval gfnSuccess              - On success when running in a GFN environment
+    /// @retval gfnSuccess              - On success when running in a GeForce NOW environment
     /// @retval gfnInvalidParameter     - Callback was NULL
-    /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @retval gfnCloudLibraryNotFound - GeForce NOW SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
     /// @retval gfnCallWrongEnvironment - The on-seat dll detected that it was not on a game seat
     GfnRuntimeError GfnRegisterMessageCallback(MessageCallbackSig messageCallback, void* userContext);
 
 
     ///
     /// @par Description
-    /// Registers an application callback with GFN to be called when client info changes
+    /// Registers an application callback with GeForce NOW to be called when client info changes
     ///
     /// @par Environment
     /// Cloud
@@ -1060,16 +1072,18 @@ extern "C"
     /// @par Platform
     /// Windows, Linux
     ///
-    /// @param clientInfoCallback       - Function pointer to application code to call when GFN client data changes
+    /// @param clientInfoCallback       - Function pointer to application code to call when GeForce NOW client data changes
+    /// @param userContext              - Pointer to user context, which will be passed unmodified to the
+    ///                                   callback specified. Can be NULL.
     ///
-    /// @retval gfnSuccess              - On success when running in a GFN environment
-    /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @retval gfnSuccess              - On success when running in a GeForce NOW environment
+    /// @retval gfnCloudLibraryNotFound  - GeForce NOW SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
     GfnRuntimeError GfnRegisterClientInfoCallback(ClientInfoCallbackSig clientInfoCallback, void* userContext);
 
     ///
     /// @par Description
-    /// Registers an application callback with GFN to be called when network latency changes
+    /// Registers an application callback with GeForce NOW to be called when network latency changes
     ///
     ///
     /// @par Environment
@@ -1083,14 +1097,14 @@ extern "C"
     /// @param userContext              - Pointer to user context, which will be passed unmodified to the
     ///                                   callback specified. Can be NULL.
     ///
-    /// @retval gfnSuccess              - On success when running in a GFN environment
-    /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound          - The API was not found in the GFN SDK Library
+    /// @retval gfnSuccess              - On success when running in a GeForce NOW environment
+    /// @retval gfnCloudLibraryNotFound  - GeForce NOW SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
     GfnRuntimeError GfnRegisterNetworkStatusCallback(NetworkStatusCallbackSig networkStatusCallback, unsigned int updateRateMs, void* userContext);
 
     ///
     /// @par Description
-    /// Calls @ref GfnAppReady to notify GFN that an application is ready to be displayed.
+    /// Calls @ref GfnAppReady to notify GeForce NOW that an application is ready to be displayed to the GeForce NOW user.
     ///
     /// @par Environment
     /// Cloud
@@ -1106,8 +1120,8 @@ extern "C"
     ///
     /// @retval gfnSuccess               - On success
     /// @retval gfnCallWrongEnvironment  - If called in a client environment
-    /// @retval gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
-    /// @retval gfnAPINotFound           - The API was not found in the GFN SDK Library
+    /// @retval gfnCloudLibraryNotFound  - GeForce NOW SDK cloud-side library could not be found
+    /// @retval gfnAPINotFound           - The API was not found in the GeForce NOW SDK Library
     GfnRuntimeError GfnAppReady(bool success, const char * status);
 
     ///

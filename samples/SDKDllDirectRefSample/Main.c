@@ -31,11 +31,10 @@
 
 #ifdef _WIN32
 #include <tchar.h>
-#include <windows.h>    // For GetAsyncKeyState
 #include "GfnSdk_SecureLoadLibrary.h"
 #define PLATFORM_MAX_PATH MAX_PATH
-typedef _TCHAR CHAR_TYPE;
-typedef HMODULE HANDLE_TYPE;
+typedef wchar_t CHAR_TYPE;
+
 #elif defined(__linux__)
 #include <unistd.h>
 #include <termios.h>
@@ -66,14 +65,14 @@ static void IsRunningInCloud(bool* bIsCloudEnvironment);
 static GfnRuntimeError GetClientInfo(GfnClientInfo* info);
 static GfnRuntimeError RegisterClientInfoCallback(ClientInfoCallbackSig cbFn);
 
-static void GetSharedLibraryPath(CHAR_TYPE* path);
+static void GetSharedLibraryPath(CHAR_TYPE* path, size_t bufferLen);
 static HANDLE_TYPE LoadSdkLibrary();
 static void* GetSymbol(HANDLE_TYPE library, char* name);
 static void ApplicationMainLoop();
 
 // Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
 // Application callbacks are registered with the SDK after it is initialized if running in Cloud mode.
-void ApplicationInitialize()
+bool ApplicationInitialize()
 {
     printf("\n\nApplication: Initializing...\n");
 
@@ -86,6 +85,7 @@ void ApplicationInitialize()
         // Initialization errors generally indicate a flawed environment. Check error code for details.
         // See GfnError in GfnSdk.h for error codes.
         printf("Error initializing the sdk: %d\n", err);
+        return false;
     }
     else
     {
@@ -104,6 +104,7 @@ void ApplicationInitialize()
     }
 
     // Application Initialization here
+    return true;
 }
 
 // Example application shutdown method with a call to shut down the Geforce NOW Runtime SDK
@@ -115,12 +116,16 @@ void ApplicationShutdown()
 
 // Example application main
 #ifdef _WIN32
-int _tmain(int argc, CHAR_TYPE* argv[])
+int wmain(int argc, CHAR_TYPE* argv[])
 #elif defined(__linux__)
 int main(int argc, CHAR_TYPE* argv[])
 #endif
 {
-    ApplicationInitialize();
+    if (!ApplicationInitialize()) {
+        printf("Failed to initialize! Exiting...");
+        ApplicationShutdown();
+        return -1;
+    }
 
     // Sample C API call
     bool bIsCloudEnvironment = false;
@@ -217,10 +222,11 @@ static GfnRuntimeError GetClientInfo(GfnClientInfo* info)
     return ((gfnGetClientInfoSig)GetSymbol(gfnSdkModule, "gfnGetClientInfo"))(info);
 }
 
-static void GetSharedLibraryPath(CHAR_TYPE* path)
+static void GetSharedLibraryPath(CHAR_TYPE* path, size_t bufferLen)
 {
 #ifdef _WIN32
-    _tcscat(&path[0], _T(".\\GfnRuntimeSdk.dll"));
+    DWORD len = 0;
+    len = GetFullPathNameW(L".\\GfnRuntimeSdk.dll", bufferLen, path, NULL);
 #elif defined(__linux__)
     char buffer[PLATFORM_MAX_PATH];
     ssize_t len;
@@ -255,14 +261,14 @@ static HANDLE_TYPE LoadSdkLibrary()
     HANDLE_TYPE handle = NULL;
     CHAR_TYPE libpath[PLATFORM_MAX_PATH];
     memset(libpath, 0, sizeof(libpath) / sizeof(CHAR_TYPE));
-    GetSharedLibraryPath(libpath);
+    GetSharedLibraryPath(libpath, PLATFORM_MAX_PATH);
 
     // For security reasons, it is preferred to check the digital signature before loading the DLL.
     // Such code is not provided here to reduce code complexity and library size, and in favor of
     // any internal libraries built for this purpose.
 #ifdef _WIN32
 #   ifdef _DEBUG
-        handle = LoadLibrary(libpath);
+        handle = LoadLibraryW(libpath);
 #   else
         handle = gfnSecureLoadClientLibraryW(libpath, 0);
 #   endif
@@ -280,15 +286,6 @@ static HANDLE_TYPE LoadSdkLibrary()
     }
 
     return handle;
-}
-
-static void* GetSymbol(HANDLE_TYPE library, char* name)
-{
-#ifdef _WIN32
-    return (void*)GetProcAddress(library, name);
-#elif defined(__linux__)
-    return dlsym(library, name);
-#endif
 }
 
 static void ApplicationMainLoop()

@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 2.2
+# NVIDIA GeForce NOW SDK Release 2.3
 
 ## At a Glance
 
@@ -18,10 +18,13 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* Added a new GFN Cloud Check API, gfnCloudCheck, which allows additional validation of results with challenge information.
-    * API is available on Windows only for now. Please see the [Cloud Check V3 API Guide](./doc/SDK-GFN-CLOUD-API.pdf) for extensive information about this API.
-    * A set of utilities on working with this API is provided in ./samples under the /Common folder.
-* Added a new stand-alone Cloud Check API Sample.
+* Added two new samples - CubeSample and PartnerDataAPI.
+* Added documentation for integrating this SDK with Epic Games' Unreal Engine.
+  * See SDK-GFN-UNREALENGINE-INTEGRATION-GUIDE.pdf in the doc folder for more details.
+* Added Virtual Studio 2022 support
+* Improved documentation throughout the SDK.
+* Various bug fixes and improvements.
+
 
 ## GeForce NOW Developer Portal
 
@@ -57,6 +60,7 @@ The distribution is laid out as below:
 |   │   SDK-GFN-IP-API-GUIDE.pdf
 |   │   SDK-GFN-PRIMER.pdf
 |   │   SDK-GFN-QUICK-START-GUIDE.pdf
+|   │   SDK-GFN-UNREALENGINE-INTEGRATION-GUIDE.pdf
 |   └───SDK-GFN-RUNTIME
 |       └───index.html
 |
@@ -83,6 +87,8 @@ The distribution is laid out as below:
     ├───CGameAPISample
     ├───CloudCheckAPI
     ├───Common
+    ├───CubeSample
+    ├───PartnerDataAPI
     ├───SampleLauncher
     └───SDKDllDirectRefSample
 

@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
-   &#160;<span id="projectnumber">2.2.0.34024877</span>
+   &#160;<span id="projectnumber">2.3.0.34421937</span>
    </div>
   </td>
  </tr>
@@ -97,7 +97,7 @@ Functions</h2></td></tr>
 <tr class="separator:gaf315563a9205712a40e7a842af2ac91b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<p>Callback registration functions to receieve various messages / requests from the SDK. Register only after calling <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk()</a>. </p>
+<p>Callback registration functions to receive various messages / requests from the SDK. Register only after calling <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk()</a>. </p>
 <h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="ga1bcb62aa8313bbe205ea4cb40246ee72"></a>
 <div class="memitem">
@@ -122,20 +122,20 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section user"><dt>Description</dt><dd>Register an application function to call when Geforce NOW needs to exit the game.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application function with GeForce NOW that is called when the user has requested to end the GeForce NOW session to allow the application to perform exit operations during session shutdown.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to exit the game.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function that is called when GeForce NOW will end the current session. Note: This callback function allows an application to respond to a user's request to end a session, for example, to perform a clean exit of the application. The application is given 5 seconds to perform activities and return from the callback function before session shutdown activities continue.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">exitCallback</td><td>- Function pointer to application code to call when Geforce NOW needs to exit the game. </td></tr>
+    <tr><td class="paramname">exitCallback</td><td>- Function pointer to application code to call when GeForce NOW needs to exit the game. </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the registered callback. Can be NULL.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a Geforce NOW environment </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInternalError</td><td>- If callback could not be registered </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If exitCallback function pointer is NULL. </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a cloud execution environment </td></tr>
@@ -168,20 +168,20 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with Geforce NOW to be called after a successful call to <a class="el" href="group__launcher.html#gac3fd7e969aeaf3992dbb4e8220cacc6d">gfnSetupTitle</a>. Typically, the callback would handle any additional installation steps that are necessary after Geforce NOW performs its own setup for a given title.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GeForce NOW to be called after a successful call to <a class="el" href="group__launcher.html#gac3fd7e969aeaf3992dbb4e8220cacc6d">gfnSetupTitle</a>. Typically, the callback would handle any additional installation steps that are necessary after GeForce NOW performs its own setup for a given title.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register a function to call after a successful call to gfnSetupTitle.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">installCallback</td><td>- Function pointer to application code to call after Geforce NOW successfully performs its own title setup. </td></tr>
+    <tr><td class="paramname">installCallback</td><td>- Function pointer to application code to call after GeForce NOW successfully performs its own title setup. </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the registered callback. Can be NULL.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a Geforce NOW environment </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInternalError</td><td>- If callback could not be registered </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If installCallback function pointer is NULL. </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a cloud execution environment </td></tr>
@@ -214,20 +214,20 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with Geforce NOW to be called when Geforce NOW needs to pause the game on the user's behalf. For Multiplayer games, it is recommended that this is implemented similar to a client disconnect.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GeForce NOW to be called when GeForce NOW needs to pause the game on the user's behalf. For Multiplayer games, it is recommended that this is implemented similar to a client disconnect.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to pause the game.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when GeForce NOW needs to pause the game. Note: Callback should return as soon as the game process is paused. Resuming should occur when the user interacts with the game UI.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pauseCallback</td><td>- Function pointer to application code to call when Geforce NOW needs to pause the game </td></tr>
+    <tr><td class="paramname">pauseCallback</td><td>- Function pointer to application code to call when GeForce NOW needs to pause the game </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the registered callback. Can be NULL.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a Geforce NOW environment </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInternalError</td><td>- If callback could not be registered </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If pauseCallback function pointer is NULL. </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a cloud execution environment </td></tr>

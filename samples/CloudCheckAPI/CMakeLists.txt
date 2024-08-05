@@ -30,10 +30,10 @@ add_custom_command(
 target_sources(GfnSdkCloudCheckAPISample PRIVATE "${_gfn_runtime_shared_lib}")
 
 install(TARGETS GfnSdkCloudCheckAPISample
-    DESTINATION /
+    DESTINATION ./
     COMPONENT sdk_cloudcheckapp
 )
 install(FILES $<TARGET_FILE:GfnRuntime>
-    DESTINATION /
+    DESTINATION ./
     COMPONENT sdk_cloudcheckapp
 )

@@ -69,7 +69,7 @@
 
 #ifndef __cplusplus
 /// @brief Simple aliasing for bool support
-typedef char bool;
+#include <stdbool.h>
 /// @brief Simple aliasing for Boolean false
 #define false 0
 /// @brief Simple aliasing for Boolean true
@@ -80,28 +80,28 @@ typedef char bool;
 #define NVGFNSDK_VERSION_MAJOR 2
 
 /// @brief GFN SDK Minor Version
-#define NVGFNSDK_VERSION_MINOR 2
+#define NVGFNSDK_VERSION_MINOR 3
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_SHORT 2.2
+#define NVGFNSDK_VERSION_SHORT 2.3
 
 /// @brief GFN SDK Patch Version
 #define NVGFNSDK_VERSION_PATCH 0
 
 /// @brief GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 34024877
+#define NVGFNSDK_VERSION_BUILD 34421937
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 2.2.0.34024877
+#define NVGFNSDK_VERSION_LONG 2.3.0.34421937
 
 /// @brief GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "2.2.0.34024877"
-#define NVGFNSDK_VERSION_STR_PROD "2.2.0"
+#define NVGFNSDK_VERSION_STR   "2.3.0.34421937"
+#define NVGFNSDK_VERSION_STR_PROD "2.3.0"
 
 /// @brief GFN SDK Build CL
-#define NVGFNSDK_VERSION_BUILDCL 34024877
-#define NVGFNSDK_VERSION_BUILDH 3402
-#define NVGFNSDK_VERSION_BUILDL 4877
+#define NVGFNSDK_VERSION_BUILDCL 34421937
+#define NVGFNSDK_VERSION_BUILDH 3442
+#define NVGFNSDK_VERSION_BUILDL 1937
 
 
 #ifdef __cplusplus
@@ -255,8 +255,8 @@ typedef char bool;
         /// @brief struct to reference a string with length data
         typedef struct GfnString
         {
-            const char* pchString;
-            unsigned int length;
+            const char* pchString; ///< char pointer to string
+            unsigned int length;   ///< length of string
         } GfnString;
 
         typedef struct GfnResolutionInfo

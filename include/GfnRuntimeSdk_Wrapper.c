@@ -69,8 +69,6 @@
 #   error "Unsupported platform"
 #endif
 
-// Set compile flag GFN_SDK_WRAPPER_LOG to enable simple logging
-#ifdef GFN_SDK_WRAPPER_LOG
 #   define GFN_SDK_INIT_LOGGING() gfnInitLogging();
 #   define GFN_SDK_DEINIT_LOGGING() gfnDeinitLogging();
 #   define GFN_SDK_LOG(fmt, ...) gfnLog(__FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
@@ -89,11 +87,6 @@
     static void gfnLog(char const* func, int line, char const* format, ...);
     static void gfnInitLogging();
     static void gfnDeinitLogging();
-#else
-#   define GFN_SDK_INIT_LOGGING()
-#   define GFN_SDK_DEINIT_LOGGING()
-#   define GFN_SDK_LOG(fmt, ...)
-#endif
 bool g_LoggingInitialized = false;
 
 // Function declarations
@@ -1247,6 +1240,8 @@ GfnRuntimeError GfnRegisterExitCallback(ExitCallbackSig exitCallback, void* pUse
 {
     CHECK_NULL_PARAM(exitCallback);
     CHECK_CLOUD_ENVIRONMENT();
+    
+    GFN_SDK_LOG("Registering for Exit Callback updates");
 
     _gfnUserContextCallbackWrapper* pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
     pWrappedContext->fnCallback = (void*)exitCallback;
@@ -1274,6 +1269,8 @@ GfnRuntimeError GfnRegisterPauseCallback(PauseCallbackSig pauseCallback, void* p
 {
     CHECK_NULL_PARAM(pauseCallback);
     CHECK_CLOUD_ENVIRONMENT();
+    
+    GFN_SDK_LOG("Registering for Pause Callback updates");
 
     _gfnUserContextCallbackWrapper* pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
     pWrappedContext->fnCallback = (void*)pauseCallback;
@@ -1300,6 +1297,8 @@ GfnRuntimeError GfnRegisterInstallCallback(InstallCallbackSig installCallback, v
 {
     CHECK_NULL_PARAM(installCallback);
     CHECK_CLOUD_ENVIRONMENT();
+
+    GFN_SDK_LOG("Registering for Install Callback updates");
 
     _gfnUserContextCallbackWrapper* pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
     pWrappedContext->fnCallback = (void*)installCallback;
@@ -1328,6 +1327,8 @@ GfnRuntimeError GfnRegisterSaveCallback(SaveCallbackSig saveCallback, void* pUse
     CHECK_NULL_PARAM(saveCallback);
     CHECK_CLOUD_ENVIRONMENT();
 
+    GFN_SDK_LOG("Registering for Save Callback updates");
+
     _gfnUserContextCallbackWrapper* pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
     pWrappedContext->fnCallback = (void*)saveCallback;
     pWrappedContext->pOrigUserContext = pUserContext;
@@ -1353,6 +1354,9 @@ GfnRuntimeError GfnRegisterSessionInitCallback(SessionInitCallbackSig sessionIni
 {
 	CHECK_NULL_PARAM(sessionInitCallback);
     CHECK_CLOUD_ENVIRONMENT();
+
+    GFN_SDK_LOG("Registering for SessionInit Callback updates");
+
 	_gfnUserContextCallbackWrapper* pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
     pWrappedContext->fnCallback = (void*)sessionInitCallback;
     pWrappedContext->pOrigUserContext = pUserContext;
@@ -1406,7 +1410,6 @@ GfnRuntimeError GfnRegisterMessageCallback(MessageCallbackSig messageCallback, v
 }
 
 
-#ifdef GFN_SDK_WRAPPER_LOG
 void gfnInitLogging()
 {
 #ifdef _WIN32
@@ -1500,5 +1503,3 @@ void gfnLog(char const* func, int line, char const* format, ...)
     }
     va_end(args);
 }
-
-#endif // GFN_SDK_WRAPPER_LOG

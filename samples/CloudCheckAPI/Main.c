@@ -47,7 +47,7 @@
 static char getKeyPress() {
 #ifdef _WIN32
     return _getch();
-#else if __linux__
+#elif __linux__
     struct termios oldt, newt;
     char ch;
     tcgetattr(STDIN_FILENO, &oldt);
@@ -57,6 +57,8 @@ static char getKeyPress() {
     ch = getchar();
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     return ch;
+#else
+#error "Unsupported platform"
 #endif
 }
 

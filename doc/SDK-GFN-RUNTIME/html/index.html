@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
-   &#160;<span id="projectnumber">2.2.0.34024877</span>
+   &#160;<span id="projectnumber">2.3.0.34421937</span>
    </div>
   </td>
  </tr>
@@ -109,7 +109,7 @@ General / Common methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Should be called at application startup and prior to any other GFN Runtime API methods. The SDK features which become available as a result of initializing the Geforce NOW SDK are dependent on the type of environment in which the SDK operates (client or cloud).</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Should be called at application startup and prior to any other GFN Runtime API methods. The SDK features which become available as a result of initializing the GeForce NOW SDK are dependent on the type of environment in which the SDK operates (client or cloud).</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call as soon as possible during application startup.</dd></dl>
@@ -154,8 +154,8 @@ Launcher or Game Specific Methods</h2>
 <dl class="section warning"><dt>Warning</dt><dd>This API is meant to fill the need to quickly determine if the call looks to be in the GFN cloud environment. It purposefully trades off resource-intensive checks for fast response. Do not tie any logic or features of value to this API as the call stack could be tampered with. For that purpose, use <a class="el" href="group__launcher.html#gaf5ab33bd8cd24cb26cda5bacf1764e3f">gfnIsRunningInCloudSecure</a>.</dd></dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">true</td><td>- Application is running on a GFN game seat virtual machine in the Geforce NOW cloud. </td></tr>
-    <tr><td class="paramname">false</td><td>- Application is not running in the Geforce NOW cloud or in a Geforce NOW test environment. This value will also be returned if called before <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk()</a>.</td></tr>
+    <tr><td class="paramname">true</td><td>- Application is running on a GFN game seat virtual machine in the GeForce NOW cloud. </td></tr>
+    <tr><td class="paramname">false</td><td>- Application is not running in the GeForce NOW cloud or in a GeForce NOW test environment. This value will also be returned if called before <a class="el" href="group__general.html#gae75c579a109c1f89162e858d1a479d79">gfnInitializeRuntimeSdk()</a>.</td></tr>
   </table>
   </dd>
 </dl>
@@ -288,10 +288,10 @@ Launcher or Game Specific Methods</h2>
 <tr>
 <td>C sync </td><td><a class="el" href="group__launcher.html#gac3fd7e969aeaf3992dbb4e8220cacc6d">gfnSetupTitle</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Notifies Geforce NOW that an application should be readied for launch. Geforce NOW will make the build files associated with the application available at the path returned in the SetupTitleResult struct passed in to the ConfirmTitleSetup callback provided by the caller. Additionally, Geforce NOW will set all necessary settings to optimize for the Geforce NOW cloud environment, and download any associated user data, including save files.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Notifies GeForce NOW that an application should be readied for launch. GeForce NOW will make the build files associated with the application available at the path returned in the SetupTitleResult struct passed in to the ConfirmTitleSetup callback provided by the caller. Additionally, GeForce NOW will set all necessary settings to optimize for the GeForce NOW cloud environment, and download any associated user data, including save files.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use to prepare an application for launch on Geforce NOW, and block on the result.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to prepare an application for launch on GeForce NOW, and block on the result.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pchPlatformAppId</td><td>- Identifier of the requested application to setup</td></tr>
@@ -303,7 +303,7 @@ Launcher or Game Specific Methods</h2>
     <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- NULL pointer passed in </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
-    <tr><td class="paramname">gfnSetupTitleFailure</td><td>- The Geforce NOW SDK failed to set up the title </td></tr>
+    <tr><td class="paramname">gfnSetupTitleFailure</td><td>- The GeForce NOW SDK failed to set up the title </td></tr>
   </table>
   </dd>
 </dl>
@@ -340,7 +340,7 @@ Launcher or Game Specific Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__launcher.html#ga8c41a40828a5bd9a0cf087a0fd2757a8">gfnGetClientIp</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Since applications running under Geforce NOW run in the Geforce NOW data centers, any IP queries made by the Application will return IPs associated with the data center, not the user's external client IP, as seen by Internet queries. This SDK call allows the application to obtain the user's client IP in the IPv4 format so that developers can make regional business decisions for the user based on it versus the region of the data center the user is connected to for game streaming sessions.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Since applications running under GeForce NOW run in the GeForce NOW data centers, any IP queries made by the Application will return IPs associated with the data center, not the user's external client IP, as seen by Internet queries. This SDK call allows the application to obtain the user's client IP in the IPv4 format so that developers can make regional business decisions for the user based on it versus the region of the data center the user is connected to for game streaming sessions.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call this during application start or from the platform client in order to get the user's external client IP address.</dd></dl>
@@ -700,20 +700,20 @@ Callback-related Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__callbacks.html#ga1bcb62aa8313bbe205ea4cb40246ee72">gfnRegisterExitCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Register an application function to call when Geforce NOW needs to exit the game.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application function with GeForce NOW that is called when the user has requested to end the GeForce NOW session to allow the application to perform exit operations during session shutdown.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to exit the game.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function that is called when GeForce NOW will end the current session. Note: This callback function allows an application to respond to a user's request to end a session, for example, to perform a clean exit of the application. The application is given 5 seconds to perform activities and return from the callback function before session shutdown activities continue.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">exitCallback</td><td>- Function pointer to application code to call when Geforce NOW needs to exit the game. </td></tr>
+    <tr><td class="paramname">exitCallback</td><td>- Function pointer to application code to call when GeForce NOW needs to exit the game. </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the registered callback. Can be NULL.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a Geforce NOW environment </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInternalError</td><td>- If callback could not be registered </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If exitCallback function pointer is NULL. </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a cloud execution environment</td></tr>
@@ -726,20 +726,20 @@ Callback-related Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__callbacks.html#gaf1965f1ccce59f6748ea4eed3df4edc0">gfnRegisterPauseCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with Geforce NOW to be called when Geforce NOW needs to pause the game on the user's behalf. For Multiplayer games, it is recommended that this is implemented similar to a client disconnect.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GeForce NOW to be called when GeForce NOW needs to pause the game on the user's behalf. For Multiplayer games, it is recommended that this is implemented similar to a client disconnect.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when Geforce NOW needs to pause the game.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when GeForce NOW needs to pause the game. Note: Callback should return as soon as the game process is paused. Resuming should occur when the user interacts with the game UI.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pauseCallback</td><td>- Function pointer to application code to call when Geforce NOW needs to pause the game </td></tr>
+    <tr><td class="paramname">pauseCallback</td><td>- Function pointer to application code to call when GeForce NOW needs to pause the game </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the registered callback. Can be NULL.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a Geforce NOW environment </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInternalError</td><td>- If callback could not be registered </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If pauseCallback function pointer is NULL. </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a cloud execution environment</td></tr>
@@ -752,20 +752,20 @@ Callback-related Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__callbacks.html#gaf315563a9205712a40e7a842af2ac91b">gfnRegisterInstallCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with Geforce NOW to be called after a successful call to <a class="el" href="group__launcher.html#gac3fd7e969aeaf3992dbb4e8220cacc6d">gfnSetupTitle</a>. Typically, the callback would handle any additional installation steps that are necessary after Geforce NOW performs its own setup for a given title.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GeForce NOW to be called after a successful call to <a class="el" href="group__launcher.html#gac3fd7e969aeaf3992dbb4e8220cacc6d">gfnSetupTitle</a>. Typically, the callback would handle any additional installation steps that are necessary after GeForce NOW performs its own setup for a given title.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Register a function to call after a successful call to gfnSetupTitle.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">installCallback</td><td>- Function pointer to application code to call after Geforce NOW successfully performs its own title setup. </td></tr>
+    <tr><td class="paramname">installCallback</td><td>- Function pointer to application code to call after GeForce NOW successfully performs its own title setup. </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the registered callback. Can be NULL.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a Geforce NOW environment </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success, when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInternalError</td><td>- If callback could not be registered </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If installCallback function pointer is NULL. </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If callback could not be registered since this function was called outside of a cloud execution environment</td></tr>
@@ -784,7 +784,7 @@ Callback-related Methods</h2>
 <dl class="section user"><dt>Usage</dt><dd>Register a function to call when stream status changes on the user's client PC</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">streamStatusCallback</td><td>- Function pointer to application code to call after the Geforce NOW streamer changes state </td></tr>
+    <tr><td class="paramname">streamStatusCallback</td><td>- Function pointer to application code to call after the GeForce NOW streamer changes state </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the registered callback. Can be NULL.</td></tr>
   </table>
   </dd>
@@ -802,10 +802,10 @@ Callback-related Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ac19b823f27eaffd4bd318eaf0fa02449">gfnRegisterSessionInitCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when a GFN user has connected to the game seat</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GeForce NOW to be called when a GeForce NOW user has connected to the game seat to start a streaming session. This callback is used as part of the Pre-warm feature.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a GFN user has connected to the game seat</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a GeForce NOW user has connected to the game seat to allow the game to load user-specific data and start game play for the user. Callback should return once loading is complete and user can interact with the game. Note: The callback function is given 30 second to complete and call <a class="el" href="group__wrapper.html#ga6095bb54551cc3f04ff74c362640f8a6">GfnAppReady</a>. If this time elapses, before the function is called, the session will begin streaming frames to the user even if the game is still loading user data.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">sessionInitCallback</td><td>- Function pointer to application code to call when GFN is ready for the application to finalize loading </td></tr>
@@ -815,10 +815,10 @@ Callback-related Methods</h2>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat</td></tr>
   </table>
   </dd>
@@ -829,10 +829,10 @@ Callback-related Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#abae3540f316b5bbd5e72b0071d3f3d5a">gfnRegisterClientInfoCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when certain client info that is part of <a class="el" href="group__launcher.html#ga0a78ef87b1164626048c7c88b9de3284">gfnGetClientInfo</a> API changes</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GeForce NOW to be called when certain client info that is part of <a class="el" href="group__launcher.html#ga0a78ef87b1164626048c7c88b9de3284">gfnGetClientInfo</a> API changes</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a the client information from the GFN user's client system has changed</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a the client information from the GeForce NOW user's client system has changed</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">clientInfoCallback</td><td>- Function pointer to application code to call when client information has changed </td></tr>
@@ -842,10 +842,10 @@ Callback-related Methods</h2>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat</td></tr>
   </table>
   </dd>
@@ -856,10 +856,10 @@ Callback-related Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#acaa9b6d41eac3e072f93f33429bba5e5">gfnRegisterNetworkStatusCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when client latency changes</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GeForce NOW to be called when client latency changes</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a the network latency from the GFN user's client system has changed</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Register an application function to call when a the network latency from the GeForce NOW user's client system has changed</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">networkStatusCallback</td><td>- Function pointer to application code to call when network latency has changed </td></tr>
@@ -870,7 +870,7 @@ Callback-related Methods</h2>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
+    <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
@@ -884,13 +884,13 @@ Callback-related Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ae5b74a7732c782eb448f5017115997c8">gfnRegisterMessageCallback</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Register an application callback with GFN to be called when a message is sent to the application.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Register an application callback with GeForce NOW to be called when a message is sent to the application via the SendMessage feature as part of GeForce NOW's support for two-way communication between client application and the game application running in the game seat.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Provide a callback function that will be called when a message is sent to the application.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Provide a callback function that will be called when a message is sent to the application from the SendMessage feature.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">messageCallback</td><td>- Function pointer to application code to call when a message has been recieved. </td></tr>
+    <tr><td class="paramname">messageCallback</td><td>- Function pointer to application code to call when a message has been received. </td></tr>
     <tr><td class="paramname">pUserContext</td><td>- Pointer to user context, which will be passed unmodified to the callback specified. Can be NULL.</td></tr>
   </table>
   </dd>
@@ -900,7 +900,7 @@ Callback-related Methods</h2>
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
     <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
-    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
   </table>
   </dd>

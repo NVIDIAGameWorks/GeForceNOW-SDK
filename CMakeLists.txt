@@ -75,14 +75,12 @@ target_include_directories(GfnSdkWrapper PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_compile_definitions(GfnSdkWrapper PRIVATE
-    GFN_SDK_WRAPPER_LOG=1
-)
-
 if (BUILD_SAMPLES)
     add_subdirectory(samples/Common)
     add_subdirectory(samples/CGameAPISample)
     add_subdirectory(samples/CloudCheckAPI)
     add_subdirectory(samples/SampleLauncher)
     add_subdirectory(samples/SDKDllDirectRefSample)
+    add_subdirectory(samples/PartnerDataAPI)
+    add_subdirectory(samples/CubeSample)
 endif ()
