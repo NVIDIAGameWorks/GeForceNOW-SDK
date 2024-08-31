@@ -21,7 +21,7 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 * Added two new samples - CubeSample and PartnerDataAPI.
 * Added documentation for integrating this SDK with Epic Games' Unreal Engine.
   * See SDK-GFN-UNREALENGINE-INTEGRATION-GUIDE.pdf in the doc folder for more details.
-* Added Virtual Studio 2022 support
+* Added Visual Studio 2022 support
 * Improved documentation throughout the SDK.
 * Various bug fixes and improvements.
 
