@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 2.3
+# NVIDIA GeForce NOW SDK Release 2.4
 
 ## At a Glance
 
@@ -18,13 +18,11 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* Added two new samples - CubeSample and PartnerDataAPI.
-* Added documentation for integrating this SDK with Epic Games' Unreal Engine.
-  * See SDK-GFN-UNREALENGINE-INTEGRATION-GUIDE.pdf in the doc folder for more details.
-* Added Virtual Studio 2022 support
-* Improved documentation throughout the SDK.
+* Added `gfnOpenURLOnClient` API for app to request client application to open a URL in their local web browser.
+* Added `OpenClientBrowser` sample to demonstrate `gfnOpenURLOnClient` API usage.
+* Added `PreWarmSample` sample to demonstrate usage of the APIs and callbacks associated with PreWarm feature.
+* Added touch input support to `CubeSample` app.
 * Various bug fixes and improvements.
-
 
 ## GeForce NOW Developer Portal
 
@@ -88,7 +86,9 @@ The distribution is laid out as below:
     ├───CloudCheckAPI
     ├───Common
     ├───CubeSample
+    ├───OpenClientBrowser
     ├───PartnerDataAPI
+    ├───PreWarmSample
     ├───SampleLauncher
     └───SDKDllDirectRefSample
 

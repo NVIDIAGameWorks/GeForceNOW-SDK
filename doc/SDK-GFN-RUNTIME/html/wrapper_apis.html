@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
-   &#160;<span id="projectnumber">2.3.0.34421937</span>
+   &#160;<span id="projectnumber">2.4.0.34856604</span>
    </div>
   </td>
  </tr>
@@ -696,7 +696,7 @@ Wrapper Methods</h2>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- Callback was NULL </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GeForce NOW SDK cloud-side library could not be found </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- The on-seat dll detected that it was not on a game seat</td></tr>
   </table>
@@ -723,7 +723,7 @@ Wrapper Methods</h2>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GeForce NOW SDK cloud-side library could not be found </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library</td></tr>
   </table>
   </dd>
@@ -752,11 +752,12 @@ Wrapper Methods</h2>
     <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
     <tr><td class="paramname">gfnInputExpected</td><td>- Expected zone to have a value </td></tr>
     <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
-    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
     <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
     <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
   </table>
   </dd>
 </dl>
@@ -782,7 +783,8 @@ Wrapper Methods</h2>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
     <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
-    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided, or message exceeded allowed length </td></tr>
     <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit of 30 messages per second </td></tr>
     <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
@@ -810,7 +812,8 @@ Wrapper Methods</h2>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GeForce NOW SDK cloud-side library could not be found </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Callback was NULL </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library</td></tr>
   </table>
   </dd>
@@ -835,7 +838,8 @@ Wrapper Methods</h2>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GeForce NOW SDK cloud-side library could not be found </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Callback was NULL </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library</td></tr>
   </table>
   </dd>
@@ -861,12 +865,43 @@ Wrapper Methods</h2>
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- Callback was NULL </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GeForce NOW SDK cloud-side library could not be found </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library </td></tr>
-    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- The on-seat dll detected that it was not on a game seat </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- The on-seat dll detected that it was not on a game seat</td></tr>
   </table>
   </dd>
 </dl>
+<table class="doxtable">
+<tr>
+<th>Language </th><th>API  </th></tr>
+<tr>
+<td>C </td><td><a class="el" href="group__wrapper.html#ga923b0881cb5ac997f2324cee20bd38f7">GfnOpenURLOnClient</a> </td></tr>
+</table>
+<dl class="section user"><dt>Description</dt><dd>Requests the client application to open a URL in their local web browser.</dd></dl>
+<p>These requests are fire-and-forget. Typically, the client will see a popup during their streaming session with a link that they can click to open the local web browser.</p>
+<p>Usage of this API is limited to 5 URL requests every second, with no more than 25 URL requests per minute.</p>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to request that the client application open a URL link in their local web browser.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pchUrl</td><td>- A URL which should be opened on the client's local browser.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- API was called outside of a cloud execution environment </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid pointer provided, or message exceeded allowed length </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit of 5 messages per second or 25 total per session </td></tr>
+    <tr><td class="paramname">gfnInternalError</td><td>- API ran into an internal error </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.12-->
 <!-- start footer part -->

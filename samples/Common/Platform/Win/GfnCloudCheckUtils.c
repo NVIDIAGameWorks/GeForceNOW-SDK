@@ -339,6 +339,13 @@ bool ParseHeaderJson(const char* header, char** pX5CCerts, unsigned int* numOfX5
     char* x5cCert = strtok(x5cStart + 1, ",");
     do
     {
+        if (i >= MAX_NUMBER_OF_X5C_CERTS) 
+        {
+            GFN_CC_LOG("Certificate count of %i exceeds expected %d\n", i, MAX_NUMBER_OF_X5C_CERTS);
+            result = false;
+            goto end;
+        }
+        
         size_t certLength = strlen(x5cCert);
         char* cert = GFN_CC_MALLOC(certLength + 1);
         if (cert == NULL)
@@ -368,10 +375,10 @@ end:
             if (pX5CCerts[i] != NULL)
             {
                 GFN_CC_FREE(pX5CCerts[i]);
+                pX5CCerts[i] = NULL;
             }
-            *pX5CCerts = NULL;
-            *numOfX5CCerts = 0;
         }
+        *numOfX5CCerts = 0;
     }
     return result;
 }
@@ -904,11 +911,6 @@ bool GfnCloudCheckVerifyAttestationData(const char* jwt, const char* nonce, unsi
     if (!ParseHeaderJson(decodedHeader, &x5cCerts[0], &numOfCerts))
     {
         GFN_CC_LOG("Failed to parse header json\n");
-        goto end;
-    }
-    if (numOfCerts > MAX_NUMBER_OF_X5C_CERTS)
-    {
-        GFN_CC_LOG("Certificate count of %i exceeds expected %d\n", numOfCerts, MAX_NUMBER_OF_X5C_CERTS);
         goto end;
     }
 

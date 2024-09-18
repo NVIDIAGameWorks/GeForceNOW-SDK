@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
-   &#160;<span id="projectnumber">2.3.0.34421937</span>
+   &#160;<span id="projectnumber">2.4.0.34856604</span>
    </div>
   </td>
  </tr>
@@ -398,6 +398,8 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:gaa5e1081ccd6b903f12a6b9f05b11bf03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab6a2bf6d5242c4f172d39096dda54cef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gab6a2bf6d5242c4f172d39096dda54cef">gfnSendMessage</a> (const char *pchMessage, unsigned int length)</td></tr>
 <tr class="separator:gab6a2bf6d5242c4f172d39096dda54cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga20aaf2a987d4850b922c781b0da1ee53"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga20aaf2a987d4850b922c781b0da1ee53">gfnOpenURLOnClient</a> (const char *pchUrl)</td></tr>
+<tr class="separator:ga20aaf2a987d4850b922c781b0da1ee53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>API definitions </p>
@@ -609,7 +611,7 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
   </table>
@@ -656,7 +658,7 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GFN environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
   </table>
@@ -710,7 +712,7 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GFN SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
   </table>
@@ -801,7 +803,7 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- On success when running in a GeForce NOW environment </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- If callback was NULL </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- If the on-seat dll was not present (Usually due to not running on a seat) </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
     <tr><td class="paramname">gfnAPINotFound</td><td>- If the API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If the on-seat dll detected that it was not on a game seat </td></tr>
   </table>

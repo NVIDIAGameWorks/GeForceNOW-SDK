@@ -16,11 +16,14 @@
 #ifdef  _WIN32
     #include <windows.h>
     #include <shellapi.h>
+    #define MOUSEEVENTF_FROMTOUCH (0xFF515700)
 #else
     #include <stdio.h>
     #include <string.h>
     #include <stdint.h>
     #include <X11/Xutil.h>
+    #define max(x, y) (((x) > (y)) ? (x) : (y))
+    #define min(x, y) (((x) < (y)) ? (x) : (y))
 #endif
 #include "GfnSdkInterface.h"
 
@@ -41,13 +44,33 @@ void ackSpinChange(struct SpinState *spin_state)
 
 void gfnsdk_decreaseSpin(struct SpinState *spin_state)
 {
-    spin_state->spin_angle -= (spin_state->spin_angle > 0) ? spin_state->spin_increment : -spin_state->spin_increment;
+    if (!spin_state->pause)
+    {
+        if (spin_state->spin_angle > 0)
+        {
+            spin_state->spin_angle = max(spin_state->spin_angle - spin_state->spin_increment, 0);
+        }
+        else
+        {
+            spin_state->spin_angle = min(spin_state->spin_angle + spin_state->spin_increment, 0);
+        }
+    }
     ackSpinChange(spin_state);
 }
 
 void gfnsdk_increaseSpin(struct SpinState *spin_state)
 {
-    spin_state->spin_angle += (spin_state->spin_angle > 0) ? spin_state->spin_increment: -spin_state->spin_increment;
+    if (!spin_state->pause)
+    {
+        if (spin_state->spin_angle > 0)
+        {
+            spin_state->spin_angle += spin_state->spin_increment;
+        }
+        else
+        {
+            spin_state->spin_angle -= spin_state->spin_increment;
+        }
+    }
     ackSpinChange(spin_state);
 }
 
@@ -70,12 +93,23 @@ void gfnsdk_togglePauseState(struct SpinState *spin_state)
 
 void gfnsdk_reverseSpin(struct SpinState *spin_state)
 {
-    spin_state->spin_angle = -1 * spin_state->spin_angle;
+    if (!spin_state->pause)
+    {
+        spin_state->spin_angle = -1 * spin_state->spin_angle;
+    }
     ackSpinChange(spin_state);
 }
 
 void gfnsdk_handleButtonClick(UINT uMsg, int xPos, int yPos, struct SpinState *spin_state, int width)
 {
+#ifdef _WIN32
+    if ((GetMessageExtraInfo() & MOUSEEVENTF_FROMTOUCH) == MOUSEEVENTF_FROMTOUCH)
+    {
+        // Do not process duplicate Mouse event during touch input
+        return;
+    }
+#endif
+
     switch (uMsg)
     {
 #ifdef _WIN32
@@ -102,12 +136,43 @@ void gfnsdk_handleButtonClick(UINT uMsg, int xPos, int yPos, struct SpinState *s
         break;
 
     default:
-        printf("unhandled button click %X", uMsg);
+        printf("ERROR: unhandled button click %X\n", uMsg);
         return;
     }
     ackSpinChange(spin_state);
 }
 
+#ifdef _WIN32
+void gfnsdk_handleTouch(HWND hWnd, UINT uMsg, UINT cInputs, HTOUCHINPUT hTouchInput, struct SpinState *spin_state, int width)
+{
+    PTOUCHINPUT pInputs = (PTOUCHINPUT)malloc(sizeof(TOUCHINPUT) * cInputs);
+    if (pInputs)
+    {
+        if (GetTouchInputInfo(hTouchInput, cInputs, pInputs, sizeof(TOUCHINPUT)))
+        {
+            // Consult only first touch
+            TOUCHINPUT touchInput = pInputs[0];
+            if ((touchInput.dwFlags & TOUCHEVENTF_DOWN) == TOUCHEVENTF_DOWN)
+            {
+                POINT point;
+                point.x = TOUCH_COORD_TO_PIXEL(touchInput.x);
+                point.y = TOUCH_COORD_TO_PIXEL(touchInput.y);
+                ScreenToClient(hWnd, &point);
+                if (point.x < width / 2)
+                {
+                    gfnsdk_decreaseSpin(spin_state);
+                }
+                else
+                {
+                    gfnsdk_increaseSpin(spin_state);
+                }
+            }
+            CloseTouchInputHandle(hTouchInput);
+        }
+        free(pInputs);
+    }
+}
+#endif
 
 GfnApplicationCallbackResult GFN_CALLBACK MessageCallback(const GfnString* pMessage, void* pContext)
 {

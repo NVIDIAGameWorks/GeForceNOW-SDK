@@ -68,53 +68,13 @@ CefString GET_SESSION_INFO = "GFN_SDK_GET_SESSION_INFO";
 CefString GFN_SDK_SEND_MESSAGE = "GFN_SDK_SEND_MESSAGE";
 CefString GFN_SDK_REGISTER_MESSAGE_CALLBACK = "GFN_SDK_REGISTER_MESSAGE_CALLBACK";
 CefString GFN_SDK_GET_ADDITIONAL_SUPPORTED_TITLES = "GFN_SDK_GET_ADDITIONAL_SUPPORTED_TITLES";
+CefString GFN_SDK_OPEN_URL_ON_CLIENT = "GFN_SDK_OPEN_URL_ON_CLIENT";
 
 static CefString DictToJson(CefRefPtr<CefDictionaryValue> dict)
 {
     auto json = CefValue::Create();
     json->SetDictionary(dict);
     return CefWriteJSON(json, JSON_WRITER_DEFAULT);
-}
-
-static CefString GfnErrorToString(GfnError err)
-{
-    switch (err)
-    {
-    case GfnError::gfnSuccess: return "Success";
-    case GfnError::gfnInitSuccessClientOnly: return "SDK initialization successful, but only client-side functionality available";
-    case GfnError::gfnInitSuccessCloudOnly: return "SDK initialization successful, but only cloud-side functionality available";
-    case GfnError::gfnInitFailure: return "SDK initialization failure";
-    case GfnError::gfnDllNotPresent: return "DLL Not Present";
-    case GfnError::gfnComError: return "Com Error";
-    case GfnError::gfnLibraryCallFailure: return "Error Calling Library Function";
-    case GfnError::gfnIncompatibleVersion: return "Incompatible Version";
-    case GfnError::gfnUnableToAllocateMemory: return "Unable To Allocate Memory";
-    case GfnError::gfnInvalidParameter: return "Invalid Parameter";
-    case GfnError::gfnInternalError: return "Internal Error";
-    case GfnError::gfnUnsupportedAPICall: return "Unsupported API Call";
-    case GfnError::gfnInvalidToken: return "Invalid Token";
-    case GfnError::gfnTimedOut: return "Timed Out";
-    case GfnError::gfnClientDownloadFailed: return "GFN Client download failed";
-    case GfnError::gfnCallWrongEnvironment: return "GFN SDK API called in wrong environment";
-    case GfnError::gfnWebApiFailed: return "NVIDIA Web API returned invalid data";
-    case GfnError::gfnStreamFailure: return "GFN Streamer hit a failure while starting a stream";
-    case GfnError::gfnAPINotFound: return "GFN SDK API not found";
-    case GfnError::gfnAPINotInit: return "GFN SDK API not initialized";
-    case GfnError::gfnStreamStopFailure: return "GFN SDK failed to stop active streaming session";
-    case GfnError::gfnUnhandledException: return "Unhandled exception";
-    case GfnError::gfnIPCFailure: return "Inter-process Communication failure";
-    case GfnError::gfnCanceled: return "GFN SDK action was canceled";
-    case GfnError::gfnElevationRequired: return "GFN SDK API requires process elevation";
-    case GfnError::gfnThrottled: return "GFN SDK API cannot be called in rapid succession";
-    case GfnError::gfnInputExpected: return "Input parameter expected to have data";
-    case GfnError::gfnBinarySignatureInvalid: return "Attemped to load a binary with invalid digital signature";
-    case GfnError::gfnClientLibraryNotFound: return "GFN SDK API client library not found";
-    case GfnError::gfnCloudLibraryNotFound: return "GFN SDK API cloud library not found";
-    case GfnError::gfnNoData: return "Requested data is empty or does not exist";
-    case GfnError::gfnNotAuthorized: return "API Call failed because it was called from unauthorized process";
-    case GfnError::gfnBackendError: return "Failed to communicate with the GFN backend service";
-    default: return "Unknown Error";
-    }
 }
 
 static void logGfnSdkData()
@@ -761,29 +721,29 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
     }
     else if (command == GET_SESSION_INFO)
     {
-    LOG(INFO) << "Calling GfnGetSessionInfo...";
-    CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
-    GfnSessionInfo sessionInfo = { 0 };
-    GfnError error = GfnError::gfnSuccess;
-    error = GfnGetSessionInfo(&sessionInfo);
-    LOG(INFO) << "GfnGetSessionInfo error result: " << error;
-    response_dict->SetString("errorMessage", GfnErrorToString(error));
-    if (error != GfnError::gfnSuccess)
-    {
-        LOG(ERROR) << "get session info data error: " << GfnErrorToString(error);
-        response_dict->SetString("sessionInfo", "");
-    }
-    else
-    {
-        response_dict->SetInt("sessionMaxDurationSec", sessionInfo.sessionMaxDurationSec);
-        response_dict->SetInt("sessionTimeRemainingSec", sessionInfo.sessionTimeRemainingSec);
-        response_dict->SetString("sessionID", sessionInfo.sessionId);
-        response_dict->SetInt("sessionRTXEnabled", sessionInfo.sessionRTXEnabled);
-    }
-    CefString response(DictToJson(response_dict));
-    LOG(INFO) << "GfnGetSessionInfo data: " << response.ToString();
-    callback->Success(response);
-    return true;
+        LOG(INFO) << "Calling GfnGetSessionInfo...";
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        GfnSessionInfo sessionInfo = { 0 };
+        GfnError error = GfnError::gfnSuccess;
+        error = GfnGetSessionInfo(&sessionInfo);
+        LOG(INFO) << "GfnGetSessionInfo error result: " << error;
+        response_dict->SetString("errorMessage", GfnErrorToString(error));
+        if (error != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "get session info data error: " << GfnErrorToString(error);
+            response_dict->SetString("sessionInfo", "");
+        }
+        else
+        {
+            response_dict->SetInt("sessionMaxDurationSec", sessionInfo.sessionMaxDurationSec);
+            response_dict->SetInt("sessionTimeRemainingSec", sessionInfo.sessionTimeRemainingSec);
+            response_dict->SetString("sessionID", sessionInfo.sessionId);
+            response_dict->SetInt("sessionRTXEnabled", sessionInfo.sessionRTXEnabled);
+        }
+        CefString response(DictToJson(response_dict));
+        LOG(INFO) << "GfnGetSessionInfo data: " << response.ToString();
+        callback->Success(response);
+        return true;
     }
     else if (command == GFN_SDK_GET_ADDITIONAL_SUPPORTED_TITLES)
     {
@@ -797,6 +757,20 @@ bool GfnSdkHelper(CefRefPtr<CefBrowser> browser,
         CefString response(DictToJson(response_dict));
         callback->Success(response);
 
+        return true;
+    }
+    else if (command == GFN_SDK_OPEN_URL_ON_CLIENT)
+    {
+        CefRefPtr<CefDictionaryValue> response_dict = CefDictionaryValue::Create();
+        GfnError error = GfnOpenURLOnClient("https://www.nvidia.com/en-us/geforce-now/");
+        LOG(INFO) << "GfnOpenURLOnClient error result: " << error;
+        response_dict->SetString("status", GfnErrorToString(error));
+        if (error != GfnError::gfnSuccess)
+        {
+            LOG(ERROR) << "Open URL on Client data error: " << GfnErrorToString(error);
+        }
+        CefString response(DictToJson(response_dict));
+        callback->Success(response);
         return true;
     }
     LOG(ERROR) << "Unknown command value: " << command;

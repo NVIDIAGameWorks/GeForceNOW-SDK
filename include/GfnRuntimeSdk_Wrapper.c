@@ -138,6 +138,7 @@ typedef GfnRuntimeError(*gfnRegisteCallbackFnWithUIntParam)(_cb callback, unsign
 typedef GfnRuntimeError(*gfnAppReadyFn)(bool success, const char* status);
 typedef GfnRuntimeError (*gfnSetActionZoneFn)(GfnActionType type, unsigned int id, GfnRect* zone);
 typedef GfnRuntimeError(*gfnSendMessageFn)(const char* pchMessage, unsigned int length);
+typedef GfnRuntimeError(*gfnOpenURLOnClientFn)(const char* pchUrl);
 
 typedef struct GfnSdkCloudLibrary_t
 {
@@ -172,6 +173,7 @@ typedef struct GfnSdkCloudLibrary_t
     gfnRegisterCallbackFn RegisterClientInfoCallback;
     gfnRegisteCallbackFnWithUIntParam RegisterNetworkStatusCallback;
     gfnRegisterCallbackFn RegisterMessageCallback;
+    gfnOpenURLOnClientFn OpenURLOnClient;
 
     gfnGetSessionInfoFn GetSessionInfo;
 } GfnSdkCloudLibrary;
@@ -498,6 +500,7 @@ GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     pCloudLibrary->RegisterClientInfoCallback = (gfnRegisterCallbackFn)gfnGetSymbol(pCloudLibrary->handle, "gfnRegisterClientInfoCallback");
     pCloudLibrary->RegisterNetworkStatusCallback = (gfnRegisteCallbackFnWithUIntParam)gfnGetSymbol(pCloudLibrary->handle, "gfnRegisterNetworkStatusCallback");
     pCloudLibrary->RegisterMessageCallback = (gfnRegisterCallbackFn)gfnGetSymbol(pCloudLibrary->handle, "gfnRegisterCustomMessageCallback");
+    pCloudLibrary->OpenURLOnClient = (gfnOpenURLOnClientFn)gfnGetSymbol(pCloudLibrary->handle, "gfnOpenURLOnClient");
     pCloudLibrary->GetSessionInfo = (gfnGetSessionInfoFn)gfnGetSymbol(pCloudLibrary->handle, "gfnGetSessionInfo");
 
     GFN_SDK_LOG("Successfully loaded cloud libary");
@@ -1221,6 +1224,11 @@ GfnRuntimeError GfnSendMessage(const char* pchMessage, unsigned int length) {
 
         return fnSendMessage(pchMessage, length);
     }
+}
+
+GfnRuntimeError GfnOpenURLOnClient(const char* pchUrl) {
+    CHECK_CLOUD_ENVIRONMENT();
+    DELEGATE_TO_CLOUD_LIBRARY(OpenURLOnClient, pchUrl);
 }
 
 static void GFN_CALLBACK _gfnExitCallbackWrapper(int status, void* pUnused, void* pContext)

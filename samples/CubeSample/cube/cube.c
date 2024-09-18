@@ -2607,6 +2607,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             gfnsdk_togglePauseState(&demo.spin_state);
             break;
         }
+    case WM_TOUCH:
+        gfnsdk_handleTouch(hWnd, uMsg, LOWORD(wParam), (HTOUCHINPUT)lParam, &demo.spin_state, demo.width);
+        break;
     default:
         break;
     }
@@ -3856,7 +3859,10 @@ static void demo_create_surface(struct demo *demo) {
     createInfo.flags = 0;
     createInfo.hinstance = demo->connection;
     createInfo.hwnd = demo->window;
-
+    // Register for touch input
+    if (!RegisterTouchWindow(createInfo.hwnd, 0)) {
+        printf("ERROR: Failed to register for touch input\n");
+    }
     err = vkCreateWin32SurfaceKHR(demo->inst, &createInfo, NULL, &demo->surface);
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
     VkWaylandSurfaceCreateInfoKHR createInfo;

@@ -72,7 +72,7 @@ static void waitForSpaceBar() {
     } while (c != ' ');
 }
 
-// Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
+// Example application initialization method with a call to initialize the GeForce NOW Runtime SDK.
 // Application callbacks are registered with the SDK after it is initialized if running in Cloud mode.
 GfnError SDKInitialize()
 {
@@ -84,26 +84,26 @@ GfnError SDKInitialize()
     {
         // Initialization errors generally indicate a flawed environment. Check error code for details.
         // See GfnError in GfnSdk.h for error codes.
-        printf("Error initializing the SDK: %d\n", result);
+        printf("Error initializing the SDK: %d, %s\n", result, GfnErrorToString(result));
     }
     else
     {
-        // Initalization success, which the return value hints at the environment detected
+        // Initialization success, which the return value hints at the environment detected
         switch (result)
         {
         case gfnInitSuccessClientOnly:
             // Detected this looks like a client system (outside GFN cloud).
             // Only client-related API methods should be called.
-            printf("SDK initalization success, detected client environment.\n");
+            printf("SDK initialization success, detected client environment.\n");
             break;
         case gfnInitSuccessCloudOnly:
             // Detected this looks like a GFN cloud system (GFN server).
             // Only GFN cloud-related API methods should be called.
-            printf("SDK initalization success, detected cloud environment.\n");
+            printf("SDK initialization success, detected cloud environment.\n");
             break;
         default:
             // Generic success case
-            printf("SDK initalization success.\n");
+            printf("SDK initialization success.\n");
             break;
         }
     }
@@ -111,16 +111,16 @@ GfnError SDKInitialize()
     return result;
 }
 
-// Example application shutdown method with a call to shut down the Geforce NOW Runtime SDK
+// Example application shutdown method with a call to shut down the GeForce NOW Runtime SDK
 void SDKShutdown()
 {
     printf("\n\nShutting down GFN SDK...\n");
 
-    // Shut down the Geforce NOW Runtime SDK. Note that it's safe to call
+    // Shut down the GeForce NOW Runtime SDK. Note that it's safe to call
     // gfnShutdownRuntimeSdk even if the SDK was not initialized.
     // If a failure is returned, its worth noting, but nothing can be done about it.
     GfnError result = GfnShutdownSdk();
-    printf("Shutdown call for SDK result: %d\n", result);
+    printf("Shutdown call for SDK result: %d, %s\n", result, GfnErrorToString(result));
 }
 
 // Example method to call the basic *insecure* GfnIsRunningInCloud() API method
@@ -133,11 +133,11 @@ void BasicCloudCheck()
     if (GFNSDK_FAILED(result))
     {
         // Failure case, do not rely on bIsCloudEnvironment result
-        printf("GfnIsRunningInCloud: API call returned error: %d\n", result);
+        printf("GfnIsRunningInCloud: API call returned error: %d, %s\n", result, GfnErrorToString(result));
     }
     else
     {
-        printf("GfnIsRunningInCloud: Application %s executing in Geforce NOW Cloud environment.\n", (bIsCloudEnvironment) ? "is" : "is not");
+        printf("GfnIsRunningInCloud: Application %s executing in GeForce NOW Cloud environment.\n", (bIsCloudEnvironment) ? "is" : "is not");
     }
 }
 
@@ -158,12 +158,12 @@ void BasicSecureCloudCheck()
         }
         else
         {
-            printf("GfnCloudCheck: API call returned error: %d\n", result);
+            printf("GfnCloudCheck: API call returned error: %d, %s\n", result, GfnErrorToString(result));
         }
     }
     else
     {
-        printf("GfnCloudCheck: Application %s executing in Geforce NOW Cloud environment.\n", (bIsCloudEnvironment) ? "is" : "is not");
+        printf("GfnCloudCheck: Application %s executing in GeForce NOW Cloud environment.\n", (bIsCloudEnvironment) ? "is" : "is not");
     }
 }
 
@@ -195,7 +195,7 @@ void ExtendedSecureCloudCheck()
         }
         else
         {
-            printf("GfnCloudCheck: API call returned error: %d\n", result);
+            printf("GfnCloudCheck: API call returned error: %d, %s\n", result, GfnErrorToString(result));
         }
         // Function failure means that it cannot be securely considered GFN
         printf("GfnCloudCheck: Considered not running in GFN.\n");
@@ -205,7 +205,7 @@ void ExtendedSecureCloudCheck()
     if (!bIsCloudEnvironment)
     {
         // Not cloud, no need to validate response data, as it will be null
-        printf("GfnCloudCheck: Application is not executing in Geforce NOW Cloud environment, skipped response data validation.\n");
+        printf("GfnCloudCheck: Application is not executing in GeForce NOW Cloud environment, skipped response data validation.\n");
     }
     else
     {
@@ -222,7 +222,7 @@ void ExtendedSecureCloudCheck()
             {
                 printf("GfnCloudCheck: Response data is valid.\n");
                 // Since the response data is valid, can rely on the Cloud Check result.
-                printf("GfnCloudCheck: Application is running in Geforce NOW Cloud environment with high level of confidence.\n");
+                printf("GfnCloudCheck: Application is running in GeForce NOW Cloud environment with high level of confidence.\n");
             }
             else
             {
@@ -238,7 +238,7 @@ void ExtendedSecureCloudCheck()
 // Example application main
 int main(int argc, char* argv[])
 {
-    // First step: Initialize the Geforce NOW Runtime SDK before any other SDK method calls.
+    // First step: Initialize the GeForce NOW Runtime SDK before any other SDK method calls.
     if (GFNSDK_FAILED(SDKInitialize()))
     {
         // Initialization failure, exit now, no need to call GfnShutdownSdk()

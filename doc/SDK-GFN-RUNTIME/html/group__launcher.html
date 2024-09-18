@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
-   &#160;<span id="projectnumber">2.3.0.34421937</span>
+   &#160;<span id="projectnumber">2.4.0.34856604</span>
    </div>
   </td>
  </tr>
@@ -133,6 +133,8 @@ Functions</h2></td></tr>
 <tr class="separator:gaa5e1081ccd6b903f12a6b9f05b11bf03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab6a2bf6d5242c4f172d39096dda54cef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gab6a2bf6d5242c4f172d39096dda54cef">gfnSendMessage</a> (const char *pchMessage, unsigned int length)</td></tr>
 <tr class="separator:gab6a2bf6d5242c4f172d39096dda54cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga20aaf2a987d4850b922c781b0da1ee53"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga20aaf2a987d4850b922c781b0da1ee53">gfnOpenURLOnClient</a> (const char *pchUrl)</td></tr>
+<tr class="separator:ga20aaf2a987d4850b922c781b0da1ee53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>The functions is this section are called from a launcher in either the appropriate cloud or client environment. </p>
@@ -664,6 +666,47 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
 
 </div>
 </div>
+<a class="anchor" id="ga20aaf2a987d4850b922c781b0da1ee53"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> GfnRuntimeError gfnOpenURLOnClient </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>pchUrl</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section user"><dt>Description</dt><dd>Requests the client application to open a URL in their local web browser.</dd></dl>
+<p>These requests are fire-and-forget.</p>
+<p>Usage of this API is limited to 5 URL requests every second, with no more than 25 URL requests per minute.</p>
+<dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
+<dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to request that the client application open a URL link in their local web browser.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pchUrl</td><td>- A URL which should be opened on the client's local browser.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- API was called outside of a cloud execution environment </td></tr>
+    <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid pointer provided, or message exceeded allowed length </td></tr>
+    <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit of 5 messages per second or 25 total per session </td></tr>
+    <tr><td class="paramname">gfnInternalError</td><td>- API ran into an internal error </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Otherwise, appropriate error code </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="gab6a2bf6d5242c4f172d39096dda54cef"></a>
 <div class="memitem">
 <div class="memproto">
@@ -702,11 +745,11 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
   <table class="retval">
     <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
     <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
-    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided, or message exceeded allowed length </td></tr>
     <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit of 30 messages per second </td></tr>
     <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>
-    <tr><td class="paramname">gfnCloudLibraryNotFound</td><td>- GFN SDK cloud-side library could not be found </td></tr>
   </table>
   </dd>
 </dl>
@@ -760,7 +803,9 @@ To avoid leaking memory, call <a class="el" href="group__launcher.html#ga53e5ad8
     <tr><td class="paramname">gfnSuccess</td><td>- Call was successful </td></tr>
     <tr><td class="paramname">gfnInputExpected</td><td>- Expected zone to have a value </td></tr>
     <tr><td class="paramname">gfnComError</td><td>- There was SDK internal communication error </td></tr>
-    <tr><td class="paramname">gfnInitFailure</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnCallWrongEnvironment</td><td>- If called in a client environment </td></tr>
+    <tr><td class="paramname">gfnAPINotInit</td><td>- SDK was not initialized </td></tr>
+    <tr><td class="paramname">gfnAPINotFound</td><td>- The API was not found in the GeForce NOW SDK Library </td></tr>
     <tr><td class="paramname">gfnInvalidParameter</td><td>- Invalid parameters provided </td></tr>
     <tr><td class="paramname">gfnThrottled</td><td>- API call was throttled for exceeding limit </td></tr>
     <tr><td class="paramname">gfnUnhandledException</td><td>- API ran into an unhandled error and caught an exception before it returned to client code </td></tr>

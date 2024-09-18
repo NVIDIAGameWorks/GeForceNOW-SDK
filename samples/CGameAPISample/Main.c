@@ -68,19 +68,19 @@ static void waitForSpaceBar() {
     } while (c != ' ');
 }
 
-// Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
+// Example application initialization method with a call to initialize the GeForce NOW Runtime SDK.
 // Application callbacks are registered with the SDK after it is initialized if running in Cloud mode.
 void ApplicationInitialize()
 {
     printf("\n\nApplication: Initializing...\n");
 
-    // Initialize the Geforce NOW Runtime SDK using the C calling convention.
+    // Initialize the GeForce NOW Runtime SDK using the C calling convention.
     GfnRuntimeError err = GfnInitializeSdk(gfnDefaultLanguage);
     if (GFNSDK_FAILED(err))
     {
         // Initialization errors generally indicate a flawed environment. Check error code for details.
         // See GfnError in GfnSdk.h for error codes.
-        printf("Error initializing the sdk: %d\n", err);
+        printf("Error initializing the SDK: %d, %s\n", err, GfnErrorToString(err));
     }
     else
     {
@@ -94,42 +94,42 @@ void ApplicationInitialize()
             err = GfnRegisterExitCallback(ExitApp, NULL);
             if (err != gfnSuccess)
             {
-                printf("Error registering ExitApp callback: %d\n", err);
+                printf("Error registering ExitApp callback: %d, %s\n", err, GfnErrorToString(err));
             }
             err = GfnRegisterPauseCallback(PauseApp, &g_pause_call_counter);
             if (err != gfnSuccess)
             {
-                printf("Error registering PauseApp callback: %d\n", err);
+                printf("Error registering PauseApp callback: %d, %s\n", err, GfnErrorToString(err));
             }
             err = GfnRegisterInstallCallback(InstallApp, NULL);
             if (err != gfnSuccess)
             {
-                printf("Error registering InstallApp callback: %d\n", err);
+                printf("Error registering InstallApp callback: %d, %s\n", err, GfnErrorToString(err));
             }
             err = GfnRegisterSaveCallback(AutoSave, NULL);
             if (err != gfnSuccess)
             {
-                printf("Error registering AutoSave callback: %d\n", err);
+                printf("Error registering AutoSave callback: %d, %s\n", err, GfnErrorToString(err));
             }
             err = GfnRegisterSessionInitCallback(SessionInit, NULL);
             if (err != gfnSuccess)
             {
-                printf("Error registering SessionInit callback: %d\n", err);
+                printf("Error registering SessionInit callback:%d, %s\n", err, GfnErrorToString(err));
             }
             err = GfnRegisterMessageCallback(MessageCallback, NULL);
             if (err != gfnSuccess)
             {
-                printf("Error registering MessageCallback: %d\n", err);
+                printf("Error registering MessageCallback: %d, %s\n", err, GfnErrorToString(err));
             }
             err = GfnRegisterClientInfoCallback(HandleClientDataChanges, NULL);
             if (err != gfnSuccess)
             {
-                printf("Error registering clientInfo callback: %d\n", err);
+                printf("Error registering clientInfo callback: %d, %s\n", err, GfnErrorToString(err));
             }
             err = GfnRegisterNetworkStatusCallback(HandleNetworkStatusChanges, 10000 /* 10 seconds */, NULL);
             if (err != gfnSuccess)
             {
-                printf("Error registering clientInfo callback: %d\n", err);
+                printf("Error registering clientInfo callback: %d, %s\n", err, GfnErrorToString(err));
             }
         }
     }
@@ -137,12 +137,12 @@ void ApplicationInitialize()
     // Application Initialization here
 }
 
-// Example application shutdown method with a call to shut down the Geforce NOW Runtime SDK
+// Example application shutdown method with a call to shut down the GeForce NOW Runtime SDK
 void ApplicationShutdown()
 {
     printf("\n\nApplication: Shutting down...\n");
 
-    // Shut down the Geforce NOW Runtime SDK. Note that it's safe to call
+    // Shut down the GeForce NOW Runtime SDK. Note that it's safe to call
     // gfnShutdownRuntimeSdk even if the SDK was not initialized.
     GfnShutdownSdk();
 }
@@ -150,14 +150,14 @@ void ApplicationShutdown()
 // Example application main
 int main(int argc, char* argv[])
 {
-    GfnError runtimeError = gfnSuccess;
+    GfnError err = gfnSuccess;
 
     ApplicationInitialize();
 
     // Simple Cloud Check API call
     bool bIsCloudEnvironment = false;
     GfnIsRunningInCloud(&bIsCloudEnvironment);
-    printf("\nGfnIsRunningInCloud: Application executing in Geforce NOW environment: %s\n", (bIsCloudEnvironment == true) ? "true" : "false");
+    printf("\nGfnIsRunningInCloud: Application executing in GeForce NOW environment: %s\n", (bIsCloudEnvironment == true) ? "true" : "false");
 
     //CloudCheck API call with response validation
     bool bCloudCheck = false;
@@ -172,10 +172,10 @@ int main(int argc, char* argv[])
     {
         GfnCloudCheckChallenge challenge = { nonce, CLOUD_CHECK_MIN_NONCE_SIZE };
         GfnCloudCheckResponse response = { NULL, 0 };
-        runtimeError = GfnCloudCheck(&challenge, &response, &bCloudCheck);
-        if (runtimeError == gfnSuccess)
+        err = GfnCloudCheck(&challenge, &response, &bCloudCheck);
+        if (err == gfnSuccess)
         {
-            printf("\nGfnCloudCheck: Application executing in Geforce NOW environment: %s\n", (bCloudCheck == true) ? "true" : "false");
+            printf("\nGfnCloudCheck: Application executing in GeForce NOW environment: %s\n", (bCloudCheck == true) ? "true" : "false");
             if (response.attestationData != NULL)
             {
                 if (GfnCloudCheckVerifyAttestationData(response.attestationData, challenge.nonce, challenge.nonceSize))
@@ -191,53 +191,53 @@ int main(int argc, char* argv[])
         }
         else
         {
-            if (runtimeError == gfnThrottled)
+            if (err == gfnThrottled)
             {
                 printf("GfnCloudCheck: API call rate limit exceeded\n");
             }
             else
             {
-                printf("GfnCloudCheck: Failed to check if running in Geforce NOW Cloud environment: %d\n", (int)runtimeError);
+                printf("GfnCloudCheck: Failed to check if running in GeForce NOW Cloud environment: %d, %s\n", err, GfnErrorToString(err));
             }
         }
     }
     if (bCloudCheck) // More sample C API calls.
     {
         char const* clientIp = NULL;
-        runtimeError = GfnGetClientIpV4(&clientIp);
-        if (runtimeError == gfnSuccess)
+        err = GfnGetClientIpV4(&clientIp);
+        if (err == gfnSuccess)
         {
-            printf("Retrieved Geforce NOW Client I.P.: %s\n", clientIp);
+            printf("Retrieved GeForce NOW Client I.P.: %s\n", clientIp);
         }
         else
         {
-            printf("Failed to retrieve Geforce NOW Client I.P. GfnError: %d\n", (int) runtimeError);
+            printf("Failed to retrieve GeForce NOW Client I.P. GfnError: %d, %s\n", err, GfnErrorToString(err));
         }
 
         char const* clientLanguageCode = NULL;
-        runtimeError = GfnGetClientLanguageCode(&clientLanguageCode);
-        if (runtimeError == gfnSuccess)
+        err = GfnGetClientLanguageCode(&clientLanguageCode);
+        if (err == gfnSuccess)
         {
-            printf("Retrieved Geforce NOW client language code: %s\n", clientLanguageCode);
+            printf("Retrieved GeForce NOW client language code: %s\n", clientLanguageCode);
         }
         else
         {
-            printf("Failed to retrieve Geforce NOW client language code. GfnError: %d\n", (int) runtimeError);
+            printf("Failed to retrieve GeForce NOW client language code. GfnError: %d, %s\n", err, GfnErrorToString(err));
         }
 
         char clientCountryCode[3];
-        runtimeError = GfnGetClientCountryCode(clientCountryCode, 3);
-        if (runtimeError == gfnSuccess)
+        err = GfnGetClientCountryCode(clientCountryCode, 3);
+        if (err == gfnSuccess)
         {
-            printf("Retrieved Geforce NOW client Country code: %s\n", clientCountryCode);
+            printf("Retrieved GeForce NOW client Country code: %s\n", clientCountryCode);
         }
         else
         {
-            printf("Failed to retrieve Geforce NOW client Country code. GfnError: %d\n", (int)runtimeError);
+            printf("Failed to retrieve GeForce NOW client Country code. GfnError: %d, %s\n", err, GfnErrorToString(err));
         }
         char const* partnerSecureData = NULL;
-        runtimeError = GfnGetPartnerSecureData(&partnerSecureData);
-        if (GFNSDK_SUCCEEDED(runtimeError)) {
+        err = GfnGetPartnerSecureData(&partnerSecureData);
+        if (GFNSDK_SUCCEEDED(err)) {
             printf("GfnGetPartnerSecureData: [%s]\n", partnerSecureData);
             GfnFree(&partnerSecureData);
         }
@@ -246,8 +246,8 @@ int main(int argc, char* argv[])
         }
 
         char const* partnerData = NULL;
-        runtimeError = GfnGetPartnerData(&partnerData);
-        if (GFNSDK_SUCCEEDED(runtimeError)) {
+        err = GfnGetPartnerData(&partnerData);
+        if (GFNSDK_SUCCEEDED(err)) {
             printf("GfnGetPartnerData: [%s]\n", partnerData);
             GfnFree(&partnerData);
         }
@@ -255,10 +255,9 @@ int main(int argc, char* argv[])
             printf("Failed to retrieve PartnerData\n");
         }
 
-        GfnClientInfo clientInfo;
-
-        runtimeError = GfnGetClientInfo(&clientInfo);
-        if (runtimeError == gfnSuccess)
+        GfnClientInfo clientInfo = { 0 };
+        err = GfnGetClientInfo(&clientInfo);
+        if (err == gfnSuccess)
         {
             printf("GetClientInfo returned: { version: %d, osType: %d, ipV4: %s"
                 ", country: %s, locale:%s"
@@ -274,12 +273,12 @@ int main(int argc, char* argv[])
         }
         else
         {
-            printf("Failed to retrieve client info. GfnError: %d\n", (int)runtimeError);
+            printf("Failed to retrieve client info. GfnError: %d, %s\n", err, GfnErrorToString(err));
         }
 
         GfnSessionInfo sessionInfo = { 0 };
-        runtimeError = GfnGetSessionInfo(&sessionInfo);
-        if (runtimeError == gfnSuccess)
+        err = GfnGetSessionInfo(&sessionInfo);
+        if (err == gfnSuccess)
         {
             printf("Initial GetSessionInfo returned: { session length: %d, session remaining: %d}\n",
                 sessionInfo.sessionMaxDurationSec, sessionInfo.sessionTimeRemainingSec
@@ -287,18 +286,18 @@ int main(int argc, char* argv[])
         }
         else
         {
-            printf("Failed to retrieve initial session info. GfnError: %d\n", (int)runtimeError);
+            printf("Failed to retrieve initial session info. GfnError: %d, %s\n", err, GfnErrorToString(err));
         }
 
         // Try "setting up" a title!
-        runtimeError = GfnSetupTitle(platformAppId);
-        if (runtimeError == gfnSuccess)
+        err = GfnSetupTitle(platformAppId);
+        if (err == gfnSuccess)
         {
             printf("Setup GFN Title\n");
         }
         else
         {
-            printf("Failed to setup GFN Title: %d\n", (int)runtimeError);
+            printf("Failed to setup GFN Title: %d, %s\n", err, GfnErrorToString(err));
         }
     }
 
@@ -306,20 +305,20 @@ int main(int argc, char* argv[])
     waitForSpaceBar();
 
     // Notify Title exited
-    runtimeError = GfnTitleExited(platformId, platformAppId);
-    if (runtimeError == gfnSuccess)
+    err = GfnTitleExited(platformId, platformAppId);
+    if (err == gfnSuccess)
     {
         printf("GFN Title Exited\n");
     }
     else
     {
-        printf("GFN Title Exited failed: %d\n", (int)runtimeError);
+        printf("GFN Title Exited failed: %d, %s\n", err, GfnErrorToString(err));
     }
 
     // Call GetSessionInfo again to confirm less time remaining than before
     GfnSessionInfo sessionInfo = { 0 };
-    runtimeError = GfnGetSessionInfo(&sessionInfo);
-    if (runtimeError == gfnSuccess)
+    err = GfnGetSessionInfo(&sessionInfo);
+    if (err == gfnSuccess)
     {
         printf("Final GetSessionInfo returned: { session length: %d, session remaining: %d}\n",
             sessionInfo.sessionMaxDurationSec, sessionInfo.sessionTimeRemainingSec
@@ -327,7 +326,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-        printf("Failed to retrieve final session info. GfnError: %d\n", (int)runtimeError);
+        printf("Failed to retrieve final session info. GfnError: %d, %s\n", err, GfnErrorToString(err));
     }
 
     // Application Shutdown

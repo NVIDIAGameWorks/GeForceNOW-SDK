@@ -10,7 +10,7 @@
 #include "include/wrapper/cef_helpers.h"
 
 #define WINDOW_WIDTH 512
-#define WINDOW_HEIGHT 800
+#define WINDOW_HEIGHT 900
 
 namespace shared {
 

@@ -6,7 +6,7 @@
             left: 0;
             top: 0;
             width: 512px;
-            height: 800px;
+            height: 900px;
             background: #191919;
             margin: 0 !important;
             overflow: hidden;
@@ -81,6 +81,7 @@
             font-size: 14px;
             width: 125px;
             height: 48px;
+            disabled;
         }
 
         .nv-button-disabled:not(:last-of-type) {
@@ -132,7 +133,7 @@
             color: #FFFFFFB3;
             background: #292929;
             border-color: #FFFFFFB3;
-            height: 350px;
+            height: 450px;
             width: 100%;
         }
 
@@ -197,20 +198,21 @@
                 <button class="nv-button">SDK Calls ></button>
             </div>
             <div class="flyout" id="api-button-container">
-                <button class="nv-button-disabled flyout-button" disabled id="stream-action" onclick="performStreamAction()">Start Stream</button>
-                <button class="nv-button-disabled flyout-button" disabled id="send-message" onclick="sendMessage('SampleLauncher: Ping')">Send Message To Game</button>
-                <button class="nv-button flyout-button" id="init-control" onclick="toggleSdkInit()">Shutdown SDK</button>
-                <button class="nv-button flyout-button" id="is-running-in-cloud" onclick="getRunningInCloud()">Check If Cloud</button>
-                <button class="nv-button flyout-button" id="is-running-in-cloud-secure" onclick="isRunningInCloudSecure()">Check If Cloud Secure</button>
-                <button class="nv-button flyout-button" id="cloud-check-validation" onclick="cloudCheckWithValidation()">Check If Cloud<br>(With Validation)</button>
-                <button class="nv-button flyout-button" id="cloud-check-no-validation" onclick="cloudCheckNoValidation()">Check If Cloud<br>(No Validation)</button>
-                <button class="nv-button flyout-button" id="client-ip" onclick="getClientIp()">Get Client IP</button>
-                <button class="nv-button flyout-button" id="client-country-code" onclick="getClientCountryCode()">Get Client Country Code</button>
-                <button class="nv-button flyout-button" id="client-language-code" onclick="getClientLanguageCode()">Get Client Language Code</button>
-                <button class="nv-button flyout-button" id="client-info" onclick="getClientInfo()">Get Client Info</button>
-                <button class="nv-button flyout-button" id="session-info" onclick="getSessionInfo()">Get Session Info</button>
-                <button class="nv-button flyout-button" id="partner-data" onclick="getPartnerData()">Get Partner Data</button>
-                <button class="nv-button flyout-button" id="partner-secure-data" onclick="getPartnerSecureData()">Get Partner Secure Data</button>
+                <button class="nv-button-disabled flyout-button" id="stream-action" onclick="performStreamAction()">Start Stream</button>
+                <button class="nv-button-disabled flyout-button" id="init-control" onclick="toggleSdkInit()">Shutdown SDK</button>
+                <button class="nv-button-disabled flyout-button" id="send-message" onclick="sendMessage('SampleLauncher: Ping')">Send Message To Game</button>
+                <button class="nv-button-disabled flyout-button" id="is-running-in-cloud" onclick="getRunningInCloud()">Check If Cloud</button>
+                <button class="nv-button-disabled flyout-button" id="is-running-in-cloud-secure" onclick="isRunningInCloudSecure()">Check If Cloud Secure</button>
+                <button class="nv-button-disabled flyout-button" id="cloud-check-validation" onclick="cloudCheckWithValidation()">Check If Cloud<br>(With Validation)</button>
+                <button class="nv-button-disabled flyout-button" id="cloud-check-no-validation" onclick="cloudCheckNoValidation()">Check If Cloud<br>(No Validation)</button>
+                <button class="nv-button-disabled flyout-button" id="client-ip" onclick="getClientIp()">Get Client IP</button>
+                <button class="nv-button-disabled flyout-button" id="client-country-code" onclick="getClientCountryCode()">Get Client Country Code</button>
+                <button class="nv-button-disabled flyout-button" id="client-language-code" onclick="getClientLanguageCode()">Get Client Language Code</button>
+                <button class="nv-button-disabled flyout-button" id="client-info" onclick="getClientInfo()">Get Client Info</button>
+                <button class="nv-button-disabled flyout-button" id="session-info" onclick="getSessionInfo()">Get Session Info</button>
+                <button class="nv-button-disabled flyout-button" id="partner-data" onclick="getPartnerData()">Get Partner Data</button>
+                <button class="nv-button-disabled flyout-button" id="partner-secure-data" onclick="getPartnerSecureData()">Get Partner Secure Data</button>
+                <button class="nv-button-disabled flyout-button" id="url-on-client" onclick="openUrlOnClient()">Open URL on Client</button>
             </div>
             <div id="login-panel" class="nv-nested-container">
                 <span class="input-label">Launcher Token:</span>
@@ -744,6 +746,21 @@
         }
 
         /**
+         * Call into GFN SDK to request a URL be opened on the client's browser.
+         */
+        function openUrlOnClient() {
+            window.cefQuery({
+                request: JSON.stringify({
+                    command: 'GFN_SDK_OPEN_URL_ON_CLIENT'
+                }),
+                onSuccess: function (response) {
+                    var data = JSON.parse(response);
+                    setStatus('Open URL Request returned with status: ' + data.status);
+                }
+            });
+        }
+
+        /**
          * Calls into GFN SDK to request a copy of the 3rd party data passed into the
          * StartStream API.
          */
@@ -875,15 +892,46 @@
         }
 
         function setButtonState(isCloud) {
+            // For APIs that work on both client and cloud systems, we'll auto-enable them here
+            document.getElementById('init-control').setAttribute("class", 'nv-button flyout-button');
+            document.getElementById('init-control').disabled = false;  
+            document.getElementById('is-running-in-cloud').setAttribute("class", 'nv-button flyout-button');
+            document.getElementById('is-running-in-cloud').disabled = false; 
+            document.getElementById('is-running-in-cloud-secure').setAttribute("class", 'nv-button flyout-button');
+            document.getElementById('is-running-in-cloud-secure').disabled = false; 
+            document.getElementById('cloud-check-validation').setAttribute("class", 'nv-button flyout-button');
+            document.getElementById('cloud-check-validation').disabled = false; 
+            document.getElementById('cloud-check-no-validation').setAttribute("class", 'nv-button flyout-button');
+            document.getElementById('cloud-check-no-validation').disabled = false; 
+            document.getElementById('send-message').setAttribute("class", 'nv-button flyout-button');
+            document.getElementById('send-message').disabled = false; 
+
             if (isCloud) {
-                // is cloud system, disable all client-specific buttons
+                // Is cloud system, disable all client-specific buttons and enable all cloud-specific buttons
                 document.getElementById('next-game').setAttribute("class", 'nv-button-disabled nv-chevron nv-chevron-right-align');
                 document.getElementById('next-game').disabled = true;
                 document.getElementById('previous-game').setAttribute("class", 'nv-button-disabled nv-chevron');
                 document.getElementById('previous-game').disabled = true;
+
+                document.getElementById('client-ip').setAttribute("class", 'nv-button flyout-button');
+                document.getElementById('client-ip').disabled = false;
+                document.getElementById('client-country-code').setAttribute("class", 'nv-button flyout-button');
+                document.getElementById('client-country-code').disabled = false;
+                document.getElementById('client-language-code').setAttribute("class", 'nv-button flyout-button');
+                document.getElementById('client-language-code').disabled = false;
+                document.getElementById('client-info').setAttribute("class", 'nv-button flyout-button');
+                document.getElementById('client-info').disabled = false;
+                document.getElementById('session-info').setAttribute("class", 'nv-button flyout-button');
+                document.getElementById('session-info').disabled = false;
+                document.getElementById('partner-data').setAttribute("class", 'nv-button flyout-button');
+                document.getElementById('partner-data').disabled = false;
+                document.getElementById('partner-secure-data').setAttribute("class", 'nv-button flyout-button');
+                document.getElementById('partner-secure-data').disabled = false;
+                document.getElementById('url-on-client').setAttribute("class", 'nv-button flyout-button');
+                document.getElementById('url-on-client').disabled = false;
             }
             else {
-                // is client, enable client specific buttons and disable all cloud-specific buttons
+                // Is client, enable client specific buttons and disable all cloud-specific buttons
                 document.getElementById('next-game').setAttribute("class", 'nv-button nv-chevron nv-chevron-right-align');
                 document.getElementById('next-game').disabled = false;
                 document.getElementById('previous-game').setAttribute("class", 'nv-button nv-chevron');
@@ -905,6 +953,8 @@
                 document.getElementById('partner-data').disabled = true;
                 document.getElementById('partner-secure-data').setAttribute("class", 'nv-button-disabled flyout-button');
                 document.getElementById('partner-secure-data').disabled = true;
+                document.getElementById('url-on-client').setAttribute("class", 'nv-button-disabled flyout-button');
+                document.getElementById('url-on-client').disabled = true;
             }
         }
 

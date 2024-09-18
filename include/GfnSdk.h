@@ -80,28 +80,28 @@
 #define NVGFNSDK_VERSION_MAJOR 2
 
 /// @brief GFN SDK Minor Version
-#define NVGFNSDK_VERSION_MINOR 3
+#define NVGFNSDK_VERSION_MINOR 4
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_SHORT 2.3
+#define NVGFNSDK_VERSION_SHORT 2.4
 
 /// @brief GFN SDK Patch Version
 #define NVGFNSDK_VERSION_PATCH 0
 
 /// @brief GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 34421937
+#define NVGFNSDK_VERSION_BUILD 34856604
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 2.3.0.34421937
+#define NVGFNSDK_VERSION_LONG 2.4.0.34856604
 
 /// @brief GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "2.3.0.34421937"
-#define NVGFNSDK_VERSION_STR_PROD "2.3.0"
+#define NVGFNSDK_VERSION_STR   "2.4.0.34856604"
+#define NVGFNSDK_VERSION_STR_PROD "2.4.0"
 
 /// @brief GFN SDK Build CL
-#define NVGFNSDK_VERSION_BUILDCL 34421937
-#define NVGFNSDK_VERSION_BUILDH 3442
-#define NVGFNSDK_VERSION_BUILDL 1937
+#define NVGFNSDK_VERSION_BUILDCL 34856604
+#define NVGFNSDK_VERSION_BUILDH 3485
+#define NVGFNSDK_VERSION_BUILDL 6604
 
 
 #ifdef __cplusplus
@@ -150,6 +150,57 @@
             gfnNotAuthorized = -30, ///<API Call failed because it was called from unauthorized process
             gfnBackendError = -31 ///<Failed to communicate with the GFN backend service
         } GfnError;
+
+        ///
+        /// @par Description
+        /// GfnRuntimeError error description function
+        ///
+        /// @par Usage
+        /// Use to determine provide a text description to an GfnError value
+        ///
+        /// @param error - GfnError type value
+        ///
+        /// @retval string literal of text associated to the error
+        static inline char const * GfnErrorToString(GfnError err)
+        {
+            switch (err)
+            {
+            case gfnSuccess: return "Success";
+            case gfnInitSuccessClientOnly: return "SDK initialization successful, but only client-side functionality available";
+            case gfnInitSuccessCloudOnly: return "SDK initialization successful, but only cloud-side functionality available";
+            case gfnInitFailure: return "SDK initialization failure";
+            case gfnDllNotPresent: return "DLL Not Present";
+            case gfnComError: return "Com Error";
+            case gfnLibraryCallFailure: return "Error Calling Library Function";
+            case gfnIncompatibleVersion: return "Incompatible Version";
+            case gfnUnableToAllocateMemory: return "Unable To Allocate Memory";
+            case gfnInvalidParameter: return "Invalid Parameter";
+            case gfnInternalError: return "Internal Error";
+            case gfnUnsupportedAPICall: return "Unsupported API Call";
+            case gfnInvalidToken: return "Invalid Token";
+            case gfnTimedOut: return "Timed Out";
+            case gfnClientDownloadFailed: return "GFN Client download failed";
+            case gfnCallWrongEnvironment: return "GFN SDK API called in wrong environment";
+            case gfnWebApiFailed: return "NVIDIA Web API returned invalid data";
+            case gfnStreamFailure: return "GFN Streamer hit a failure while starting a stream";
+            case gfnAPINotFound: return "GFN SDK API not found";
+            case gfnAPINotInit: return "GFN SDK API not initialized";
+            case gfnStreamStopFailure: return "GFN SDK failed to stop active streaming session";
+            case gfnUnhandledException: return "Unhandled exception";
+            case gfnIPCFailure: return "Inter-process Communication failure";
+            case gfnCanceled: return "GFN SDK action was canceled";
+            case gfnElevationRequired: return "GFN SDK API requires process elevation";
+            case gfnThrottled: return "GFN SDK API cannot be called in rapid succession";
+            case gfnInputExpected: return "Input parameter expected to have data";
+            case gfnBinarySignatureInvalid: return "Attemped to load a binary with invalid digital signature";
+            case gfnClientLibraryNotFound: return "GFN SDK API client library not found";
+            case gfnCloudLibraryNotFound: return "GFN SDK API cloud library not found";
+            case gfnNoData: return "Requested data is empty or does not exist";
+            case gfnNotAuthorized: return "API Call failed because it was called from unauthorized process";
+            case gfnBackendError: return "Failed to communicate with the GFN backend service";
+            default: return "Unknown Error";
+            }
+        }
 
         ///
         /// @par Description

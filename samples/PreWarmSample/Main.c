@@ -41,7 +41,7 @@
 static char getKeyPress() {
 #ifdef _WIN32
     return _getch();
-#else if __linux__
+#elif __linux__
     struct termios oldt, newt;
     char ch;
     tcgetattr(STDIN_FILENO, &oldt);
@@ -51,6 +51,8 @@ static char getKeyPress() {
     ch = getchar();
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     return ch;
+#else
+#error "Unsupported platform"
 #endif
 }
 
@@ -64,7 +66,8 @@ static void waitForSpaceBar() {
     } while (c != ' ');
 }
 
-// Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
+// Example application initialization method with a call to initialize the GeForce NOW Runtime SDK.
+// Application callbacks are registered with the SDK after it is initialized if running in Cloud mode.
 GfnError SDKInitialize()
 {
     // Using gfnDefaultLanguage to tell the SDK to use the default system language for any
@@ -102,7 +105,7 @@ GfnError SDKInitialize()
     return result;
 }
 
-// Example application shutdown method with a call to shut down the Geforce NOW Runtime SDK
+// Example application shutdown method with a call to shut down the GeForce NOW Runtime SDK
 void SDKShutdown()
 {
     printf("\n\nShutting down GFN SDK...\n");
@@ -114,115 +117,90 @@ void SDKShutdown()
     printf("Shutdown call for SDK result: %d, %s\n", result, GfnErrorToString(result));
 }
 
-// Example method to call the basic *insecure* Cloud Check APIs
+// Example method to call the basic *insecure* GfnIsRunningInCloud() API method
 bool BasicCloudCheck()
 {
-    bool bIsCloudEnvironment = false;
-    GfnError result = gfnSuccess;
-#ifdef _WIN32
-    printf("\n\nPerforming Basic Secure Cloud Check via GfnCloudCheck without Challenge and Response data...\n");
-    result = GfnCloudCheck(NULL, NULL, &bIsCloudEnvironment);
-#else if __linux__
     printf("\n\nPerforming Basic Cloud Check via GfnIsRunningInCloud...\n");
-    result = GfnIsRunningInCloud(&bIsCloudEnvironment);
-#endif    
+
+    bool bIsCloudEnvironment = false;
+    GfnError result = GfnIsRunningInCloud(&bIsCloudEnvironment);
     if (GFNSDK_FAILED(result))
     {
         // Failure case, do not rely on bIsCloudEnvironment result
-        printf("Cloud Check API call returned error: %d, %s\n", result, GfnErrorToString(result));
-        return false;
+        printf("GfnIsRunningInCloud: API call returned error: %d, %s\n", result, GfnErrorToString(result));
     }
     else
     {
-        printf("Application %s executing in GeForce NOW Cloud environment.\n", (bIsCloudEnvironment) ? "is" : "is not");
+        printf("GfnIsRunningInCloud: Application %s executing in GeForce NOW Cloud environment.\n", (bIsCloudEnvironment) ? "is" : "is not");
     }
+
     return bIsCloudEnvironment;
 }
 
-// Example method to call the GfnPartnerData() API method. This will return any data that was
-// passed into the session start request either via the PartnerData field from the call to the 
-// GfnSdkStartStream() API, or via a web client launch as part of the Deeplink URL.
-void GetPartnerData()
+GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* pContext)
 {
-    printf("\n\nObtaining Partner Data...\n");
-
-    char const* partnerData = NULL;
-    GfnError result = GfnGetPartnerData(&partnerData);
-    switch (result)
+    // Callback for when GeForce NOW a user connects to the game seat to start a streaming session.
+    // Since a user is connected, now user data can be loaded
+    // Respond within 30 seconds with a call to gfnAppReady API
+    printf("SessionInit: %s\n", params);
+    printf("Loading user data now...\n");
+    // Report that the loading was successful and application is ready for streaming to begin
+    GfnError result = GfnAppReady(true, "All Good!");
+    if (result == gfnSuccess)
     {
-    case gfnThrottled:
-        printf("GfnGetPartnerData: API call rate limit exceeded. Try again later.\n");
-        break;
-    case gfnNoData:
-        printf("GfnGetPartnerData: No partner data found.\n");
-        break;
-    case gfnSuccess:
-        printf("GfnGetPartnerData: API call returned partner data:\n\n%s\n", partnerData);
-        // Memory was allocated for the partner data. To avoid leaks, call GfnFree only in this case.
-        GfnFree(&partnerData);
-        break;
-    default:
-        printf("GfnGetPartnerData: API call returned error: %d, %s\n", result, GfnErrorToString(result));
-        break;
+        printf("Reported 'AppReady' with success to the SDK.\n");
     }
-}
-
-// Example method to call the GfnPartnerSecureData() API method. This will return any data that
-// was passed into the session start request that is either passed by the session launch client
-// via the GfnSdkStartStream() API or was sent in response to Deep Link nonce validation request
-// from a partner's web backend.
-void GetPartnerSecureData()
-{
-    printf("\n\nObtaining Partner Secure Data...\n");
-
-    char const* partnerData = NULL;
-    GfnError result = GfnGetPartnerSecureData(&partnerData);
-    switch (result)
+    else
     {
-    case gfnThrottled:
-        printf("GfnGetPartnerSecureData: API call rate limit exceeded. Try again later.\n");
-        break;
-    case gfnNoData:
-        printf("GfnGetPartnerSecureData: No partner data found.\n");
-        break;
-    case gfnSuccess:
-        printf("GfnGetPartnerSecureData: API call returned partner secure data:\n\n%s\n", partnerData);
-        // Memory was allocated for the partner secure data. To avoid leaks, call GfnFree only in this case.
-        GfnFree(&partnerData);
-        break;
-    default:
-        printf("GfnGetPartnerSecureData: API call returned error: %d, %s\n", result, GfnErrorToString(result));
-        break;
+        printf("Failed to report 'AppReady' to the SDK: %d, %s\n", result, GfnErrorToString(result));
     }
+
+    return crCallbackSuccess;
 }
 
 // Example application main
 int main(int argc, char* argv[])
 {
-    // First step: Initialize the GeForce NOW Runtime SDK before any other SDK method calls.
+    // If the application will run in standard mode or pre-warm mode, a command line parameter can be used
+    // to define the mode. If a parameter enables pre-warm, make sure to define it as part of GFN onboarding.
+
+    // For code simplicity, the sample assumes it should always launch in pre-warm mode.
+
+    // Initialize the GeForce NOW Runtime SDK before any other SDK method calls.
     if (GFNSDK_FAILED(SDKInitialize()))
     {
         // Initialization failure, exit now, no need to call GfnShutdownSdk()
         // Calling any SDK methods in this state will return indeterministic results that should not be trusted.
         return -1;
     }
-    
-    // PartnerData-related APIs can only be called in the cloud environment, and so that must be checked first.
-    if(!BasicCloudCheck())
+
+    // Pre-warm requires to be running in GFN.
+    if (!BasicCloudCheck())
     {
-        printf("Not running in GeForce NOW Cloud environment, exiting early without calling Cloud APIs.\n");
-        return -1;
+        printf("Not running in GFN, will not go through pre-warm work.\n");
     }
-
-    GetPartnerData();
-    
-    GetPartnerSecureData();
-
-    // GFN SDK Shutdown. It's safe to call ShutdownSDK even if the SDK was not initialized.
-    SDKShutdown();
+    else
+    {
+        // At this point, application should load all common app data.
+        // The goal is to load everything possible now to shorten loading time
+        // seen by the user when they connect to the system via streaming session.
+        // No user data should be loaded at this time as no user is connected to the system.
+        printf("Loading common (non-user) data now...\n");
+        
+        // Once loading is done, signal to GFN that the application is ready for a user session
+        GfnError result = GfnRegisterSessionInitCallback(SessionInit, NULL);
+        if (result != gfnSuccess)
+        {
+            printf("Error registering SessionInit callback: %d, %s\n", result, GfnErrorToString(result));
+        }
+    }
 
     // Ready for application exit based on Spacebar press.
     waitForSpaceBar();
+
+    // Application shutdown requires calling GFN SDK Shutdown first.
+    // It's safe to call ShutdownSDK even if the SDK was not initialized.
+    SDKShutdown();
 
     return 0;
 }

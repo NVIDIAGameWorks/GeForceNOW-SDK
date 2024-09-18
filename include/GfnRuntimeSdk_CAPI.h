@@ -286,6 +286,12 @@
 /// C        | @ref gfnRegisterMessageCallback
 ///
 /// @copydoc gfnRegisterMessageCallback
+///
+/// Language | API
+/// -------- | -------------------------------------
+/// C        | @ref gfnOpenURLOnClient
+///
+/// @copydoc gfnOpenURLOnClient
 
 #ifndef GFN_SDK_RUNTIME_CAPI_H
 #define GFN_SDK_RUNTIME_CAPI_H
@@ -739,7 +745,7 @@
         ///
         /// @retval gfnSuccess                  - On success when running in a GeForce NOW environment
         /// @retval gfnInvalidParameter         - If callback was NULL
-        /// @retval gfnCloudLibraryNotFound     - If the on-seat dll was not present (Usually due to not running on a seat)
+        /// @retval gfnAPINotInit               - SDK was not initialized
         /// @retval gfnAPINotFound              - If the API was not found in the GeForce NOW SDK Library
         /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterSessionInitCallback(SessionInitCallbackSig sessionInitCallback, void* pUserContext);
@@ -767,7 +773,7 @@
         ///
         /// @retval gfnSuccess                  - On success when running in a GFN environment
         /// @retval gfnInvalidParameter         - If callback was NULL
-        /// @retval gfnCloudLibraryNotFound     - If the on-seat dll was not present (Usually due to not running on a seat)
+        /// @retval gfnAPINotInit               - SDK was not initialized
         /// @retval gfnAPINotFound              - If the API was not found in the GeForce NOW SDK Library
         /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterMessageCallback(MessageCallbackSig messageCallback, void* pUserContext);
@@ -790,7 +796,7 @@
         ///
         /// @retval gfnSuccess                  - On success when running in a GeForce NOW environment
         /// @retval gfnInvalidParameter         - If callback was NULL
-        /// @retval gfnCloudLibraryNotFound     - If the on-seat dll was not present (Usually due to not running on a seat)
+        /// @retval gfnAPINotInit               - SDK was not initialized
         /// @retval gfnAPINotFound              - If the API was not found in the GeForce NOW SDK Library
         /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterClientInfoCallback(ClientInfoCallbackSig clientInfoCallback, void* pUserContext);
@@ -816,7 +822,7 @@
         ///
         /// @retval gfnSuccess                  - On success when running in a GeForce NOW environment
         /// @retval gfnInvalidParameter         - If callback was NULL
-        /// @retval gfnCloudLibraryNotFound     - If the on-seat dll was not present (Usually due to not running on a seat)
+        /// @retval gfnAPINotInit               - SDK was not initialized
         /// @retval gfnAPINotFound              - If the API was not found in the GFN SDK Library
         /// @retval gfnCallWrongEnvironment     - If the on-seat dll detected that it was not on a game seat
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterNetworkStatusCallback(NetworkStatusCallbackSig networkStatusCallback, unsigned int updateRateMs, void* pUserContext);
@@ -1358,7 +1364,9 @@
         /// @retval gfnSuccess              - Call was successful
         /// @retval gfnInputExpected        - Expected zone to have a value
         /// @retval gfnComError             - There was SDK internal communication error
-        /// @retval gfnInitFailure          - SDK was not initialized
+        /// @retval gfnCallWrongEnvironment - If called in a client environment
+        /// @retval gfnAPINotInit           - SDK was not initialized
+        /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
         /// @retval gfnInvalidParameter     - Invalid parameters provided
         /// @retval gfnThrottled            - API call was throttled for exceeding limit
         /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
@@ -1385,13 +1393,42 @@
         ///
         /// @retval gfnSuccess              - Call was successful
         /// @retval gfnComError             - There was SDK internal communication error
-        /// @retval gfnInitFailure          - SDK was not initialized
+        /// @retval gfnAPINotInit           - SDK was not initialized
+        /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
         /// @retval gfnInvalidParameter     - Invalid parameters provided, or message exceeded allowed length
         /// @retval gfnThrottled            - API call was throttled for exceeding limit of 30 messages per second
         /// @retval gfnUnhandledException   - API ran into an unhandled error and caught an exception before it returned to client code
-        /// @retval gfnCloudLibraryNotFound - GFN SDK cloud-side library could not be found
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError gfnSendMessage(const char* pchMessage, unsigned int length);
+
+        ///
+        /// @par Description
+        /// Requests the client application to open a URL in their local web browser.
+        /// 
+        /// These requests are fire-and-forget.
+        /// 
+        /// Usage of this API is limited to  5 URL requests every second, with no more than 25 URL requests per minute.
+        ///
+        /// @par Environment
+        /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
+        ///
+        /// @par Usage
+        /// Use to request that the client application open a URL link in their local web browser.
+        ///
+        /// @param pchUrl - A URL which should be opened on the client's local browser.
+        ///
+        /// @retval gfnSuccess              - Call was successful
+        /// @retval gfnAPINotInit           - SDK was not initialized
+        /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
+        /// @retval gfnCallWrongEnvironment - API was called outside of a cloud execution environment
+        /// @retval gfnInvalidParameter     - Invalid pointer provided, or message exceeded allowed length
+        /// @retval gfnThrottled            - API call was throttled for exceeding limit of 5 messages per second or 25 total per session
+        /// @retval gfnInternalError        - API ran into an internal error
+        /// @return Otherwise, appropriate error code
+        NVGFNSDK_EXPORT GfnRuntimeError gfnOpenURLOnClient(const char* pchUrl);
 
         /// @}
 #ifdef __cplusplus
