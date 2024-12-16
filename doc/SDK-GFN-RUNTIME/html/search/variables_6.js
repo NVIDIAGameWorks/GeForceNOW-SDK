@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['nonce',['nonce',['../struct_gfn_cloud_check_challenge.html#a6898b97736e5e0bfa69bd5ad6c180dcc',1,'GfnCloudCheckChallenge']]],
-  ['noncesize',['nonceSize',['../struct_gfn_cloud_check_challenge.html#a03f706bd7838ac25e070ff764806bd1b',1,'GfnCloudCheckChallenge']]],
-  ['normalized',['normalized',['../struct_gfn_rect.html#a2fb4ff627b633d23a7395d4eed88966e',1,'GfnRect']]]
+  ['length',['length',['../struct_gfn_string.html#aceab13451d3a45cf971c03d7028302b1',1,'GfnString']]],
+  ['locale',['locale',['../struct_gfn_client_info.html#aa17100ee781465fe24f7bb4de3d5496d',1,'GfnClientInfo']]]
 ];

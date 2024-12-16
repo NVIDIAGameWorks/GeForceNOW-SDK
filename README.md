@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 2.4
+# NVIDIA GeForce NOW SDK Release 2.5
 
 ## At a Glance
 
@@ -18,10 +18,7 @@ Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detail
 
 ### What's New in This Release
 
-* Added `gfnOpenURLOnClient` API for app to request client application to open a URL in their local web browser.
-* Added `OpenClientBrowser` sample to demonstrate `gfnOpenURLOnClient` API usage.
-* Added `PreWarmSample` sample to demonstrate usage of the APIs and callbacks associated with PreWarm feature.
-* Added touch input support to `CubeSample` app.
+* Added `gfnCloudCheck` API support for Linux.
 * Various bug fixes and improvements.
 
 ## GeForce NOW Developer Portal
@@ -54,8 +51,8 @@ The distribution is laid out as below:
 |   │   SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf
 |   │   SDK-GFN-CLOUD-API.pdf
 |   │   SDK-GFN-DEEP-LINKING.pdf
-|   │   SDK-GFN-MOBILE-TOUCH-INTEGRATION-GUIDE.pdf
 |   │   SDK-GFN-IP-API-GUIDE.pdf
+|   │   SDK-GFN-MOBILE-TOUCH-INTEGRATION-GUIDE.pdf
 |   │   SDK-GFN-PRIMER.pdf
 |   │   SDK-GFN-QUICK-START-GUIDE.pdf
 |   │   SDK-GFN-UNREALENGINE-INTEGRATION-GUIDE.pdf

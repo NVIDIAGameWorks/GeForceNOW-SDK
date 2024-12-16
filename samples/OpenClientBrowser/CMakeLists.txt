@@ -8,10 +8,14 @@ set(GFN_SDK_SAMPLE_SOURCES
 add_executable(GfnSdkOpenClientBrowserSample ${GFN_SDK_SAMPLE_SOURCES})
 set_target_properties(GfnSdkOpenClientBrowserSample PROPERTIES FOLDER "Dist/Samples")
 
-target_link_libraries(GfnSdkOpenClientBrowserSample PRIVATE GfnSdkWrapper SampleCommonUtils)
+target_link_libraries(GfnSdkOpenClientBrowserSample PRIVATE GfnSdkWrapper GfnSdkSampleCommonUtils)
 target_include_directories(GfnSdkOpenClientBrowserSample PRIVATE ${GFN_SDK_DIST_DIR}/include)
 target_include_directories(GfnSdkOpenClientBrowserSample PRIVATE ${GFN_SDK_DIST_DIR}/samples/Common)
 target_compile_definitions(GfnSdkOpenClientBrowserSample PRIVATE FEATURECONFIG_HEADER)
+
+if (MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS")
+endif()
 
 if (WIN32)
     set_target_properties(GfnSdkOpenClientBrowserSample PROPERTIES LINK_FLAGS "/ignore:4099")

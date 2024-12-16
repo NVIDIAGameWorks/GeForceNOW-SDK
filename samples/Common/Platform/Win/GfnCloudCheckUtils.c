@@ -10,6 +10,7 @@
 #include <bcrypt.h>
 #pragma comment(lib, "bcrypt.lib")
 
+#include <GfnCloudCheckUtils.h>
 #include <GfnCloudCheckAppAdapter.h>
 
 BYTE s_RootPublicCert[] =
@@ -46,7 +47,8 @@ BYTE s_RootPublicCert[] =
     "wo+GYyg4Fwid4Iv0AEFYyASoNNj7BU3O6Ud4e5W8sXCqfWcYAZdNc0QWpZIRVMvs"
     "4iQUxjpe3OvvP6trvWjhkEOG5qwTLTGyBtxcQ/E=";
 
-#define MAX_NUMBER_OF_X5C_CERTS  4
+#define MAX_NUMBER_OF_X5C_CERTS  3
+#define MAX_CERTIFICATE_CHAIN_LEN  4
 
 /**
  * @brief Generates a random nonce.
@@ -84,7 +86,7 @@ bool GfnCloudCheckGenerateNonce(char* nonce, unsigned int nonceSize)
  *
  * @return The length of the decoded data in bytes. Returns 0 if the decoding fails.
  */
-int Base64Decode(const unsigned char* src, unsigned char** dest)
+static int Base64Decode(const unsigned char* src, unsigned char** dest)
 {
     unsigned char decodeTable[256];
     unsigned char* output = NULL;
@@ -98,7 +100,7 @@ int Base64Decode(const unsigned char* src, unsigned char** dest)
     int encodedBytes = 0;
     const unsigned char base64Table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-    // Generate decode table 
+    // Generate decode table
     memset(decodeTable, 0x80, 256);
     for (int i = 0; i < 64; i++)
     {
@@ -106,14 +108,14 @@ int Base64Decode(const unsigned char* src, unsigned char** dest)
     }
     decodeTable['='] = 0;
 
-    // Calculate length of output buffer 
+    // Calculate length of output buffer
     inputLength = strlen(src);
     if (inputLength == 0)
     {
         GFN_CC_LOG("Empty src string\n");
         return 0;
     }
-    for (int i = 0; i < inputLength; i++)
+    for (unsigned int i = 0; i < inputLength; i++)
     {
         if (decodeTable[src[i]] != 0x80)
         {
@@ -136,7 +138,7 @@ int Base64Decode(const unsigned char* src, unsigned char** dest)
     memset(output, 0, outputLength);
 
     outputPosition = output;
-    for (int i = 0; i < inputLength; i++)
+    for (unsigned int i = 0; i < inputLength; i++)
     {
         decodedCharacter = decodeTable[src[i]];
         if (decodedCharacter == 0x80)
@@ -177,7 +179,7 @@ int Base64Decode(const unsigned char* src, unsigned char** dest)
     }
     outputLength = outputPosition - output;
     *dest = output;
-    return outputLength;
+    return (int)outputLength;
 }
 
 /**
@@ -191,12 +193,13 @@ int Base64Decode(const unsigned char* src, unsigned char** dest)
  *
  * @return The length of the decoded data in bytes. Returns 0 if the decoding fails.
  */
-int Base64UrlDecode(const char* src, char** dest)
+static int Base64UrlDecode(const char* src, unsigned char** dest)
 {
     size_t inputLength = strlen(src);
+    size_t padding = 0;
 
     // Create a local buffer of (src length + 4) size for transformation
-    char* buffer = GFN_CC_MALLOC(inputLength + 4);
+    char* buffer = (char* )GFN_CC_MALLOC(inputLength + 4);
     if (!buffer)
     {
         GFN_CC_LOG("Failed to allocate local buffer\n");
@@ -206,7 +209,7 @@ int Base64UrlDecode(const char* src, char** dest)
     size_t bufferLength = inputLength;
 
     // Calculate the number of '=' characters needed to make the input size a multiple of 4
-    size_t padding = (4 - (inputLength % 4)) % 4;
+    padding = (4 - (inputLength % 4)) % 4;
     bufferLength += padding;
 
     // Copy the input to the result buffer and append padding characters
@@ -238,7 +241,7 @@ int Base64UrlDecode(const char* src, char** dest)
 
 /**
  * @brief Parses a JSON-formatted header string to extract information.
- * Instead of utilizing a standard open-source software, a simple custom parser is implemented 
+ * Instead of utilizing a standard open-source software, a simple custom parser is implemented
  * to allow integration into games/applications without concerns about licensing/legal issues.
  *
  * This function extracts information from a JSON-formatted header string,
@@ -252,48 +255,66 @@ int Base64UrlDecode(const char* src, char** dest)
  *
  * @return true if the header is successfully parsed, false otherwise.
  */
-bool ParseHeaderJson(const char* header, char** pX5CCerts, unsigned int* numOfX5CCerts)
+static bool ParseHeaderJson(const unsigned char* header, const size_t headerLen, char** pX5CCerts, unsigned int* numOfX5CCerts)
 {
     bool result = false;
+    char* headerCopy = NULL;
+    char* algValue = NULL;
+
     *numOfX5CCerts = 0;
 
-    const char* start = strchr(header, '{');
-    const char* end = strrchr(header, '}');
+    headerCopy = GFN_CC_MALLOC(sizeof(char) * (headerLen + 1));
+    if (headerCopy == NULL)
+    {
+        GFN_CC_LOG("Failed to allocate memory for copy of header\n");
+        return false;
+    }
+    memcpy(headerCopy, header, headerLen);
+    headerCopy[headerLen] = '\0';
+
+    const char* start = strchr(headerCopy, '{');
+    const char* end = strchr(headerCopy, '}');
     if (start == NULL || end == NULL)
     {
         GFN_CC_LOG("Failed to parse start and end delimiters in the header\n");
-        return false;
+        result = false;
+        goto end;
     }
     char* algKey = strstr(start + 1, "\"alg\"");
     if (algKey == NULL)
     {
         GFN_CC_LOG("Failed to parse alg key in the header\n");
-        return false;
+        result = false;
+        goto end;
     }
     char* colon = strchr(algKey, ':');
     if (colon == NULL)
     {
         GFN_CC_LOG("Failed to parse alg key separator in the header\n");
-        return false;
+        result = false;
+        goto end;
     }
     char* algValueStart = strchr(colon + 1, '\"');
     if (algValueStart == NULL)
     {
         GFN_CC_LOG("Failed to parse alg value start in the header\n");
-        return false;
+        result = false;
+        goto end;
     }
     char* algValueEnd = strchr(algValueStart + 1, '\"');
     if (algValueEnd == NULL)
     {
         GFN_CC_LOG("Failed to parse alg value end in the header\n");
-        return false;
+        result = false;
+        goto end;
     }
-    int algLen = algValueEnd - algValueStart;
-    char* algValue = GFN_CC_MALLOC(algLen);
+    int algLen = (int)(algValueEnd - algValueStart);
+    algValue = GFN_CC_MALLOC(algLen);
     if (algValue == NULL)
     {
         GFN_CC_LOG("Failed to allocate memory for alg field in the header\n");
-        return false;
+        result = false;
+        goto end;
     }
     memset(algValue, 0, algLen);
     memcpy(algValue, algValueStart + 1, algLen - 1);
@@ -337,15 +358,15 @@ bool ParseHeaderJson(const char* header, char** pX5CCerts, unsigned int* numOfX5
     // Extract certificates
     int i = 0;
     char* x5cCert = strtok(x5cStart + 1, ",");
-    do
+    while ((x5cCert != NULL) && (x5cCert < x5cEnd))
     {
-        if (i >= MAX_NUMBER_OF_X5C_CERTS) 
+        if (i >= MAX_NUMBER_OF_X5C_CERTS)
         {
             GFN_CC_LOG("Certificate count of %i exceeds expected %d\n", i, MAX_NUMBER_OF_X5C_CERTS);
             result = false;
             goto end;
         }
-        
+
         size_t certLength = strlen(x5cCert);
         char* cert = GFN_CC_MALLOC(certLength + 1);
         if (cert == NULL)
@@ -358,19 +379,25 @@ bool ParseHeaderJson(const char* header, char** pX5CCerts, unsigned int* numOfX5
         pX5CCerts[i++] = cert;
         *numOfX5CCerts = i;
 
-        x5cCert = strtok(NULL, ",");
-    } while (x5cCert < x5cEnd);
+        // splitting with both , and ] to account for the last cert not having a
+        // trailing ,
+        x5cCert = strtok(NULL, ",]");
+    }
 
     result = true;
 
-end: 
+end:
+    if (headerCopy != NULL)
+    {
+        GFN_CC_FREE(headerCopy);
+    }
     if (algValue != NULL)
     {
         GFN_CC_FREE(algValue);
     }
     if (!result && *numOfX5CCerts > 0)
     {
-        for (int i = 0; i < *numOfX5CCerts; i++)
+        for (unsigned int i = 0; i < *numOfX5CCerts; i++)
         {
             if (pX5CCerts[i] != NULL)
             {
@@ -397,55 +424,74 @@ end:
  *
  * @return true if the nonce value in the payload matches the provided nonce; false otherwise.
  */
-bool ParsePayloadJson(const char* payload, const char* nonce, unsigned int nonceSize)
+static bool ParsePayloadJson(const unsigned char* payload, const size_t payloadLen, const char* nonce, unsigned int nonceSize)
 {
-    const char* start = strchr(payload, '{');
-    const char* end = strrchr(payload, '}');
+    bool result = false;
+    unsigned char* decodedNonce = NULL;
+    char* nonceValue = NULL;
+    char* payloadCopy = NULL;
+
+    payloadCopy = GFN_CC_MALLOC(sizeof(char) * (payloadLen + 1));
+    if (payloadCopy == NULL)
+    {
+        GFN_CC_LOG("Failed to allocate memory for copy of header\n");
+        result = false;
+        goto end;
+    }
+    memcpy(payloadCopy, payload, payloadLen);
+    payloadCopy[payloadLen] = '\0';
+
+    const char* start = strchr(payloadCopy, '{');
+    const char* end = strchr(payloadCopy, '}');
     if (start == NULL || end == NULL)
     {
         GFN_CC_LOG("Failed to parse start and end delimiters in the payload\n");
-        return false;
+        result = false;
+        goto end;
     }
     char* nonceKey = strstr(start + 1, "\"nonce\"");
     if (nonceKey == NULL)
     {
         GFN_CC_LOG("Failed to parse nonce key in the payload\n");
-        return false;
+        result = false;
+        goto end;
     }
     char* colon = strchr(nonceKey, ':');
     if (colon == NULL)
     {
         GFN_CC_LOG("Failed to parse nonce key separator in the payload\n");
-        return false;
+        result = false;
+        goto end;
     }
     char* nonceValueStart = strchr(colon + 1, '\"');
     if (nonceValueStart == NULL)
     {
         GFN_CC_LOG("Failed to parse nonce value start in the payload\n");
         GFN_CC_LOG("Missing nonce field\n");
-        return false;
+        result = false;
+        goto end;
     }
     char* nonceValueEnd = strchr(nonceValueStart + 1, '\"');
     if (nonceValueEnd == NULL)
     {
         GFN_CC_LOG("Failed to parse nonce value end in the payload\n");
-        return false;
+        result = false;
+        goto end;
     }
-    int nonceLen = nonceValueEnd - nonceValueStart;
-    char* nonceValue = GFN_CC_MALLOC(nonceLen);
+    int nonceLen = (int)(nonceValueEnd - nonceValueStart);
+    nonceValue = GFN_CC_MALLOC(nonceLen);
     if (nonceValue == NULL)
     {
         GFN_CC_LOG("Failed to allocate memory for nonce value in the payload\n");
-        return false;
+        result = false;
+        goto end;
     }
     memset(nonceValue, 0, nonceLen);
     memcpy(nonceValue, nonceValueStart + 1, (size_t)nonceLen - 1);
 
-    bool result = false;
-    char* decodedNonce = NULL;
     if (Base64Decode(nonceValue, &decodedNonce))
     {
-        if (strncmp(decodedNonce, nonce, nonceSize) != 0)
+        if (memcmp(decodedNonce, nonce, nonceSize) != 0)
         {
             GFN_CC_LOG("Failed to match nonce value in the payload with input nonce\n");
             result = false;
@@ -454,6 +500,12 @@ bool ParsePayloadJson(const char* payload, const char* nonce, unsigned int nonce
         {
             result = true;
         }
+    }
+
+end:
+    if (payloadCopy != NULL)
+    {
+        GFN_CC_FREE(payloadCopy);
     }
     if (nonceValue != NULL)
     {
@@ -482,12 +534,18 @@ bool ParsePayloadJson(const char* payload, const char* nonce, unsigned int nonce
  */
 bool CreateCertificateContext(char** x5cCerts, unsigned int numOfCerts, PCCERT_CONTEXT* pcCertArray)
 {
-    char* cert = NULL;
+    unsigned char* cert = NULL;
     int certSize = 0;
     PCCERT_CONTEXT pcCertContext = NULL;
 
+    if (numOfCerts > MAX_CERTIFICATE_CHAIN_LEN - 1)
+    {
+        GFN_CC_LOG("Number of received certificates (%d) larger than limit (%d)\n", numOfCerts, MAX_CERTIFICATE_CHAIN_LEN);
+        return false;
+    }
+
     // Iterate through x5c Certificates and create the PC_CERT_CONTEXT
-    for (int i = 0; i < numOfCerts; i++)
+    for (unsigned int i = 0; i < numOfCerts; i++)
     {
         certSize = Base64Decode(x5cCerts[i], &cert);
         if (certSize == 0)
@@ -539,7 +597,7 @@ bool CreateCertificateContext(char** x5cCerts, unsigned int numOfCerts, PCCERT_C
  *
  * @return true if the hash is successfully generated, false otherwise.
  */
-bool GenerateHash(const unsigned char* data, ULONG dataSize, unsigned char** output, ULONG* outputSize)
+bool GenerateHash(const unsigned char* data, unsigned long dataSize, unsigned char** output, unsigned long* outputSize)
 {
     NTSTATUS status = S_OK;
 
@@ -549,8 +607,8 @@ bool GenerateHash(const unsigned char* data, ULONG dataSize, unsigned char** out
     // Handle to hash object
     BCRYPT_HASH_HANDLE hashObjectHandle = NULL;
     unsigned char* hashObject = NULL;
-    ULONG hashObjectLength = 0;
-    ULONG resultLength = 0;
+    unsigned long hashObjectLength = 0;
+    unsigned long resultLength = 0;
 
     // Initialize OUT parameters
     *output = NULL;
@@ -669,7 +727,7 @@ bool ValidateCertificateChain(PCCERT_CONTEXT* pcCertArray)
     }
 
     // Add all x5c certificates to this store
-    for (int i = 0; i < MAX_NUMBER_OF_X5C_CERTS; i++)
+    for (int i = 0; i < MAX_CERTIFICATE_CHAIN_LEN; i++)
     {
         if (!CertAddEncodedCertificateToStore(hMemStore, X509_ASN_ENCODING, pcCertArray[i]->pbCertEncoded, pcCertArray[i]->cbCertEncoded, CERT_STORE_ADD_USE_EXISTING, NULL))
         {
@@ -701,9 +759,9 @@ bool ValidateCertificateChain(PCCERT_CONTEXT* pcCertArray)
         goto end;
     }
     // There should be only one chain with 4 certificates in it
-    if (pChainContext->cChain == 1 && pChainContext->rgpChain[0]->cElement == MAX_NUMBER_OF_X5C_CERTS)
+    if (pChainContext->cChain == 1 && pChainContext->rgpChain[0]->cElement == MAX_CERTIFICATE_CHAIN_LEN)
     {
-        for (int i = 0; i < MAX_NUMBER_OF_X5C_CERTS; i++)
+        for (int i = 0; i < MAX_CERTIFICATE_CHAIN_LEN; i++)
         {
             const PCCERT_CONTEXT pCurrentCertContext = pChainContext->rgpChain[0]->rgpElement[i]->pCertContext;
             if (CertVerifyTimeValidity(NULL, pCurrentCertContext->pCertInfo) != 0)
@@ -787,7 +845,7 @@ bool VerifySignature(char* decodedSignature, int signatureLen, char* hashedData,
         PKCS1PaddingInfo.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
 
-    status = BCryptVerifySignature(cryptKeyHandle, &PKCS1PaddingInfo, hashedData, (ULONG)hashedDataLen, decodedSignature, (ULONG)signatureLen, BCRYPT_PAD_PKCS1);
+    status = BCryptVerifySignature(cryptKeyHandle, &PKCS1PaddingInfo, hashedData, (unsigned long)hashedDataLen, decodedSignature, (unsigned long)signatureLen, BCRYPT_PAD_PKCS1);
     if (!BCRYPT_SUCCESS(status))
     {
         GFN_CC_LOG("Failed to verify signature, error: %x\n", GetLastError());
@@ -806,7 +864,7 @@ bool VerifySignature(char* decodedSignature, int signatureLen, char* hashedData,
  * @brief Validates attestation data received in CloudCheck API response represented as a JWT.
  *
  * This function performs following series of steps to validate the integrity of attestation data.
- 
+
  * JWT Format: base64url(header).base64url(data).base64url(RSASHA512(base64url(header).base64url(data)))
  * 1.Parse JWT to extract header, data, signature
  * 2.Parse header
@@ -827,57 +885,80 @@ bool VerifySignature(char* decodedSignature, int signatureLen, char* hashedData,
 bool GfnCloudCheckVerifyAttestationData(const char* jwt, const char* nonce, unsigned int nonceSize)
 {
     bool result = false;
+
+    size_t jwtLen = 0;
+
+    size_t headerLen = 0;
     char* header = NULL;
+
+    size_t payloadLen = 0;
     char* payload = NULL;
+
+    size_t signatureLen = 0;
     char* signature = NULL;
-    char* data = NULL;
-    char* decodedHeader = NULL;
-    char* decodedPayload = NULL;
-    char* decodedSignature = NULL;
-    size_t len = 0;
-    size_t firstDotPosition = 0;
-    size_t secondDotPosition = 0;
+
+    size_t decodedHeaderLen = 0;
+    unsigned char* decodedHeader = NULL;
+
+    size_t decodedPayloadLen = 0;
+    unsigned char* decodedPayload = NULL;
+
+    size_t decodedSignatureLen = 0;
+    unsigned char* decodedSignature = NULL;
+
+    size_t dataLen = 0;
+    unsigned char* data = NULL;
+
     char* x5cCerts[MAX_NUMBER_OF_X5C_CERTS] = { 0 };
-    unsigned int numOfCerts = 0;
-    PCCERT_CONTEXT pcCertContextArray[MAX_NUMBER_OF_X5C_CERTS] = { 0 };
+    unsigned int numX5cCerts = 0;
+
     char* hashedData = NULL;
     unsigned int hashedDataLen = 0;
 
-    firstDotPosition = strcspn(jwt, ".");
-    if (jwt[firstDotPosition] == '\0')
+    char* firstDot = NULL;
+    char* secondDot = NULL;
+
+    PCCERT_CONTEXT pcCertContextArray[MAX_CERTIFICATE_CHAIN_LEN] = { 0 };
+
+    firstDot = strchr(jwt, '.');
+    if (firstDot == NULL)
     {
         GFN_CC_LOG("Invalid jwt format\n");
         return false;
     }
 
-    secondDotPosition = strcspn(&jwt[firstDotPosition + 1], ".");
-    if (jwt[firstDotPosition + 1+ secondDotPosition] == '\0')
+    secondDot = strchr(firstDot + 1, '.');
+    if (secondDot == NULL)
     {
         GFN_CC_LOG("Invalid jwt format\n");
         return false;
     }
 
-    header = GFN_CC_MALLOC(firstDotPosition + 1);
+    headerLen = firstDot - jwt;
+    header = GFN_CC_MALLOC(headerLen + 1);
     if (header == NULL)
     {
         GFN_CC_LOG("Failed to allocate memory for header\n");
         return false;
     }
-    memcpy(header, jwt, firstDotPosition);
-    header[firstDotPosition] = '\0';
+    memcpy(header, jwt, headerLen);
+    header[headerLen] = '\0';
 
-    payload = GFN_CC_MALLOC(secondDotPosition + 1);
+    payloadLen = secondDot - (firstDot + 1);
+    payload = GFN_CC_MALLOC(payloadLen + 1);
     if (payload == NULL)
     {
         GFN_CC_LOG("Failed to allocate memory for payload\n");
         GFN_CC_FREE(header);
         return false;
     }
-    memcpy(payload, &jwt[firstDotPosition + 1], secondDotPosition);
-    payload[secondDotPosition] = '\0';
+    memcpy(payload, firstDot + 1, payloadLen);
+    payload[payloadLen] = '\0';
 
-    len = strlen(jwt);
-    signature = GFN_CC_MALLOC(len - secondDotPosition);
+    jwtLen = strlen(jwt);
+    signatureLen = (jwt + jwtLen) - (secondDot + 1);
+
+    signature = GFN_CC_MALLOC(signatureLen + 1);
     if (signature == NULL)
     {
         GFN_CC_LOG("Failed to allocate memory for signature\n");
@@ -885,42 +966,43 @@ bool GfnCloudCheckVerifyAttestationData(const char* jwt, const char* nonce, unsi
         GFN_CC_FREE(payload);
         return false;
     }
-    memcpy(signature, &jwt[firstDotPosition + 1 + secondDotPosition + 1], len - (firstDotPosition + secondDotPosition));
+    memcpy(signature, secondDot+1, signatureLen);
+    signature[signatureLen] = '\0';
 
-    len = Base64UrlDecode(header, &decodedHeader);
-    if (len == 0)
+    decodedHeaderLen = Base64UrlDecode(header, &decodedHeader);
+    if (decodedHeaderLen == 0)
     {
         GFN_CC_LOG("Failed to Base64Url decode header\n");
         goto end;
     }
 
-    len = Base64UrlDecode(payload, &decodedPayload);
-    if (len == 0)
+    decodedPayloadLen = Base64UrlDecode(payload, &decodedPayload);
+    if (decodedPayloadLen == 0)
     {
         GFN_CC_LOG("Failed to Base64Url decode payload\n");
         goto end;
     }
 
-    len = Base64UrlDecode(signature, &decodedSignature);
-    if (len == 0)
+    decodedSignatureLen = Base64UrlDecode(signature, &decodedSignature);
+    if (decodedSignatureLen == 0)
     {
         GFN_CC_LOG("Failed to Base64Url decode signature\n");
         goto end;
     }
 
-    if (!ParseHeaderJson(decodedHeader, &x5cCerts[0], &numOfCerts))
+    if (!ParseHeaderJson(decodedHeader, decodedHeaderLen, x5cCerts, &numX5cCerts))
     {
         GFN_CC_LOG("Failed to parse header json\n");
         goto end;
     }
 
-    if (!ParsePayloadJson(decodedPayload, nonce, nonceSize))
+    if (!ParsePayloadJson(decodedPayload, decodedPayloadLen, nonce, nonceSize))
     {
         GFN_CC_LOG("Failed to parse payload json\n");
         goto end;
     }
 
-    if (!CreateCertificateContext(x5cCerts, numOfCerts, pcCertContextArray))
+    if (!CreateCertificateContext(x5cCerts, numX5cCerts, pcCertContextArray))
     {
         GFN_CC_LOG("Failed to create certificate context from x5c \n");
         goto end;
@@ -933,21 +1015,22 @@ bool GfnCloudCheckVerifyAttestationData(const char* jwt, const char* nonce, unsi
     }
 
     // To create Hash of data = (payload + header), allocate and copy data from jwt
-    data = GFN_CC_MALLOC(firstDotPosition + 1 + secondDotPosition);
+    dataLen = secondDot - jwt;
+    data = GFN_CC_MALLOC(dataLen);
     if (data == NULL)
     {
         GFN_CC_LOG("Failed to allocate memory for data object\n");
         goto end;
     }
-    memcpy(data, &jwt[0], firstDotPosition + 1 + secondDotPosition);
+    memcpy(data, jwt, dataLen);
 
-    if (!GenerateHash(data, firstDotPosition + 1 + secondDotPosition, &hashedData, &hashedDataLen))
+    if (!GenerateHash(data, (unsigned long)dataLen, &hashedData, &hashedDataLen))
     {
         GFN_CC_LOG("Failed to generate data hash\n");
         goto end;
     }
 
-    if (!VerifySignature(decodedSignature, len, hashedData, hashedDataLen, pcCertContextArray[0]))
+    if (!VerifySignature(decodedSignature, (int)decodedSignatureLen, hashedData, hashedDataLen, pcCertContextArray[0]))
     {
         GFN_CC_LOG("Failed to verify signature\n");
         goto end;
@@ -959,9 +1042,9 @@ bool GfnCloudCheckVerifyAttestationData(const char* jwt, const char* nonce, unsi
 
 end:
     // Free x5c certificates
-    if (numOfCerts > 0)
+    if (numX5cCerts > 0)
     {
-        for (int i = 0; i < numOfCerts; i++)
+        for (unsigned int i = 0; i < numX5cCerts; i++)
         {
             if (x5cCerts[i] != NULL)
             {
@@ -970,7 +1053,7 @@ end:
         }
     }
     // Free certificate context array
-    for (int i = 0; i < MAX_NUMBER_OF_X5C_CERTS; i++)
+    for (int i = 0; i < MAX_CERTIFICATE_CHAIN_LEN; i++)
     {
         if (pcCertContextArray[i] != NULL)
         {

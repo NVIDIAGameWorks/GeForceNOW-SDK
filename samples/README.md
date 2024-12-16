@@ -9,9 +9,9 @@ This C-based simple command-line sample demonstrates usage of the game-focused A
 ### CloudCheckAPI
 This C-based simple command-line sample demonstrates usage of the APIs dedicated to checking if running in the GFN cloud environment. It is designed to be run in both client and cloud environments to provide expected results in each of the environments.
 
-### GdnSampleApp
+### CubeSample
 This is a modified variant of Vulkan Cube app originally distributed with Vulkan SDK. It demonstrates integration with GFN SDK as well as some user controls that use two-way communication.
-See the sample [README](./GdnSampleApp/README.md) for more details.
+See the sample [README](./CubeSample/README.md) for more details.
 
 ### PartnerDataAPI
 This C-based simple command-line sample demonstrates usage of the two APIs dedicated to obtaining partner-supplied data provided during session initialization, as well as the correct way to free the memory allocated for the data.
@@ -21,7 +21,6 @@ This C-based simple command-line sample demonstrates usage of the APIs and callb
 
 ### OpenClientBrowser
 This C-based simple command-line sample demonstrates usage of the the GfnOpenURLOnClient API. Opening URLs on the connecting client's browser.
-
 
 ### SampleLauncher
 This C++-based sample demonstrates usage of the Launcher/Publisher application-focused APIs, including getting a list of supported titles supported by GeForce NOW, as well as invoking the GeForce NOW Windows client to start a streaming session of a title. This sample is meant to be run on both the local client and GeForce NOW cloud environment to understand how all the APIs behave in each environment.

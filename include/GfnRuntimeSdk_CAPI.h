@@ -299,7 +299,7 @@
 
 #include "GfnSdk.h"
 
-// Defining GfnRuntimeError for backwards compatibility
+///< Defining GfnRuntimeError for backwards compatibility
 #define GfnRuntimeError GfnError
 
 #ifdef __cplusplus
@@ -399,28 +399,28 @@
         } GfnActionType;
 
 
-    #define IP_V4_SIZE              (17) // INET_ADDRSTRLEN + NULL
-    #define IP_V6_SIZE              (49) // INET6_ADDRSTRLEN + NULL
-    #define CC_SIZE                 (3)  // ISO 3166-1 Alpha-2
-    #define LOCALE_SIZE             (6)  // ISO 639-1 Alpha-2
-    #define SESSION_ID_SIZE         (38)
+    #define IP_V4_SIZE              (17) ///< INET_ADDRSTRLEN + NULL
+    #define IP_V6_SIZE              (49) ///< INET6_ADDRSTRLEN + NULL
+    #define CC_SIZE                 (3)  ///< ISO 3166-1 Alpha-2
+    #define LOCALE_SIZE             (6)  ///< ISO 639-1 Alpha-2
+    #define SESSION_ID_SIZE         (38) ///< NVIDIA defined UID size
 
         /// @brief Types of operating systems that can be reported by the SDK
         typedef enum GfnOsType
         {
-            gfnUnknownOs = 0,
-            gfnWindows = 1,
-            gfnMacOs = 2,
-            gfnShield = 3,
-            gfnAndroid = 4,
-            gfnIOs = 5,
-            gfnIPadOs = 6,
-            gfnChromeOs = 7,
-            gfnLinux = 8,
-            gfnTizen = 9,
-            gfnWebOs = 10,
-            gfnTvOs = 11,
-            gfnOsTypeMax = 11
+            gfnUnknownOs = 0,       ///< Unknown OS
+            gfnWindows = 1,         ///< Windows 
+            gfnMacOs = 2,           ///< MAC
+            gfnShield = 3,          ///< Nvidia Shield
+            gfnAndroid = 4,         ///< Android
+            gfnIOs = 5,             ///< IOS
+            gfnIPadOs = 6,          ///< IPadOS
+            gfnChromeOs = 7,        ///< ChromeOS
+            gfnLinux = 8,           ///< Linux
+            gfnTizen = 9,           ///< Tizen
+            gfnWebOs = 10,          ///< WebOS
+            gfnTvOs = 11,           ///< TVOS
+            gfnOsTypeMax = 11       ///< OSTypeMax
         } GfnOsType;
 
         /// @brief Client info blob
@@ -575,7 +575,7 @@
         ///
         /// @par Usage
         /// Call during application shutdown or when GFN Runtime API methods are no longer needed.
-        NVGFNSDK_EXPORT void NVGFNSDKApi gfnShutdownRuntimeSdk();
+        NVGFNSDK_EXPORT void NVGFNSDKApi gfnShutdownRuntimeSdk(void);
         /// @}
 
         /// @defgroup callbacks Client Callback Registration
@@ -864,7 +864,7 @@
         ///                                     GeForce NOW test environment. This value will also be returned if
         ///                                     called before gfnInitializeRuntimeSdk().
         ///
-        NVGFNSDK_EXPORT bool NVGFNSDKApi gfnIsRunningInCloud();
+        NVGFNSDK_EXPORT bool NVGFNSDKApi gfnIsRunningInCloud(void);
 
         ///
         /// @par Description
@@ -907,7 +907,7 @@
         /// Cloud and Client
         /// 
         /// @par Platform
-        /// Windows
+        /// Windows, Linux
         ///
         /// @par Usage
         /// This API can be used from any execution context - privileged or not. 

@@ -371,7 +371,7 @@ extern "C"
     /// @par Usage
     /// Use to quickly determine whether to enable / disable any low-value GFN cloud environment
     /// specific application logic, for example, to block any calls to @ref GfnStartStream() to
-    /// avoid an error, or to know if @ref GetTitlesAvailable can be called without an error.
+    /// avoid an error, or to know if @ref GfnGetTitlesAvailable can be called without an error.
     ///
     /// @warning
     /// This API is meant to fill the need to quickly determine if the call looks to be in the
@@ -433,7 +433,7 @@ extern "C"
     /// Cloud and Client
     /// 
     /// @par Platform
-    /// Windows
+    /// Windows, Linux
     ///
     /// @par Usage
     /// This API can be used from any execution context - privileged or not. 
@@ -674,7 +674,7 @@ extern "C"
 
     ///
     /// @par Description
-    /// Calls @ref gfnGetTitlesAvailable to retrieves all titles that can be launched in the
+    /// Calls @ref GfnGetTitlesAvailable to retrieves all titles that can be launched in the
     /// current game streaming session.
     ///
     /// @par Environment
@@ -703,7 +703,7 @@ extern "C"
 
     ///
     /// @par Description
-    /// Calls @ref gfnFree to free memory allocated by @ref gfnGetTitlesAvailable
+    /// Calls @ref gfnFree to free memory allocated by @ref GfnGetTitlesAvailable
     ///
     /// @par Environment
     /// Cloud

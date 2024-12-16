@@ -8,7 +8,7 @@ set(GFN_SDK_SAMPLE_SOURCES
 add_executable(GfnSdkCloudCheckAPISample ${GFN_SDK_SAMPLE_SOURCES})
 set_target_properties(GfnSdkCloudCheckAPISample PROPERTIES FOLDER "Dist/Samples")
 
-target_link_libraries(GfnSdkCloudCheckAPISample PRIVATE GfnSdkWrapper SampleCommonUtils)
+target_link_libraries(GfnSdkCloudCheckAPISample PRIVATE GfnSdkWrapper GfnSdkSampleCommonUtils)
 target_include_directories(GfnSdkCloudCheckAPISample PRIVATE ${GFN_SDK_DIST_DIR}/include)
 target_include_directories(GfnSdkCloudCheckAPISample PRIVATE ${GFN_SDK_DIST_DIR}/samples/Common)
 target_compile_definitions(GfnSdkCloudCheckAPISample PRIVATE FEATURECONFIG_HEADER)

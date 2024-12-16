@@ -8,7 +8,7 @@ set(GFN_SDK_SAMPLE_SOURCES
 add_executable(GfnSdkPreWarmSample ${GFN_SDK_SAMPLE_SOURCES})
 set_target_properties(GfnSdkPreWarmSample PROPERTIES FOLDER "Dist/Samples")
 
-target_link_libraries(GfnSdkPreWarmSample PRIVATE GfnSdkWrapper SampleCommonUtils)
+target_link_libraries(GfnSdkPreWarmSample PRIVATE GfnSdkWrapper GfnSdkSampleCommonUtils)
 target_include_directories(GfnSdkPreWarmSample PRIVATE ${GFN_SDK_DIST_DIR}/include)
 target_include_directories(GfnSdkPreWarmSample PRIVATE ${GFN_SDK_DIST_DIR}/samples/Common)
 target_compile_definitions(GfnSdkPreWarmSample PRIVATE FEATURECONFIG_HEADER)

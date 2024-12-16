@@ -8,7 +8,7 @@ set(GFN_SDK_SAMPLE_SOURCES
 add_executable(GfnSdkPartnerDataAPISample ${GFN_SDK_SAMPLE_SOURCES})
 set_target_properties(GfnSdkPartnerDataAPISample PROPERTIES FOLDER "Dist/Samples")
 
-target_link_libraries(GfnSdkPartnerDataAPISample PRIVATE GfnSdkWrapper SampleCommonUtils)
+target_link_libraries(GfnSdkPartnerDataAPISample PRIVATE GfnSdkWrapper GfnSdkSampleCommonUtils)
 target_include_directories(GfnSdkPartnerDataAPISample PRIVATE ${GFN_SDK_DIST_DIR}/include)
 target_include_directories(GfnSdkPartnerDataAPISample PRIVATE ${GFN_SDK_DIST_DIR}/samples/Common)
 target_compile_definitions(GfnSdkPartnerDataAPISample PRIVATE FEATURECONFIG_HEADER)

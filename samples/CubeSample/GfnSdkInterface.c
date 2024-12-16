@@ -16,6 +16,7 @@
 #ifdef  _WIN32
     #include <windows.h>
     #include <shellapi.h>
+    #include <stdio.h>
     #define MOUSEEVENTF_FROMTOUCH (0xFF515700)
 #else
     #include <stdio.h>

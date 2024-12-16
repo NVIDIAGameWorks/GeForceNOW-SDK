@@ -195,12 +195,12 @@ int main(int argc, char* argv[])
         }
     }
 
-    // Ready for application exit based on Spacebar press.
-    waitForSpaceBar();
-
     // Application shutdown requires calling GFN SDK Shutdown first.
     // It's safe to call ShutdownSDK even if the SDK was not initialized.
     SDKShutdown();
+
+    // Ready for application exit based on Spacebar press.
+    waitForSpaceBar();
 
     return 0;
 }

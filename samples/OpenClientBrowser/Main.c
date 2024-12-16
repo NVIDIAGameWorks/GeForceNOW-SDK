@@ -240,13 +240,10 @@ bool BasicCloudCheck()
 {
     bool bIsCloudEnvironment = false;
     GfnError result = gfnSuccess;
-#ifdef _WIN32
+
     printf("\n\nPerforming Basic Secure Cloud Check via GfnCloudCheck without Challenge and Response data...\n");
     result = GfnCloudCheck(NULL, NULL, &bIsCloudEnvironment);
-#elif __linux__
-    printf("\n\nPerforming Basic Cloud Check via GfnIsRunningInCloud...\n");
-    result = GfnIsRunningInCloud(&bIsCloudEnvironment);
-#endif    
+
     if (GFNSDK_FAILED(result))
     {
         // Failure case, do not rely on bIsCloudEnvironment result
@@ -391,59 +388,60 @@ int main(int argc, char* argv[])
     if (!BasicCloudCheck())
     {
         ShowStatus("Not running in Geforce NOW Cloud environment, exiting early without calling Cloud APIs.", true);
-        return -1;
     }
-
-    char c;
-    do {
+    else
+    {
+        char c;
+        do {
 #if __linux__
-        ClearDisplay();
+            ClearDisplay();
 #endif
-        BasicCloudCheck();
-        DisplayPrompt();
-        c = waitForInput();
-        char str_input[2];
-        sprintf(str_input, "%c", c);
-        ShowText(str_input);
-        ShowText(" ");
+            BasicCloudCheck();
+            DisplayPrompt();
+            c = waitForInput();
+            char str_input[2];
+            sprintf(str_input, "%c", c);
+            ShowText(str_input);
+            ShowText(" ");
 #if __linux__
-        Draw();
+            Draw();
 #endif
-        switch (c)
-        {
-        case '1':
-            OpenClientBrowser("https://www.nvidia.com/en-us/geforce-now/");
-            break;
-        case '2':
-            OpenClientBrowser("https://developer.geforcenow.com/learn/guides/offerings-sdk");
-            break;
-        case '3':
-            OpenClientBrowser("httpz://www.nvidia.com/en-us/geforce-now/");
-            break;
-        case '4':
-        {
-            char dataThatsWayTooBig[2049] = "https://www.nvidia.com/123456789"; // \0 is at index 32
-            for (size_t i = 2; i < (2048 / 16); i++)
+            switch (c)
             {
-                memcpy(&(dataThatsWayTooBig[i * 16]), "0123456789ABCDEF", 16);
+            case '1':
+                OpenClientBrowser("https://www.nvidia.com/en-us/geforce-now/");
+                break;
+            case '2':
+                OpenClientBrowser("https://developer.geforcenow.com/learn/guides/offerings-sdk");
+                break;
+            case '3':
+                OpenClientBrowser("httpz://www.nvidia.com/en-us/geforce-now/");
+                break;
+            case '4':
+            {
+                char dataThatsWayTooBig[2049] = "https://www.nvidia.com/123456789"; // \0 is at index 32
+                for (size_t i = 2; i < (2048 / 16); i++)
+                {
+                    memcpy(&(dataThatsWayTooBig[i * 16]), "0123456789ABCDEF", 16);
+                }
+                dataThatsWayTooBig[2048] = '\0';
+                OpenClientBrowser(dataThatsWayTooBig);
             }
-            dataThatsWayTooBig[2048] = '\0';
-            OpenClientBrowser(dataThatsWayTooBig);
-        }
-        break;
-        case '5':
-            OpenClientBrowser(NULL);
             break;
-        case '6':
-            OpenClientBrowser("https://www.nvidia.com/\">< ^`{|");
-            break;
-        case '7':
-            DoStressTest("https://www.nvidia.com/en-us/geforce-now/");
-            break;
-        default:
-            break;
-        }
-    } while (c != ' ');
+            case '5':
+                OpenClientBrowser(NULL);
+                break;
+            case '6':
+                OpenClientBrowser("https://www.nvidia.com/\">< ^`{|");
+                break;
+            case '7':
+                DoStressTest("https://www.nvidia.com/en-us/geforce-now/");
+                break;
+            default:
+                break;
+            }
+        } while (c != ' ');
+    }
 
     // GFN SDK Shutdown. It's safe to call ShutdownSDK even if the SDK was not initialized.
     SDKShutdown();

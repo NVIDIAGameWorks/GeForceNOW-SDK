@@ -181,7 +181,7 @@ void ExtendedSecureCloudCheck()
         printf("GfnCloudCheckGenerateNonce failed, GfnCloudCheck() call skipped.\n");
         return;
     }
-   
+
     GfnCloudCheckChallenge challenge = { nonce, CLOUD_CHECK_MIN_NONCE_SIZE };
     GfnCloudCheckResponse response = { NULL, 0 };
     bool bIsCloudEnvironment = false;
@@ -247,14 +247,8 @@ int main(int argc, char* argv[])
     }
 
     BasicCloudCheck();
-#ifdef _WIN32
-    // At this time, the GfnCloudCheck() API is Windows-only.
     BasicSecureCloudCheck();
-
     ExtendedSecureCloudCheck();
-#elif __linux__
-    printf("Skipped Secure Cloud Check calls as running in Linux.\n");
-#endif
 
     // GFN SDK Shutdown. It's safe to call ShutdownSDK even if the SDK was not initialized.
     SDKShutdown();

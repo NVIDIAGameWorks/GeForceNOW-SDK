@@ -86,7 +86,7 @@ if(OS_LINUX)
   SET_EXAMPLE_EXECUTABLE_TARGET_PROPERTIES(${EXAMPLE_TARGET})
   add_dependencies(${EXAMPLE_TARGET} shared)
   target_link_libraries(${EXAMPLE_TARGET} shared GfnSdkWrapper)
-  target_link_libraries(${EXAMPLE_TARGET} shared SampleCommonUtils)
+  target_link_libraries(${EXAMPLE_TARGET} shared GfnSdkSampleCommonUtils)
 
   target_include_directories(${EXAMPLE_TARGET} PRIVATE ${GFN_SDK_DIST_DIR}/samples/Common)
 
@@ -187,7 +187,7 @@ if(OS_WINDOWS)
   SET_EXAMPLE_EXECUTABLE_TARGET_PROPERTIES(${EXAMPLE_TARGET})
   add_dependencies(${EXAMPLE_TARGET} shared)
   target_link_libraries(${EXAMPLE_TARGET} shared GfnSdkWrapper)
-  target_link_libraries(${EXAMPLE_TARGET} shared SampleCommonUtils)
+  target_link_libraries(${EXAMPLE_TARGET} shared GfnSdkSampleCommonUtils)
 
   target_link_libraries(${EXAMPLE_TARGET}
     crypt32.lib

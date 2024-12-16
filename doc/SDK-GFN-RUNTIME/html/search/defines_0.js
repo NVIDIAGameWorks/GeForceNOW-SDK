@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['false',['false',['../_gfn_sdk_8h.html#a65e9886d74aaee76545e83dd09011727',1,'GfnSdk.h']]]
+  ['cc_5fsize',['CC_SIZE',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aff8cdfde0bf65ec8f04ccec3fc5818d1',1,'GfnRuntimeSdk_CAPI.h']]]
 ];

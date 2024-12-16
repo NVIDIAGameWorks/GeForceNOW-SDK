@@ -7,7 +7,7 @@ set(GFN_SDK_SAMPLE_SOURCES
 add_executable(CGameAPISample ${GFN_SDK_SAMPLE_SOURCES})
 set_target_properties(CGameAPISample PROPERTIES FOLDER "Dist/Samples")
 
-target_link_libraries(CGameAPISample PRIVATE GfnSdkWrapper SampleCommonUtils)
+target_link_libraries(CGameAPISample PRIVATE GfnSdkWrapper GfnSdkSampleCommonUtils)
 target_include_directories(CGameAPISample PRIVATE ${GFN_SDK_DIST_DIR}/include)
 target_include_directories(CGameAPISample PRIVATE ${GFN_SDK_DIST_DIR}/samples/Common)
 target_compile_definitions(CGameAPISample PRIVATE FEATURECONFIG_HEADER)

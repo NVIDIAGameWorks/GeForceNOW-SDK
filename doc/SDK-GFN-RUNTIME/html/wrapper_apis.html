@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
-   &#160;<span id="projectnumber">2.4.0.34856604</span>
+   &#160;<span id="projectnumber">2.5.0.35253761</span>
    </div>
   </td>
  </tr>
@@ -125,7 +125,7 @@ Wrapper Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#ga3f9e4989832c06a2e431f997848732ac">GfnShutdownSdk</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__general.html#gaef511b26bef12e55c0c12ea4911005a7">gfnShutdownRuntimeSdk</a> to releases the SDK and resources and disconnects from GFN backend and then unloads unloads the GFN SDK Library.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__general.html#ga8a9dbde1f2d7608c5b706b38d39aa610">gfnShutdownRuntimeSdk</a> to releases the SDK and resources and disconnects from GFN backend and then unloads unloads the GFN SDK Library.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Call during application shutdown or when GFN Runtime API methods are no longer needed. </dd></dl>
@@ -142,10 +142,10 @@ Wrapper Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#gaa109bc7e726c5991c2efcbce8e4c0f64">GfnIsRunningInCloud</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga3b33985a46d6bd20fdea2c4865dc6a0f">gfnIsRunningInCloud</a> to determine if calling application is running in GFN environment, and without requiring process registration.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#gae531186a1f14ee18558e787abf4c31d6">gfnIsRunningInCloud</a> to determine if calling application is running in GFN environment, and without requiring process registration.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud and Client</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
-<dl class="section user"><dt>Usage</dt><dd>Use to quickly determine whether to enable / disable any low-value GFN cloud environment specific application logic, for example, to block any calls to <a class="el" href="group__wrapper.html#ga8b35031da8034f2c2e85f2f1b8ec127c">GfnStartStream()</a> to avoid an error, or to know if GetTitlesAvailable can be called without an error.</dd></dl>
+<dl class="section user"><dt>Usage</dt><dd>Use to quickly determine whether to enable / disable any low-value GFN cloud environment specific application logic, for example, to block any calls to <a class="el" href="group__wrapper.html#ga8b35031da8034f2c2e85f2f1b8ec127c">GfnStartStream()</a> to avoid an error, or to know if <a class="el" href="group__wrapper.html#gad21b46157207c9083f490cea77a4dea1">GfnGetTitlesAvailable</a> can be called without an error.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>This API is meant to fill the need to quickly determine if the call looks to be in the GFN cloud environment. It purposefully trades off resource-intensive checks for fast response. Do not tie any logic or features of value to this API as the call stack could be tampered with. For that purpose, use <a class="el" href="group__wrapper.html#ga6fa2dbe2bfa3e67cd41963bf28ac5e65">GfnIsRunningInCloudSecure</a>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -195,7 +195,7 @@ Wrapper Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to free memory allocated by <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a></dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga53e5ad8a2d21ed82928466a096a08e6d">gfnFree</a> to free memory allocated by <a class="el" href="group__wrapper.html#gad21b46157207c9083f490cea77a4dea1">GfnGetTitlesAvailable</a></dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to release memory after a call to a memory-allocated function and you are finished with the data. Should only be called if the memory is populated with valid data. Calling <a class="el" href="group__wrapper.html#gae55fbb915217d925f5c446dc708cf453">GfnFree</a> with invalid pointer or data will result in an memory exception being thrown.</dd></dl>
@@ -357,7 +357,7 @@ Wrapper Methods</h2>
 <tr>
 <td>C </td><td><a class="el" href="group__wrapper.html#gad21b46157207c9083f490cea77a4dea1">GfnGetTitlesAvailable</a> </td></tr>
 </table>
-<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a> to retrieves all titles that can be launched in the current game streaming session.</dd></dl>
+<dl class="section user"><dt>Description</dt><dd>Calls <a class="el" href="group__wrapper.html#gad21b46157207c9083f490cea77a4dea1">GfnGetTitlesAvailable</a> to retrieves all titles that can be launched in the current game streaming session.</dd></dl>
 <dl class="section user"><dt>Environment</dt><dd>Cloud</dd></dl>
 <dl class="section user"><dt>Platform</dt><dd>Windows, Linux</dd></dl>
 <dl class="section user"><dt>Usage</dt><dd>Use to retrieve a list of all titles available to launch in the current streaming session, for example, to add "Play" buttons to all titles instead of calling gfnIsTitleAvailable on each title.</dd></dl>

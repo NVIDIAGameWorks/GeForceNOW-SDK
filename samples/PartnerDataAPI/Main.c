@@ -39,19 +39,19 @@
 
 // Keyboard input helper function
 static char getKeyPress() {
+    char ch = { '\0' };
 #ifdef _WIN32
-    return _getch();
-#else if __linux__
+    ch = _getch();
+#elif __linux__
     struct termios oldt, newt;
-    char ch;
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
     newt.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     ch = getchar();
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    return ch;
 #endif
+    return ch;
 }
 
 // Loop exit helper function that waits for spacebar press
@@ -119,13 +119,10 @@ bool BasicCloudCheck()
 {
     bool bIsCloudEnvironment = false;
     GfnError result = gfnSuccess;
-#ifdef _WIN32
+
     printf("\n\nPerforming Basic Secure Cloud Check via GfnCloudCheck without Challenge and Response data...\n");
     result = GfnCloudCheck(NULL, NULL, &bIsCloudEnvironment);
-#else if __linux__
-    printf("\n\nPerforming Basic Cloud Check via GfnIsRunningInCloud...\n");
-    result = GfnIsRunningInCloud(&bIsCloudEnvironment);
-#endif    
+
     if (GFNSDK_FAILED(result))
     {
         // Failure case, do not rely on bIsCloudEnvironment result
@@ -140,7 +137,7 @@ bool BasicCloudCheck()
 }
 
 // Example method to call the GfnPartnerData() API method. This will return any data that was
-// passed into the session start request either via the PartnerData field from the call to the 
+// passed into the session start request either via the PartnerData field from the call to the
 // GfnSdkStartStream() API, or via a web client launch as part of the Deeplink URL.
 void GetPartnerData()
 {
@@ -206,17 +203,18 @@ int main(int argc, char* argv[])
         // Calling any SDK methods in this state will return indeterministic results that should not be trusted.
         return -1;
     }
-    
+
     // PartnerData-related APIs can only be called in the cloud environment, and so that must be checked first.
     if(!BasicCloudCheck())
     {
         printf("Not running in GeForce NOW Cloud environment, exiting early without calling Cloud APIs.\n");
-        return -1;
     }
+    else
+    {
+        GetPartnerData();
 
-    GetPartnerData();
-    
-    GetPartnerSecureData();
+        GetPartnerSecureData();
+    }
 
     // GFN SDK Shutdown. It's safe to call ShutdownSDK even if the SDK was not initialized.
     SDKShutdown();

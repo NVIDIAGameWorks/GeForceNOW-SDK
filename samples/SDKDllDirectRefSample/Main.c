@@ -226,7 +226,7 @@ static void GetSharedLibraryPath(CHAR_TYPE* path, size_t bufferLen)
 {
 #ifdef _WIN32
     DWORD len = 0;
-    len = GetFullPathNameW(L".\\GfnRuntimeSdk.dll", bufferLen, path, NULL);
+    len = GetFullPathNameW(L".\\GfnRuntimeSdk.dll", (DWORD)bufferLen, path, NULL);
 #elif defined(__linux__)
     char buffer[PLATFORM_MAX_PATH];
     ssize_t len;
