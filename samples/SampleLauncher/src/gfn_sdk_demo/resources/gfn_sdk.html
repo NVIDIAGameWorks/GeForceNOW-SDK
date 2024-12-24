@@ -238,11 +238,13 @@
             * Adds a given input message to the console log as well as the log text box.
             * @param message Input string to be added to the log
             */
-        function setStatus(message) {
-            console.log(message);
-            var timestamp = new Date();
-            document.getElementById('status').innerHTML = '[' + timestamp.toLocaleTimeString() + '] ' + message + '\n' + document.getElementById('status').innerHTML;
-        }
+function setStatus(message) {
+    console.log(message);
+    var timestamp = new Date();
+    var statusElement = document.getElementById('status');
+    var currentText = statusElement.textContent;
+    statusElement.textContent = '[' + timestamp.toLocaleTimeString() + '] ' + message + '\n' + currentText;
+}
 
         /**
             * Initializes the NVIDIA GeForce NOW SDK and other startup values. Also checks
