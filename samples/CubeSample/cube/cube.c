@@ -3126,8 +3126,11 @@ static VkResult demo_create_display_surface(struct demo *demo) {
         exit(1);
     }
 
+    // Save the data from plane_props[plane_index] before freeing memory
+    VkDisplayPlanePropertiesKHR plane_prop = plane_props[plane_index];
+    // Free the memory that contains plane_props
     free(plane_props);
-
+    // Now, use the saved data
     VkDisplayPlaneCapabilitiesKHR planeCaps;
     vkGetDisplayPlaneCapabilitiesKHR(demo->gpu, mode_props.displayMode, plane_index, &planeCaps);
     // Find a supported alpha mode
@@ -3138,7 +3141,7 @@ static VkResult demo_create_display_surface(struct demo *demo) {
         VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_BIT_KHR,
         VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_PREMULTIPLIED_BIT_KHR,
     };
-    for (uint32_t i = 0; i < sizeof(alphaModes); i++) {
+    for (uint32_t i = 0; i < sizeof(alphaModes) / sizeof(alphaModes[0]); i++) {
         if (planeCaps.supportedAlpha & alphaModes[i]) {
             alphaMode = alphaModes[i];
             break;
@@ -3152,7 +3155,7 @@ static VkResult demo_create_display_surface(struct demo *demo) {
     create_info.flags = 0;
     create_info.displayMode = mode_props.displayMode;
     create_info.planeIndex = plane_index;
-    create_info.planeStackIndex = plane_props[plane_index].currentStackIndex;
+    create_info.planeStackIndex = plane_prop.currentStackIndex;  // Use the saved value
     create_info.transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
     create_info.alphaMode = alphaMode;
     create_info.globalAlpha = 1.0f;
