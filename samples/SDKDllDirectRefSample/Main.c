@@ -116,7 +116,7 @@ void ApplicationShutdown()
 
 // Example application main
 #ifdef _WIN32
-int wmain(int argc, CHAR_TYPE* argv[])
+int wmain()
 #elif defined(__linux__)
 int main(int argc, CHAR_TYPE* argv[])
 #endif

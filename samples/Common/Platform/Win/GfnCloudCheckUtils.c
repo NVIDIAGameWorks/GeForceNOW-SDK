@@ -8,12 +8,18 @@
 
 #include <windows.h>
 #include <bcrypt.h>
+#include <wincrypt.h>
+
+#ifndef CERT_POLICIES_PROP_ID
+#define CERT_POLICIES_PROP_ID 122  // Define only if not available in wincrypt.h
+#endif
+
 #pragma comment(lib, "bcrypt.lib")
 
 #include <GfnCloudCheckUtils.h>
 #include <GfnCloudCheckAppAdapter.h>
 
-BYTE s_RootPublicCert[] =
+BYTE s_RootPublicCert1[] =
     "MIIF6TCCA9GgAwIBAgIUG6WcoUvnieCfcaAv8z5jEHQBT60wDQYJKoZIhvcNAQEL"
     "BQAwfDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFDASBgNVBAcT"
     "C1NhbnRhIENsYXJhMRswGQYDVQQKExJOdmlkaWEgQ29ycG9yYXRpb24xDDAKBgNV"
@@ -46,6 +52,40 @@ BYTE s_RootPublicCert[] =
     "HcA7oYNRBlG7bcqUZHUnMU0NC3ixR+UG3lg9fvCuRH2fNPBFw8quU5aasgba1vdH"
     "wo+GYyg4Fwid4Iv0AEFYyASoNNj7BU3O6Ud4e5W8sXCqfWcYAZdNc0QWpZIRVMvs"
     "4iQUxjpe3OvvP6trvWjhkEOG5qwTLTGyBtxcQ/E=";
+
+BYTE s_RootPublicCert2[] =
+    "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"
+    "/YB7DV7cSWcw/ajkrTt8ylW0fJ9mLPax4279PN8=";
 
 #define MAX_NUMBER_OF_X5C_CERTS  3
 #define MAX_CERTIFICATE_CHAIN_LEN  4
@@ -109,7 +149,7 @@ static int Base64Decode(const unsigned char* src, unsigned char** dest)
     decodeTable['='] = 0;
 
     // Calculate length of output buffer
-    inputLength = strlen(src);
+    inputLength = strlen((const char*)src);
     if (inputLength == 0)
     {
         GFN_CC_LOG("Empty src string\n");
@@ -234,7 +274,7 @@ static int Base64UrlDecode(const char* src, unsigned char** dest)
     }
 
     // Call the Base64Decode function to decode the modified buffer
-    int destSize = Base64Decode(buffer, dest);
+    int destSize = Base64Decode((unsigned char* )buffer, dest);
     GFN_CC_FREE(buffer);
     return destSize;
 }
@@ -356,7 +396,7 @@ static bool ParseHeaderJson(const unsigned char* header, const size_t headerLen,
     }
 
     // Extract certificates
-    int i = 0;
+    unsigned int i = 0;
     char* x5cCert = strtok(x5cStart + 1, ",");
     while ((x5cCert != NULL) && (x5cCert < x5cEnd))
     {
@@ -397,7 +437,7 @@ end:
     }
     if (!result && *numOfX5CCerts > 0)
     {
-        for (unsigned int i = 0; i < *numOfX5CCerts; i++)
+        for (i = 0; i < *numOfX5CCerts; i++)
         {
             if (pX5CCerts[i] != NULL)
             {
@@ -452,9 +492,13 @@ static bool ParsePayloadJson(const unsigned char* payload, const size_t payloadL
     char* nonceKey = strstr(start + 1, "\"nonce\"");
     if (nonceKey == NULL)
     {
-        GFN_CC_LOG("Failed to parse nonce key in the payload\n");
-        result = false;
-        goto end;
+        nonceKey = strstr(start + 1, "\"ononce\"");
+        if (nonceKey == NULL)
+        {
+            GFN_CC_LOG("Failed to parse nonce key in the payload\n");
+            result = false;
+            goto end;
+        }
     }
     char* colon = strchr(nonceKey, ':');
     if (colon == NULL)
@@ -489,7 +533,7 @@ static bool ParsePayloadJson(const unsigned char* payload, const size_t payloadL
     memset(nonceValue, 0, nonceLen);
     memcpy(nonceValue, nonceValueStart + 1, (size_t)nonceLen - 1);
 
-    if (Base64Decode(nonceValue, &decodedNonce))
+    if (Base64Decode((unsigned char*)nonceValue, &decodedNonce))
     {
         if (memcmp(decodedNonce, nonce, nonceSize) != 0)
         {
@@ -527,12 +571,13 @@ end:
  *
  * @param x5cCerts An array of Base64-encoded x5c certificates.
  * @param numOfCerts The number of certificates in the x5cCerts array.
+ * @param rootCert The root certificate to be appended to this certificate chain
  * @param pcCertArray Pointer to the array that will store the created PCCERT_CONTEXT structures.
  *                    The caller is responsible for freeing the memory associated with this array.
  *
  * @return true if the certificate contexts are successfully created, false otherwise.
  */
-bool CreateCertificateContext(char** x5cCerts, unsigned int numOfCerts, PCCERT_CONTEXT* pcCertArray)
+bool CreateCertificateContext(char** x5cCerts, unsigned int numOfCerts, unsigned char *rootCert, PCCERT_CONTEXT* pcCertArray)
 {
     unsigned char* cert = NULL;
     int certSize = 0;
@@ -547,7 +592,7 @@ bool CreateCertificateContext(char** x5cCerts, unsigned int numOfCerts, PCCERT_C
     // Iterate through x5c Certificates and create the PC_CERT_CONTEXT
     for (unsigned int i = 0; i < numOfCerts; i++)
     {
-        certSize = Base64Decode(x5cCerts[i], &cert);
+        certSize = Base64Decode((unsigned char*)x5cCerts[i], &cert);
         if (certSize == 0)
         {
             GFN_CC_LOG("Failed to decode %d x5cCertificate \n", i);
@@ -565,7 +610,7 @@ bool CreateCertificateContext(char** x5cCerts, unsigned int numOfCerts, PCCERT_C
     }
 
     // Create the PC_CERT_CONTEXT for root certificate
-    certSize = Base64Decode(s_RootPublicCert, &cert);
+    certSize = Base64Decode(rootCert, &cert);
     if (certSize == 0)
     {
         GFN_CC_LOG("Failed to decode root certificate\n");
@@ -702,6 +747,180 @@ cleanUp:
 }
 
 /**
+ * @brief Validates certificate extensions and their critical status.
+ *
+ * This function examines all extensions in a certificate, verifying that all critical
+ * extensions are understood and properly handled. It specifically checks:
+ * 1. Key Usage and Extended Key Usage
+ * 2. Basic Constraints
+ * 3. Name Constraints
+ * 4. Server Authentication EKU requirement
+ * 5. Certificate Policies
+ *
+ * @param pCertContext Pointer to the certificate context to be validated.
+ * @param certLabel A string label for identifying the certificate in log messages.
+ *
+ * @return true if all critical extensions are properly handled and requirements are met,
+ *         false otherwise.
+ */
+bool CheckCertificateExtensions(PCCERT_CONTEXT pCertContext, const char* certLabel)
+{
+    bool result = true;
+    CERT_INFO* pCertInfo = pCertContext->pCertInfo;
+    DWORD i;
+
+    for (i = 0; i < pCertInfo->cExtension; i++)
+    {
+        CERT_EXTENSION* pExt = &pCertInfo->rgExtension[i];
+
+        // For critical extensions, we must understand and process them
+        if (pExt->fCritical)
+        {
+            if (strcmp(pExt->pszObjId, szOID_KEY_USAGE) == 0)
+            {
+                // Key Usage is handled below
+                continue;
+            }
+            else if (strcmp(pExt->pszObjId, szOID_ENHANCED_KEY_USAGE) == 0)
+            {
+                // Enhanced Key Usage is handled below
+                continue;
+            }
+            else if (strcmp(pExt->pszObjId, szOID_BASIC_CONSTRAINTS) == 0)
+            {
+                // Basic Constraints is handled by Windows cert chain validation
+                continue;
+            }
+            else if (strcmp(pExt->pszObjId, szOID_BASIC_CONSTRAINTS2) == 0)
+            {
+                // Basic Constraints is handled by Windows cert chain validation
+                continue;
+            }
+            else if (strcmp(pExt->pszObjId, szOID_NAME_CONSTRAINTS) == 0)
+            {
+                // Name Constraints extension restricts valid names for subsequent certificates
+                continue;
+            }
+            else
+            {
+                // Unknown critical extension - must reject
+                GFN_CC_LOG("%s has unknown critical extension %s - rejecting\n",
+                    certLabel, pExt->pszObjId);
+                return false;
+            }
+        }
+    }
+
+    // Check Key Usage
+    DWORD cbKeyUsage = 0;
+
+    if (CertGetEnhancedKeyUsage(pCertContext, CERT_FIND_EXT_ONLY_ENHKEY_USAGE_FLAG, NULL, &cbKeyUsage))
+    {
+        PCERT_ENHKEY_USAGE pEnhKeyUsage = (PCERT_ENHKEY_USAGE)GFN_CC_MALLOC(cbKeyUsage);
+        if (pEnhKeyUsage)
+        {
+            if (CertGetEnhancedKeyUsage(pCertContext, CERT_FIND_EXT_ONLY_ENHKEY_USAGE_FLAG, pEnhKeyUsage, &cbKeyUsage))
+            {
+                bool hasServerAuth = false;
+                for (i = 0; i < pEnhKeyUsage->cUsageIdentifier; i++)
+                {
+                    if (strcmp(pEnhKeyUsage->rgpszUsageIdentifier[i], szOID_PKIX_KP_SERVER_AUTH) == 0)
+                    {
+                        hasServerAuth = true;
+                        break;
+                    }
+                }
+                if (!hasServerAuth)
+                {
+                    GFN_CC_LOG("%s missing required Server Authentication EKU\n", certLabel);
+                    result = false;
+                }
+            }
+            GFN_CC_FREE(pEnhKeyUsage);
+        }
+    }
+
+    // Check Certificate Policies
+    PCERT_POLICIES_INFO pPoliciesInfo = NULL;
+    DWORD cbPolicies = 0;
+
+    if (CertGetCertificateContextProperty(pCertContext, CERT_POLICIES_PROP_ID, NULL, &cbPolicies))
+    {
+        pPoliciesInfo = (PCERT_POLICIES_INFO)GFN_CC_MALLOC(cbPolicies);
+        if (pPoliciesInfo)
+        {
+            if (CertGetCertificateContextProperty(pCertContext, CERT_POLICIES_PROP_ID, pPoliciesInfo, &cbPolicies))
+            {
+                GFN_CC_LOG("%s Certificate Policies:\n", certLabel);
+                for (i = 0; i < pPoliciesInfo->cPolicyInfo; i++)
+                {
+                    GFN_CC_LOG("  Policy: %s\n", pPoliciesInfo->rgPolicyInfo[i].pszPolicyIdentifier);
+                }
+            }
+            GFN_CC_FREE(pPoliciesInfo);
+        }
+    }
+
+    return result;
+}
+
+/**
+ * @brief Checks the revocation status of a certificate using both CRL and OCSP.
+ *
+ * This function verifies whether a certificate has been revoked by checking:
+ * 1. Certificate Revocation Lists (CRL)
+ * 2. Online Certificate Status Protocol (OCSP)
+ * The function first attempts to use cached revocation information before making
+ * network requests.
+ *
+ * @param pCertContext Pointer to the certificate context to check for revocation.
+ * @param certLabel A string label for identifying the certificate in log messages.
+ *
+ * @return true if the certificate is not revoked or revocation check is unavailable,
+ *         false if the certificate is revoked or a critical error occurred.
+ */
+bool CheckRevocationStatus(PCCERT_CONTEXT pCertContext, const char* certLabel)
+{
+    bool result = true;
+    CERT_REVOCATION_STATUS revStatus = { 0 };
+    revStatus.cbSize = sizeof(CERT_REVOCATION_STATUS);
+
+    // Configure CRL checking
+    CERT_REVOCATION_PARA revPara = { 0 };
+    revPara.cbSize = sizeof(CERT_REVOCATION_PARA);
+
+    // Enable both CRL and OCSP checking
+    DWORD flags = CERT_VERIFY_REV_CHAIN_FLAG | // Check entire chain
+        CERT_VERIFY_CACHE_ONLY_BASED_REVOCATION | // Use cached first
+        CERT_VERIFY_REV_ACCUMULATIVE_TIMEOUT_FLAG; // Accumulative timeout
+
+    if (!CertVerifyRevocation(X509_ASN_ENCODING, CERT_CONTEXT_REVOCATION_TYPE, 1, (PVOID*)&pCertContext, flags, &revPara, &revStatus))
+    {
+        switch (revStatus.dwError)
+        {
+            case CRYPT_E_REVOCATION_OFFLINE:
+                break;
+            case CRYPT_E_NOT_IN_REVOCATION_DATABASE:
+                break;
+            case CRYPT_E_NO_REVOCATION_CHECK:
+                break;
+            case CRYPT_E_REVOKED:
+                GFN_CC_LOG("%s: Certificate is revoked\n", certLabel);
+                result = false;
+                break;
+            default:
+                GFN_CC_LOG("%s: Revocation check failed with error 0x%x\n", certLabel, revStatus.dwError);
+                result = false;
+        }
+    }
+    else {
+        GFN_CC_LOG("Revocation check passed\n");
+    }
+
+    return result;
+}
+
+/**
  * @brief Validates a certificate chain composed of x5c certificates.
  *
  * This function validates a certificate chain containing x5c certificates.
@@ -751,8 +970,13 @@ bool ValidateCertificateChain(PCCERT_CONTEXT* pcCertArray)
     chainPara.cbSize = sizeof(CERT_CHAIN_PARA);
     chainPara.RequestedUsage = certUsage;
 
+    DWORD chainFlags = 
+        CERT_CHAIN_REVOCATION_CHECK_CHAIN |    // Check revocation for all certs
+        CERT_CHAIN_DISABLE_PASS1_QUALITY_FILTERING |  // Enforce strict chain quality
+        CERT_CHAIN_DISABLE_AUTH_ROOT_AUTO_UPDATE;     // Don't auto-update root store
+
     // Get the certificate chain from the store
-    if (!CertGetCertificateChain(NULL, pcCertArray[0], NULL, hMemStore, &chainPara, 0, NULL, &pChainContext))
+    if (!CertGetCertificateChain(NULL, pcCertArray[0], NULL, hMemStore, &chainPara, chainFlags, NULL, &pChainContext))
     {
         GFN_CC_LOG("Failed to get certificate chain, error: %x\n", GetLastError());
         result = false;
@@ -761,6 +985,41 @@ bool ValidateCertificateChain(PCCERT_CONTEXT* pcCertArray)
     // There should be only one chain with 4 certificates in it
     if (pChainContext->cChain == 1 && pChainContext->rgpChain[0]->cElement == MAX_CERTIFICATE_CHAIN_LEN)
     {
+        // Check extensions and revocation for each certificate in the chain
+        for (int i = 0; i < MAX_CERTIFICATE_CHAIN_LEN; i++)
+        {
+            const PCCERT_CONTEXT pCurrentCertContext = pChainContext->rgpChain[0]->rgpElement[i]->pCertContext;
+            char certLabel[32];
+            sprintf_s(certLabel, sizeof(certLabel), "Cert[%d]", i);
+            
+            if (!CheckCertificateExtensions(pCurrentCertContext, certLabel))
+            {
+                GFN_CC_LOG("Certificate extension validation failed for %s\n", certLabel);
+                result = false;
+                goto end;
+            }
+            
+            if (!CheckRevocationStatus(pCurrentCertContext, certLabel))
+            {
+                GFN_CC_LOG("Revocation check failed for %s\n", certLabel);
+                result = false;
+                goto end;
+            }
+        }
+
+        // Get the root certificate from the chain (last element)
+        // Compare with our pinned root certificate
+        const PCCERT_CONTEXT pRootCertInChain = pChainContext->rgpChain[0]->rgpElement[MAX_CERTIFICATE_CHAIN_LEN - 1]->pCertContext;
+        if (pRootCertInChain->cbCertEncoded != pcCertArray[MAX_CERTIFICATE_CHAIN_LEN - 1]->cbCertEncoded ||
+            memcmp(pRootCertInChain->pbCertEncoded, 
+                   pcCertArray[MAX_CERTIFICATE_CHAIN_LEN - 1]->pbCertEncoded,
+                   pRootCertInChain->cbCertEncoded) != 0)
+        {
+            GFN_CC_LOG("Root certificate in chain does not match pinned root certificate\n");
+            result = false;
+            goto end;
+        }
+
         for (int i = 0; i < MAX_CERTIFICATE_CHAIN_LEN; i++)
         {
             const PCCERT_CONTEXT pCurrentCertContext = pChainContext->rgpChain[0]->rgpElement[i]->pCertContext;
@@ -845,7 +1104,7 @@ bool VerifySignature(char* decodedSignature, int signatureLen, char* hashedData,
         PKCS1PaddingInfo.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
 
-    status = BCryptVerifySignature(cryptKeyHandle, &PKCS1PaddingInfo, hashedData, (unsigned long)hashedDataLen, decodedSignature, (unsigned long)signatureLen, BCRYPT_PAD_PKCS1);
+    status = BCryptVerifySignature(cryptKeyHandle, &PKCS1PaddingInfo, (unsigned char*)hashedData, (unsigned long)hashedDataLen, (unsigned char*)decodedSignature, (unsigned long)signatureLen, BCRYPT_PAD_PKCS1);
     if (!BCRYPT_SUCCESS(status))
     {
         GFN_CC_LOG("Failed to verify signature, error: %x\n", GetLastError());
@@ -1002,16 +1261,25 @@ bool GfnCloudCheckVerifyAttestationData(const char* jwt, const char* nonce, unsi
         goto end;
     }
 
-    if (!CreateCertificateContext(x5cCerts, numX5cCerts, pcCertContextArray))
+    if (!CreateCertificateContext(x5cCerts, numX5cCerts, s_RootPublicCert1, pcCertContextArray))
     {
-        GFN_CC_LOG("Failed to create certificate context from x5c \n");
+        GFN_CC_LOG("Failed to create certificate context from x5c and s_rootPublicCert1\n");
         goto end;
     }
 
     if (!ValidateCertificateChain(pcCertContextArray))
     {
-        GFN_CC_LOG("Failed Certificate chain validation\n");
-        goto end;
+        GFN_CC_LOG("Failed to validate certificate chain with Public Cert 1, trying with Public Cert 2\n");
+        if (!CreateCertificateContext(x5cCerts, numX5cCerts, s_RootPublicCert2, pcCertContextArray))
+        {
+            GFN_CC_LOG("Failed to create certificate context from x5c and s_rootPublicCert2\n");
+            goto end;
+        }
+        if (!ValidateCertificateChain(pcCertContextArray))
+        {
+            GFN_CC_LOG("Failed to validate certificate chain with Public Cert 2\n");
+            goto end;
+        }        
     }
 
     // To create Hash of data = (payload + header), allocate and copy data from jwt
@@ -1024,13 +1292,13 @@ bool GfnCloudCheckVerifyAttestationData(const char* jwt, const char* nonce, unsi
     }
     memcpy(data, jwt, dataLen);
 
-    if (!GenerateHash(data, (unsigned long)dataLen, &hashedData, &hashedDataLen))
+    if (!GenerateHash(data, (unsigned long)dataLen, (unsigned char**)&hashedData, (unsigned long*)&hashedDataLen))
     {
         GFN_CC_LOG("Failed to generate data hash\n");
         goto end;
     }
 
-    if (!VerifySignature(decodedSignature, (int)decodedSignatureLen, hashedData, hashedDataLen, pcCertContextArray[0]))
+    if (!VerifySignature((char*)decodedSignature, (int)decodedSignatureLen, hashedData, hashedDataLen, pcCertContextArray[0]))
     {
         GFN_CC_LOG("Failed to verify signature\n");
         goto end;

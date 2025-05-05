@@ -45,17 +45,17 @@ of the input file used when generating it.  This code is not
 standalone and requires a support library to be linked with it.  This
 support library is itself covered by the above license.
 
-===CURL 7.60.0===
+===CURL 8.11.0===
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright (c) 1996 - 2021, Daniel Stenberg, daniel@haxx.se, and many
+Copyright (c) 1996 - 2024, Daniel Stenberg, <daniel@haxx.se>, and many
 contributors, see the THANKS file.
 
 All rights reserved.
 
 Permission to use, copy, modify, and distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
+with or without fee is hereby granted, provided that the above copyright
+notice and this permission notice appear in all copies.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -65,9 +65,9 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 
-Except as contained in this notice, the name of a copyright holder shall not be
-used in advertising or otherwise to promote the sale, use or other dealings in
-this Software without prior written authorization of the copyright holder.
+Except as contained in this notice, the name of a copyright holder shall not
+be used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization of the copyright holder.
 
 ===RapidJSON v1.1.0===
 Tencent is pleased to support the open source community by making RapidJSON

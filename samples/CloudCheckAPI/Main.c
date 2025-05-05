@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2024-2025 NVIDIA Corporation. All rights reserved.
 
 #include <stdio.h>
 
@@ -46,7 +46,7 @@
 // Keyboard input helper function
 static char getKeyPress() {
 #ifdef _WIN32
-    return _getch();
+    return (char)_getch();
 #elif __linux__
     struct termios oldt, newt;
     char ch;
@@ -167,11 +167,11 @@ void BasicSecureCloudCheck()
     }
 }
 
-// Example method to call the GfnCloudCheck() API method without optional challenge and response data.
-// This gives a result with a base level of security about the validity of the response
+// Example method to call the GfnCloudCheck() API method with the optional challenge and response data.
+// This gives a result with a high of security about the validity of the response
 void ExtendedSecureCloudCheck()
 {
-    printf("\n\nPerforming Basic Secure Cloud Check via GfnCloudCheck with Challenge and Response data...\n");
+    printf("\n\nPerforming Extended Secure Cloud Check via GfnCloudCheck with Challenge and Response data...\n");
 
     // Generate a nonce, the minimum nonce size requirement is 16 bytes.
     char nonce[CLOUD_CHECK_MIN_NONCE_SIZE] = { 0 };
@@ -234,27 +234,190 @@ void ExtendedSecureCloudCheck()
     }
 }
 
+void DoGetCloudType(GfnCloudType requestedType, bool useNonce)
+{
+    // Generate a nonce, the minimum nonce size requirement is 16 bytes.
+    char nonce[CLOUD_CHECK_MIN_NONCE_SIZE] = { 0 };
+    if (!GfnCloudCheckGenerateNonce(nonce, CLOUD_CHECK_MIN_NONCE_SIZE))
+    {
+        // Nonce generation failed, do not proceed with the API call
+        printf("GfnCloudCheckGenerateNonce failed, GfnCloudCheck() call skipped.\n");
+        return;
+    }
+
+    GfnCloudCheckChallenge challenge = { nonce, CLOUD_CHECK_MIN_NONCE_SIZE };
+    GfnCloudCheckResponse response = { NULL, 0 };
+    GfnCloudType detectedCloudEnvironment = CC_CLOUD_TYPE_NULL;
+    GfnError result = gfnInternalError;
+    if (useNonce)
+    {
+        result = GfnGetCloudType(requestedType, &challenge, &response, &detectedCloudEnvironment);
+    }
+    else
+    {
+        result = GfnGetCloudType(requestedType, NULL, NULL, &detectedCloudEnvironment);
+    }
+    if (GFNSDK_FAILED(result))
+    {
+        // Failure case, report various important cases
+        if (result == gfnThrottled)
+        {
+            printf("GfnGetCloudType: API call rate limit exceeded. Try again later.\n");
+        }
+        else
+        {
+            printf("GfnGetCloudType: API call returned error: %d, %s\n", result, GfnErrorToString(result));
+        }
+        // Function failure means that it cannot be securely considered GFN
+        printf("DoGetCloudType: Considered not running in GFN.\n");
+        return;
+    }
+
+    if (detectedCloudEnvironment == CC_CLOUD_TYPE_NULL)
+    {
+        // Not cloud, no need to validate response data, as it will be null
+        printf("DoGetCloudType: Application is not executing in GeForce NOW Cloud environment, skipped response data validation.\n");
+    }
+    else if (!useNonce)
+    {
+        switch (detectedCloudEnvironment)
+        {
+        case CC_CLOUD_TYPE_TRUSTED:
+            printf("DoGetCloudType: Application is running in the GeForce NOW Trusted Cloud Environment\n");
+            break;
+        case CC_CLOUD_TYPE_OPEN:
+            printf("DoGetCloudType: Application is running in the GeForce NOW Open Cloud Environment\n");
+            break;
+        default:
+            printf("DoGetCloudType: Error, an unrecognized cloud type was returned.");
+            break;
+        }
+    }
+    else
+    {
+        // GfnCloudVerify returned the environment is in the Trusted GFN Cloud, but need to use response data to verify.
+        if (response.attestationData == NULL)
+        {
+            // Response not expected to be NULL, consider invalid
+            printf("DoGetCloudType: Response data is null, not valid. Considered not running in GFN.\n");
+        }
+        else
+        {
+            // Response data returned. Make use of the Cloud Check Helper utilities to validate the JSON-based data.
+            if (GfnCloudCheckVerifyAttestationData(response.attestationData, challenge.nonce, challenge.nonceSize))
+            {
+                printf("DoGetCloudType: Response data is valid.\n");
+                // Since the response data is valid, can rely on the Cloud Check result.
+                if (detectedCloudEnvironment == CC_CLOUD_TYPE_TRUSTED)
+                {
+                    printf("DoGetCloudType: Application is running in GeForce NOW Trusted Cloud environment with high level of confidence.\n");
+                }
+                else if (detectedCloudEnvironment == CC_CLOUD_TYPE_OPEN)
+                {
+                    printf("DoGetCloudType: Application is running in GeForce NOW Open Cloud environment with high level of confidence.\n");
+                }
+            }
+            else
+            {
+                printf("DoGetCloudType: Response data is not valid. Considered not running in GFN.\n");
+            }
+            // Make sure to free the response data to avoid a leak!
+            GfnFree(&response.attestationData);
+        }
+    }
+}
+
+// Example method to call the GfnGetCloudType() API method with the optional challenge and response data.
+// This gives a result with a high of security about the validity of the response
+void CheckIfTrustedSeat()
+{
+    printf("\n\nPerforming Extended Secure Cloud Verification via GfnGetCloudType with Challenge and Response data. Checking for TRUSTED type...\n");
+
+    // Could also call GfnGetTrustedCloud, which is functionally equivalent and provided for convenience
+    DoGetCloudType(CC_CLOUD_TYPE_TRUSTED, true);
+}
+
+void CheckIfOpenSeat()
+{
+    printf("\n\nPerforming Extended Secure Cloud Verification via GfnGetCloudType with Challenge and Response data. Checking for OPEN type...\n");
+
+    // Could also call GfnGetOpenCloud, which is functionally equivalent and provided for convenience
+    DoGetCloudType(CC_CLOUD_TYPE_OPEN, true);
+}
+
+void CheckIfAnyType()
+{
+    printf("\n\nPerforming Extended Secure Cloud Verification via GfnGetCloudType with Challenge and Response data. Checking for ANY type...\n");
+    DoGetCloudType(CC_CLOUD_TYPE_ANY, true);
+}
+
+void CheckIfAnyTypeNoChallenge()
+{
+    printf("\n\nPerforming Basic Secure Cloud Verification via GfnGetCloudType without Challenge and Response data. Checking for ANY type...\n");
+    DoGetCloudType(CC_CLOUD_TYPE_ANY, false);
+}
+
 
 // Example application main
-int main(int argc, char* argv[])
+int main()
 {
     // First step: Initialize the GeForce NOW Runtime SDK before any other SDK method calls.
     if (GFNSDK_FAILED(SDKInitialize()))
     {
         // Initialization failure, exit now, no need to call GfnShutdownSdk()
         // Calling any SDK methods in this state will return indeterministic results that should not be trusted.
+        printf("Failed to initialize the SDK. Exiting!\n");
         return -1;
     }
 
-    BasicCloudCheck();
-    BasicSecureCloudCheck();
-    ExtendedSecureCloudCheck();
+    char c;
+    do {
+        printf("\n");
+        printf("Press 1 to use GfnIsRunningInCloud to perform a basic cloud check\n");
+        printf("Press 2 to use GfnCloudCheck to perform a basic secure cloud check\n");
+        printf("Press 3 to use GfnCloudCheck to perform an extended secure cloud check\n");
+        printf("Press 4 to use GfnGetCloudType to check if this is a trusted game seat\n");
+        printf("Press 5 to use GfnGetCloudType to check if this is an open game seat\n");
+        printf("Press 6 to use GfnGetCloudType to check if this is a GFN game seat and if so, which type\n");
+        printf("Press 7 to use GfnGetCloudType without a challenge-response\n\n");
+        printf("Press space bar to shutdown...\n");
+
+        c = getKeyPress();
+        printf("%c\n", c);
+
+        switch (c) {
+        case '1':
+            BasicCloudCheck();
+            break;
+        case '2':
+            BasicSecureCloudCheck();
+            break;
+        case '3':
+            ExtendedSecureCloudCheck();
+            break;
+        case '4':
+            CheckIfTrustedSeat();
+            break;
+        case '5':
+            CheckIfOpenSeat();
+            break;
+        case '6':
+            CheckIfAnyType();
+            break;
+        case '7':
+            CheckIfAnyTypeNoChallenge();
+            break;
+        case ' ':
+            break;
+        case 0x1b: // Esc
+            break;
+        default:
+            printf("Invalid input %x\n", c);
+        }
+    } while (c != ' ' && c != 0x1b);
 
     // GFN SDK Shutdown. It's safe to call ShutdownSDK even if the SDK was not initialized.
     SDKShutdown();
-
-    // Ready for application exit based on Spacebar press.
-    waitForSpaceBar();
 
     return 0;
 }

@@ -137,14 +137,13 @@ void gfnsdk_handleButtonClick(UINT uMsg, int xPos, int yPos, struct SpinState *s
         break;
 
     default:
-        printf("ERROR: unhandled button click %X\n", uMsg);
+        printf("ERROR: unhandled button click %X\t at %d,%d\n", uMsg, xPos, yPos);
         return;
     }
-    ackSpinChange(spin_state);
 }
 
 #ifdef _WIN32
-void gfnsdk_handleTouch(HWND hWnd, UINT uMsg, UINT cInputs, HTOUCHINPUT hTouchInput, struct SpinState *spin_state, int width)
+void gfnsdk_handleTouch(HWND hWnd, UINT cInputs, HTOUCHINPUT hTouchInput, struct SpinState* spin_state, int width)
 {
     PTOUCHINPUT pInputs = (PTOUCHINPUT)malloc(sizeof(TOUCHINPUT) * cInputs);
     if (pInputs)
@@ -217,7 +216,6 @@ GfnApplicationCallbackResult GFN_CALLBACK MessageCallback(const GfnString* pMess
         outLength = snprintf(ackMessage, 100, "unrecognised message");
         spinUpdated = false;
     }
-    ackSpinChange(spin_state);
 
     return crCallbackSuccess;
 }

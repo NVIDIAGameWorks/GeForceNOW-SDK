@@ -41,7 +41,7 @@
 static char getKeyPress() {
     char ch = { '\0' };
 #ifdef _WIN32
-    ch = _getch();
+    ch = (char)_getch();
 #elif __linux__
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
@@ -194,7 +194,7 @@ void GetPartnerSecureData()
 }
 
 // Example application main
-int main(int argc, char* argv[])
+int main()
 {
     // First step: Initialize the GeForce NOW Runtime SDK before any other SDK method calls.
     if (GFNSDK_FAILED(SDKInitialize()))

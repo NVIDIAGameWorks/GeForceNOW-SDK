@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">GeForce NOW SDK
-   &#160;<span id="projectnumber">2.5.0.35253761</span>
+   &#160;<span id="projectnumber">2.6.0.35897475</span>
    </div>
   </td>
  </tr>
@@ -223,6 +223,14 @@ typedef struct <a class="el" href="struct_gfn_cloud_check_challenge.html">GfnClo
 typedef struct <a class="el" href="struct_gfn_cloud_check_response.html">GfnCloudCheckResponse</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ab2e7e5f3608f96e6eedb80e10190cffe">GfnCloudCheckResponse</a></td></tr>
 <tr class="memdesc:ab2e7e5f3608f96e6eedb80e10190cffe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Response data received in the <a class="el" href="group__launcher.html#gab4968bc9c0a46f6be51a6b622e737cc0">gfnCloudCheck</a> API. <br /></td></tr>
 <tr class="separator:ab2e7e5f3608f96e6eedb80e10190cffe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e2c11141c3d1cf8afd0213485ce597c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2e2c11141c3d1cf8afd0213485ce597c"></a>
+typedef enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ab2c8a2f7347f67315289eddd70f6bc76">GfnCloudType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a2e2c11141c3d1cf8afd0213485ce597c">GfnCloudType</a></td></tr>
+<tr class="memdesc:a2e2c11141c3d1cf8afd0213485ce597c"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type of GFN Cloud environment. <br /></td></tr>
+<tr class="separator:a2e2c11141c3d1cf8afd0213485ce597c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed0f4e03dabc0c02d9ae91a36da5aa0d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed0f4e03dabc0c02d9ae91a36da5aa0d"></a>
+typedef enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dd">GfnAppState</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#aed0f4e03dabc0c02d9ae91a36da5aa0d">GfnAppState</a></td></tr>
+<tr class="memdesc:aed0f4e03dabc0c02d9ae91a36da5aa0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Application/game state data passed in to <a class="el" href="group__launcher.html#ga1998e7c9f421feb82020c81a3e102fbf">gfnSetAppState</a> API. <br /></td></tr>
+<tr class="separator:aed0f4e03dabc0c02d9ae91a36da5aa0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b7de2891a1a633769c97cf118f32240"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1b7de2891a1a633769c97cf118f32240"></a>
 typedef <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a9c7df068710138e6a6f0162f758ff38d">GfnApplicationCallbackResult</a>(<a class="el" href="_gfn_sdk_8h.html#a6c0d24df59a5bd1c1fbf10cc0864d1d6">GFN_CALLBACK</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a1b7de2891a1a633769c97cf118f32240">ExitCallbackSig</a>) (void *pUserContext)</td></tr>
 <tr class="memdesc:a1b7de2891a1a633769c97cf118f32240"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for notification when a game should exit due to session shutdown request. Register via gfnRegisterExitCallback API. <br /></td></tr>
@@ -331,6 +339,26 @@ Enumerations</h2></td></tr>
  }<tr class="memdesc:acbccf3a0f3e54bd32d09f6d09df4bc04"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of network status data which changed. This enum will likely be expanded over time.  <a href="_gfn_runtime_sdk___c_a_p_i_8h.html#acbccf3a0f3e54bd32d09f6d09df4bc04">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:acbccf3a0f3e54bd32d09f6d09df4bc04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2c8a2f7347f67315289eddd70f6bc76"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2c8a2f7347f67315289eddd70f6bc76"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ab2c8a2f7347f67315289eddd70f6bc76">GfnCloudType</a> { <b>CC_CLOUD_TYPE_NULL</b> = 0x00000000, 
+<b>CC_CLOUD_TYPE_TRUSTED</b> = 0x00000001, 
+<b>CC_CLOUD_TYPE_OPEN</b> = 0x00000002, 
+<b>CC_CLOUD_TYPE_ANY</b> = 0x00000003
+ }<tr class="memdesc:ab2c8a2f7347f67315289eddd70f6bc76"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type of GFN Cloud environment. <br /></td></tr>
+</td></tr>
+<tr class="separator:ab2c8a2f7347f67315289eddd70f6bc76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5011bfd6a5c6c01829c8d7f89b2572dd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dd">GfnAppState</a> { <br />
+&#160;&#160;<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dda478091feca49b29bf88bfa9c7a7c7a4b">gfnAppLoading</a> = 0, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dda71dc9e6eb6fca064255d96acb074c06f">gfnAppInMenu</a> = 1, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dda778573473b45b9031c03cbf5bb72976a">gfnAppRunning</a> = 2, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572ddabb9d5af5d6b51f123308dac78ed38c5e">gfnAppPaused</a> = 3, 
+<br />
+&#160;&#160;<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dda8f510f2c85caff9bf40608f57aaba5a0">gfnAppExiting</a> = 4, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dda008d8bf55976a915940154ab16317b7b">gfnAppErrorDetected</a> = 5, 
+<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572ddaeff864d42530bca9298c4d6b967bea3f">gfnAppStateMax</a> = 6
+<br />
+ }<tr class="memdesc:a5011bfd6a5c6c01829c8d7f89b2572dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Application/game state data passed in to <a class="el" href="group__launcher.html#ga1998e7c9f421feb82020c81a3e102fbf">gfnSetAppState</a> API.  <a href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dd">More...</a><br /></td></tr>
+</td></tr>
+<tr class="separator:a5011bfd6a5c6c01829c8d7f89b2572dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -366,6 +394,8 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:gaf5ab33bd8cd24cb26cda5bacf1764e3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab4968bc9c0a46f6be51a6b622e737cc0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4cde70a6df1c6f98de8389e037814dd6">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gab4968bc9c0a46f6be51a6b622e737cc0">gfnCloudCheck</a> (const <a class="el" href="struct_gfn_cloud_check_challenge.html">GfnCloudCheckChallenge</a> *challenge, <a class="el" href="struct_gfn_cloud_check_response.html">GfnCloudCheckResponse</a> *response, bool *isCloudEnvironment)</td></tr>
 <tr class="separator:gab4968bc9c0a46f6be51a6b622e737cc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9617a3c2d91a6c42c27d2d1353910e23"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4cde70a6df1c6f98de8389e037814dd6">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga9617a3c2d91a6c42c27d2d1353910e23">gfnGetCloudType</a> (const <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ab2c8a2f7347f67315289eddd70f6bc76">GfnCloudType</a> requested_cloud_type, const <a class="el" href="struct_gfn_cloud_check_challenge.html">GfnCloudCheckChallenge</a> *challenge, <a class="el" href="struct_gfn_cloud_check_response.html">GfnCloudCheckResponse</a> *response, <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#ab2c8a2f7347f67315289eddd70f6bc76">GfnCloudType</a> *detected_cloud_type)</td></tr>
+<tr class="separator:ga9617a3c2d91a6c42c27d2d1353910e23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa8b07a70503f2a24b6625fc5a7eef9cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> bool <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#gaa8b07a70503f2a24b6625fc5a7eef9cb">gfnIsTitleAvailable</a> (const char *pchPlatformAppId)</td></tr>
 <tr class="separator:gaa8b07a70503f2a24b6625fc5a7eef9cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga70ea27f47639201d48de5d3006b20481"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4cde70a6df1c6f98de8389e037814dd6">GfnRuntimeError</a> <a class="el" href="_gfn_sdk_8h.html#a8dafdfb79c5b9870d7ee0e507c61c905">NVGFNSDKApi</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga70ea27f47639201d48de5d3006b20481">gfnGetTitlesAvailable</a> (const char **ppchPlatformAppIds)</td></tr>
@@ -406,6 +436,8 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:gab6a2bf6d5242c4f172d39096dda54cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga20aaf2a987d4850b922c781b0da1ee53"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4cde70a6df1c6f98de8389e037814dd6">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga20aaf2a987d4850b922c781b0da1ee53">gfnOpenURLOnClient</a> (const char *pchUrl)</td></tr>
 <tr class="separator:ga20aaf2a987d4850b922c781b0da1ee53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1998e7c9f421feb82020c81a3e102fbf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_gfn_sdk_8h.html#a14c3346bb10747d03ddfa1d0f724faae">NVGFNSDK_EXPORT</a> <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a4cde70a6df1c6f98de8389e037814dd6">GfnRuntimeError</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__launcher.html#ga1998e7c9f421feb82020c81a3e102fbf">gfnSetAppState</a> (<a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dd">GfnAppState</a> appState)</td></tr>
+<tr class="separator:ga1998e7c9f421feb82020c81a3e102fbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>API definitions </p>
@@ -452,6 +484,43 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 </td></tr>
 <tr><td class="fieldname"><a class="anchor" id="a9c7df068710138e6a6f0162f758ff38dafa434ad2ee74412682391b5a6c1a4c3a"></a>crCallbackFailure&#160;</td><td class="fielddoc">
 <p>Return to indicate that a callback did not perform the requested operation. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a class="anchor" id="a5011bfd6a5c6c01829c8d7f89b2572dd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="_gfn_runtime_sdk___c_a_p_i_8h.html#a5011bfd6a5c6c01829c8d7f89b2572dd">GfnAppState</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Application/game state data passed in to <a class="el" href="group__launcher.html#ga1998e7c9f421feb82020c81a3e102fbf">gfnSetAppState</a> API. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="a5011bfd6a5c6c01829c8d7f89b2572dda478091feca49b29bf88bfa9c7a7c7a4b"></a>gfnAppLoading&#160;</td><td class="fielddoc">
+<p>Application is loading. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a5011bfd6a5c6c01829c8d7f89b2572dda71dc9e6eb6fca064255d96acb074c06f"></a>gfnAppInMenu&#160;</td><td class="fielddoc">
+<p>Application has opened menu options for the user. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a5011bfd6a5c6c01829c8d7f89b2572dda778573473b45b9031c03cbf5bb72976a"></a>gfnAppRunning&#160;</td><td class="fielddoc">
+<p>Application is running and accepting user input. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a5011bfd6a5c6c01829c8d7f89b2572ddabb9d5af5d6b51f123308dac78ed38c5e"></a>gfnAppPaused&#160;</td><td class="fielddoc">
+<p>Application is paused, no input accepted. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a5011bfd6a5c6c01829c8d7f89b2572dda8f510f2c85caff9bf40608f57aaba5a0"></a>gfnAppExiting&#160;</td><td class="fielddoc">
+<p>Application is exiting. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a5011bfd6a5c6c01829c8d7f89b2572dda008d8bf55976a915940154ab16317b7b"></a>gfnAppErrorDetected&#160;</td><td class="fielddoc">
+<p>Application has run into a critical error. </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a5011bfd6a5c6c01829c8d7f89b2572ddaeff864d42530bca9298c4d6b967bea3f"></a>gfnAppStateMax&#160;</td><td class="fielddoc">
+<p>Sentinel value, do not use. </p>
 </td></tr>
 </table>
 

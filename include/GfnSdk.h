@@ -80,31 +80,31 @@
 #define NVGFNSDK_VERSION_MAJOR 2
 
 /// @brief GFN SDK Minor Version
-#define NVGFNSDK_VERSION_MINOR 5
+#define NVGFNSDK_VERSION_MINOR 6
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_SHORT 2.5
+#define NVGFNSDK_VERSION_SHORT 2.6
 
 /// @brief GFN SDK Patch Version
 #define NVGFNSDK_VERSION_PATCH 0
 
 /// @brief GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 35253761
+#define NVGFNSDK_VERSION_BUILD 35897475
 
 /// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 2.5.0.35253761
+#define NVGFNSDK_VERSION_LONG 2.6.0.35897475
 
 /// @brief GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "2.5.0.35253761"
+#define NVGFNSDK_VERSION_STR   "2.6.0.35897475"
 /// @brief GFN SDK PROD Version string
-#define NVGFNSDK_VERSION_STR_PROD "2.5.0"
+#define NVGFNSDK_VERSION_STR_PROD "2.6.0"
 
 /// @brief GFN SDK Build CL
-#define NVGFNSDK_VERSION_BUILDCL 35253761
+#define NVGFNSDK_VERSION_BUILDCL 35897475
 /// @brief GFN SDK Build High part of the build version
-#define NVGFNSDK_VERSION_BUILDH 3525
+#define NVGFNSDK_VERSION_BUILDH 3589
 /// @brief GFN SDK Build Low part of the build version
-#define NVGFNSDK_VERSION_BUILDL 3761
+#define NVGFNSDK_VERSION_BUILDL 7475
 
 
 #ifdef __cplusplus

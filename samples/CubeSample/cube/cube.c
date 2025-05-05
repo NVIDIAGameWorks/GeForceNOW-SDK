@@ -40,6 +40,11 @@
  * Author: Bill Hollings <bill.hollings@brenwill.com>
  */
 
+// Disable warnings in this file as this source is taken from public vkCube application
+#pragma warning(push)
+#pragma warning(disable: 4459)
+#pragma warning(disable: 4100)
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdarg.h>
@@ -2608,7 +2613,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             break;
         }
     case WM_TOUCH:
-        gfnsdk_handleTouch(hWnd, uMsg, LOWORD(wParam), (HTOUCHINPUT)lParam, &demo.spin_state, demo.width);
+        gfnsdk_handleTouch(hWnd, LOWORD(wParam), (HTOUCHINPUT)lParam, &demo.spin_state, demo.width);
         break;
     default:
         break;
@@ -4586,3 +4591,5 @@ int main_internal(int argc, char **argv) {
     return validation_error;
 }
 #endif
+
+#pragma warning(pop)

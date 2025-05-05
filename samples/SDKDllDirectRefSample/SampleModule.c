@@ -39,7 +39,7 @@ GfnApplicationCallbackResult GFN_CALLBACK ExitApp(void* pContext)
     // This normally occurs when the user choses to close the streaming window instead of the title
     // being streamed to the window.
     // Applications responding to this callback should trigger their shutdown activities.
-    printf("Received Exit callback. Application cleaning up and exiting...\n");
+    printf("Received Exit callback. Application cleaning up and exiting, application context: %p\n", pContext);
     g_MainDone = true;
     return crCallbackSuccess;
 }
@@ -60,8 +60,8 @@ GfnApplicationCallbackResult GFN_CALLBACK InstallApp(TitleInstallationInformatio
 {
     // Callback for when GeForce NOW finished installing the requested application.
     // Any last install configuration steps should be performed at this time.
-    printf("\"Completing\" title setup for: %s.\n\tBuild path: %s\n\tMetadata path: %s\n",
-        pInfo->pchPlatformAppId, pInfo->pchBuildPath, pInfo->pchMetadataPath);
+    printf("\"Completing\" title setup for: %s.\n\tBuild path: %s\n\tMetadata path: %s\n\tApplication Context: %p\n",
+        pInfo->pchPlatformAppId, pInfo->pchBuildPath, pInfo->pchMetadataPath, pContext);
     return crCallbackSuccess;
 }
 
@@ -70,7 +70,7 @@ GfnApplicationCallbackResult GFN_CALLBACK AutoSave(void* pContext)
     // Callback for when GeForce NOW requests the application to save its state, including user data.
     // This can occur during shutdown, which GFN needs the save data to save as part of the user's account state
     // so they do not lose progress for the next GeForce NOW streaming session.
-    printf("AutoSave triggered.\n");
+    printf("AutoSave triggered, application context: %p\n", pContext);
     return crCallbackSuccess;
 }
 
@@ -81,7 +81,7 @@ GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* 
     // This is used in Pre-Warm launch flows to alert a pre-launched title to load user data for the
     // connected user and start a streaming session.
     // Respond within 30 seconds with a call to gfnAppReady API
-    printf("SessionInit: %s\n", params);
+    printf("SessionInit: %s\nApplication context: %p\n", params, pContext);
     // Report that the application is ready for streaming to begin
     GfnRuntimeError runtimeError = gfnSuccess;
     gfnAppReadySig appReadyFn = (gfnAppReadySig)GetSymbol(gfnSdkModule, "gfnAppReady");
@@ -110,6 +110,7 @@ GfnApplicationCallbackResult GFN_CALLBACK HandleClientDataChanges(GfnClientInfoU
 {
     // Callback for when GeForce NOW detects client-sourced data changes.
     // This can occur when a user rotates their mobile device or resumes the session on a different device.
+    printf("HandleClientDataChanges::Application context: %p\n", pContext);
     if (!pUpdate)
     {
         printf("Client info callback received invalid data\n");
@@ -142,6 +143,7 @@ GfnApplicationCallbackResult GFN_CALLBACK HandleNetworkStatusChanges(GfnNetworkS
 {
     // Callback for when GeForce NOW detects changes to network latency.
     // Use the new value to decide latency related decisions, such as input delay or matchmaking.
+    printf("HandleNetworkStatusChanges::Application context: %p\n", pContext);
     if (!pUpdate)
     {
         printf("Network perf callback received invalid data\n");

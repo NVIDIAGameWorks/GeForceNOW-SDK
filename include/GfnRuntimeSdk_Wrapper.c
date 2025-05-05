@@ -105,6 +105,7 @@ typedef void(*gfnCloudShutdownRuntimeSdkFn)(void);
 typedef bool(*gfnIsRunningInCloudFn)(void);
 typedef GfnRuntimeError(*gfnIsRunningInCloudSecureFn)(GfnIsRunningInCloudAssurance* assurance);
 typedef GfnRuntimeError(*gfnCloudCheckFn)(const GfnCloudCheckChallenge* challenge, GfnCloudCheckResponse* response, bool* isCloudEnvironment);
+typedef GfnRuntimeError(*gfnGetCloudTypeFn)(GfnCloudType requested_cloud_type, const GfnCloudCheckChallenge* challenge, GfnCloudCheckResponse* response, GfnCloudType* detected_cloud_type);
 typedef GfnRuntimeError(*gfnGetClientIpFn)(const char** cientIp);
 typedef GfnRuntimeError(*gfnGetClientLanguageCodeFn)(const char** clientLanguageCode);
 typedef GfnRuntimeError(*gfnGetClientCountryCodeFn)(char* clientCountryCode, unsigned int length);
@@ -139,6 +140,7 @@ typedef GfnRuntimeError(*gfnAppReadyFn)(bool success, const char* status);
 typedef GfnRuntimeError (*gfnSetActionZoneFn)(GfnActionType type, unsigned int id, GfnRect* zone);
 typedef GfnRuntimeError(*gfnSendMessageFn)(const char* pchMessage, unsigned int length);
 typedef GfnRuntimeError(*gfnOpenURLOnClientFn)(const char* pchUrl);
+typedef GfnRuntimeError(*gfnSetAppStateFn)(GfnAppState appState);
 
 // forward declarations, they're used as externs in other files
 GfnRuntimeError gfnInitializeCloudSdk(void);
@@ -154,6 +156,7 @@ typedef struct GfnSdkCloudLibrary_t
     gfnIsRunningInCloudFn IsRunningInCloud;
     gfnIsRunningInCloudSecureFn IsRunningInCloudSecure;
     gfnCloudCheckFn CloudCheck;
+    gfnGetCloudTypeFn GetCloudType;
     gfnRegisterCallbackFn RegisterExitCallback;
     gfnRegisterCallbackFn RegisterSaveCallback;
     gfnRegisterCallbackFn RegisterSessionInitCallback;
@@ -180,6 +183,10 @@ typedef struct GfnSdkCloudLibrary_t
     gfnOpenURLOnClientFn OpenURLOnClient;
 
     gfnGetSessionInfoFn GetSessionInfo;
+
+    gfnSetAppStateFn SetAppState;
+
+
 } GfnSdkCloudLibrary;
 GfnSdkCloudLibrary* g_pCloudLibrary = NULL;
 GfnRuntimeError g_cloudLibraryStatus = gfnAPINotInit;
@@ -475,6 +482,7 @@ static GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     pCloudLibrary->IsRunningInCloud = (gfnIsRunningInCloudFn)gfnGetSymbol(pCloudLibrary->handle, "gfnIsRunningInCloud");
     pCloudLibrary->IsRunningInCloudSecure = (gfnIsRunningInCloudSecureFn)gfnGetSymbol(pCloudLibrary->handle, "gfnIsRunningInCloudSecure");
     pCloudLibrary->CloudCheck = (gfnCloudCheckFn)gfnGetSymbol(pCloudLibrary->handle, "gfnCloudCheck");
+    pCloudLibrary->GetCloudType = (gfnGetCloudTypeFn)gfnGetSymbol(pCloudLibrary->handle, "gfnGetCloudType");
     pCloudLibrary->IsTitleAvailable = (gfnIsTitleAvailableFn)gfnGetSymbol(pCloudLibrary->handle, "gfnIsTitleAvailable");
     pCloudLibrary->GetTitlesAvailable = (gfnGetTitlesAvailableFn)gfnGetSymbol(pCloudLibrary->handle, "gfnGetTitlesAvailable");
     pCloudLibrary->SetupTitle = (gfnSetupTitleFn)gfnGetSymbol(pCloudLibrary->handle, "gfnSetupTitle");
@@ -947,6 +955,83 @@ GfnRuntimeError GfnCloudCheck(const GfnCloudCheckChallenge* challenge, GfnCloudC
     return status;
 }
 
+GfnRuntimeError GfnGetCloudType(
+    const GfnCloudType requested_cloud_type,
+    const GfnCloudCheckChallenge* challenge,
+    GfnCloudCheckResponse* response,
+    GfnCloudType* detected_cloud_type)
+{
+    GfnRuntimeError status = gfnSuccess;
+#if __linux__
+    return gfnUnsupportedAPICall;
+#endif
+    if (g_pCloudLibrary == NULL && g_gfnSdkModule == NULL)
+    {
+        return gfnAPINotInit;
+    }
+
+#ifdef _WIN32
+    if (wcslen(g_cloudLibraryPath) == 0)
+#elif __linux__
+    if (strlen(g_cloudLibraryPath) == 0)
+#endif
+    {
+        GFN_SDK_LOG("Cloud library path not defined, which denotes an API call without Initialize succeeding, treating as not in cloud");
+        *detected_cloud_type = CC_CLOUD_TYPE_NULL;
+        return gfnSuccess;
+    }
+
+    if (g_pCloudLibrary == NULL)
+    {
+        GFN_SDK_LOG("No cloud library present, call succeeds");
+        *detected_cloud_type = CC_CLOUD_TYPE_NULL;
+        return gfnSuccess;
+    }
+
+    if (g_pCloudLibrary->CloudCheck == NULL)
+    {
+        GFN_SDK_LOG("API Not Found");
+        return gfnAPINotFound;
+    }
+
+    status = gfnTranslateCloudStatus(g_pCloudLibrary->GetCloudType(requested_cloud_type, challenge, response, detected_cloud_type));
+    GFN_SDK_LOG("status=%d detected_cloud_type=%d", status, *detected_cloud_type);
+
+    return status;
+}
+
+GfnRuntimeError GfnGetTrustedCloud(
+    const GfnCloudCheckChallenge* challenge,
+    GfnCloudCheckResponse* response)
+{
+    GfnCloudType detectedCloudType = CC_CLOUD_TYPE_NULL;
+    GfnRuntimeError result = GfnGetCloudType(CC_CLOUD_TYPE_TRUSTED, challenge, response, &detectedCloudType);
+    if (GFNSDK_SUCCEEDED(result) && detectedCloudType == CC_CLOUD_TYPE_TRUSTED)
+    {
+        return result;
+    }
+    else
+    {
+        return gfnCallWrongEnvironment;
+    }
+}
+
+GfnRuntimeError GfnGetOpenCloud(
+    const GfnCloudCheckChallenge* challenge,
+    GfnCloudCheckResponse* response)
+{
+    GfnCloudType detectedCloudType = CC_CLOUD_TYPE_NULL;
+    GfnRuntimeError result = GfnGetCloudType(CC_CLOUD_TYPE_OPEN, challenge, response, &detectedCloudType);
+    if (GFNSDK_SUCCEEDED(result) && detectedCloudType == CC_CLOUD_TYPE_OPEN)
+    {
+        return result;
+    }
+    else
+    {
+        return gfnCallWrongEnvironment;
+    }
+}
+
 #define TESTME(lib, fn) lib->fn()
 
 GfnRuntimeError GfnFree(const char** data)
@@ -1260,6 +1345,11 @@ GfnRuntimeError GfnSendMessage(const char* pchMessage, unsigned int length) {
 GfnRuntimeError GfnOpenURLOnClient(const char* pchUrl) {
     CHECK_CLOUD_ENVIRONMENT();
     DELEGATE_TO_CLOUD_LIBRARY(OpenURLOnClient, pchUrl);
+}
+
+GfnRuntimeError GfnSetAppState(GfnAppState appState) {
+    CHECK_CLOUD_ENVIRONMENT();
+    DELEGATE_TO_CLOUD_LIBRARY(SetAppState, appState);
 }
 
 static void GFN_CALLBACK _gfnExitCallbackWrapper(int status, void* pUnused, void* pContext)

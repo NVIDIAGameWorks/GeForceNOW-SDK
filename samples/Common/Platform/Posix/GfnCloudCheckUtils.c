@@ -17,7 +17,7 @@
 #include <GfnCloudCheckUtils.h>
 #include <GfnCloudCheckAppAdapter.h>
 
-char s_RootPublicCert[] =
+char s_RootPublicCert1[] =
     "-----BEGIN CERTIFICATE-----\n"
     "MIIF6TCCA9GgAwIBAgIUG6WcoUvnieCfcaAv8z5jEHQBT60wDQYJKoZIhvcNAQEL"
     "BQAwfDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFDASBgNVBAcT"
@@ -51,6 +51,42 @@ char s_RootPublicCert[] =
     "HcA7oYNRBlG7bcqUZHUnMU0NC3ixR+UG3lg9fvCuRH2fNPBFw8quU5aasgba1vdH"
     "wo+GYyg4Fwid4Iv0AEFYyASoNNj7BU3O6Ud4e5W8sXCqfWcYAZdNc0QWpZIRVMvs"
     "4iQUxjpe3OvvP6trvWjhkEOG5qwTLTGyBtxcQ/E="
+    "\n-----END CERTIFICATE-----";
+
+char s_RootPublicCert2[] =
+    "-----BEGIN CERTIFICATE-----\n"
+    "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"
+    "/YB7DV7cSWcw/ajkrTt8ylW0fJ9mLPax4279PN8="
     "\n-----END CERTIFICATE-----";
 
 
@@ -509,9 +545,13 @@ static bool ParsePayloadJson(const unsigned char* payload, const size_t payloadL
     nonceKey = strstr(start + 1, "\"nonce\"");
     if (nonceKey == NULL)
     {
-        GFN_CC_LOG("Failed to parse nonce key in the payload\n");
-        result = false;
-        goto end;
+        nonceKey = strstr(start + 1, "\"ononce\"");
+        if (nonceKey == NULL)
+        {
+            GFN_CC_LOG("Failed to parse nonce key in the payload\n");
+            result = false;
+            goto end;
+        }
     }
     colon = strchr(nonceKey, ':');
     if (colon == NULL)
@@ -1054,16 +1094,25 @@ bool GfnCloudCheckVerifyAttestationData(const char* jwt, const char* nonce, unsi
     }
 
 
-    if (!CreateX509CertificateChain(x5cCerts, numX5cCerts, s_RootPublicCert, &certChain))
+    if (!CreateX509CertificateChain(x5cCerts, numX5cCerts, s_RootPublicCert1, &certChain))
     {
-        GFN_CC_LOG("Failed to create certificate stack\n");
+        GFN_CC_LOG("Failed to create certificate stack with Public Cert 1\n");
         goto end;
     }
 
     if (!VerifyX509CertificateChain(certChain))
     {
-        GFN_CC_LOG("Failed to validate certificate chain\n");
-        goto end;
+        GFN_CC_LOG("Failed to validate certificate chain with Public Cert 1, trying with Public Cert 2\n");
+        if (!CreateX509CertificateChain(x5cCerts, numX5cCerts, s_RootPublicCert2, &certChain))
+        {
+            GFN_CC_LOG("Failed to create certificate stack with Public Cert 2\n");
+            goto end;
+        }
+        if (!VerifyX509CertificateChain(certChain))
+        {
+            GFN_CC_LOG("Failed to validate certificate chain with Public Cert 2\n");
+            goto end;
+        }        
     }
 
     // verify signature of (header + "." + payload)

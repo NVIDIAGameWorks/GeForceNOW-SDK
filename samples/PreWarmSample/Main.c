@@ -40,7 +40,7 @@
 // Keyboard input helper function
 static char getKeyPress() {
 #ifdef _WIN32
-    return _getch();
+    return (char)_getch();
 #elif __linux__
     struct termios oldt, newt;
     char ch;
@@ -139,6 +139,7 @@ bool BasicCloudCheck()
 
 GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* pContext)
 {
+    (void)pContext;
     // Callback for when GeForce NOW a user connects to the game seat to start a streaming session.
     // Since a user is connected, now user data can be loaded
     // Respond within 30 seconds with a call to gfnAppReady API
@@ -159,7 +160,7 @@ GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* 
 }
 
 // Example application main
-int main(int argc, char* argv[])
+int main()
 {
     // If the application will run in standard mode or pre-warm mode, a command line parameter can be used
     // to define the mode. If a parameter enables pre-warm, make sure to define it as part of GFN onboarding.

@@ -63,7 +63,7 @@ unsigned int g_consoleLine;
 static char getKeyPress()
 {
 #ifdef _WIN32
-    return _getch();
+    return (char)_getch();
 #elif __linux__
     XEvent event;
     while (true)
@@ -367,7 +367,7 @@ void DisplayPrompt()
 }
 
 // Example application main
-int main(int argc, char* argv[])
+int main()
 {
 #if __linux__
     SetupDisplay();

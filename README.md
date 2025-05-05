@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 2.5
+# NVIDIA GeForce NOW SDK Release 2.6
 
 ## At a Glance
 
@@ -11,14 +11,17 @@ The GFN SDK provides an ever-growing set of APIs that allows GFN partners to all
 * Allow GFN sessions to start from a host application or [GFN Client Deep Link](./doc/SDK-GFN-DEEP-LINKING.pdf), providing streaming of games and applications without needing to build a cloud gaming environment.
 * Allow customers to get into games and applications faster with GFN's Pre-Warm features.
 
-
 The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features into publisher applications and games, as well as more efficient way to integrate games into the GeForce NOW ecosystem.
 
 Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detailed overview of the features, and to get up and running quickly with the APIs, refer to the [SDK Quick Start Guide](./doc/SDK-GFN-QUICK-START-GUIDE.pdf) for common integration scenarios, and code snippets to use for APIs.
 
 ### What's New in This Release
 
-* Added `gfnCloudCheck` API support for Linux.
+* Updated LICENSE file to allow partners more freedom on inclusion and distribution of the GFN SDK.
+* Reworked the API selection UI in the Sample Launcher to group APIs for easier use.
+* Added `GfnCloudCheckType` API to allow certain titles to detect the type of the streaming session.
+    * Note this this API supports Windows only for now. Linux support will be added in a future release.
+* Updated the `CloudCheckAPI` Sample to provide example use of the GfnCloudCheckType API.
 * Various bug fixes and improvements.
 
 ## GeForce NOW Developer Portal
@@ -51,8 +54,8 @@ The distribution is laid out as below:
 |   │   SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf
 |   │   SDK-GFN-CLOUD-API.pdf
 |   │   SDK-GFN-DEEP-LINKING.pdf
-|   │   SDK-GFN-IP-API-GUIDE.pdf
 |   │   SDK-GFN-MOBILE-TOUCH-INTEGRATION-GUIDE.pdf
+|   │   SDK-GFN-IP-API-GUIDE.pdf
 |   │   SDK-GFN-PRIMER.pdf
 |   │   SDK-GFN-QUICK-START-GUIDE.pdf
 |   │   SDK-GFN-UNREALENGINE-INTEGRATION-GUIDE.pdf

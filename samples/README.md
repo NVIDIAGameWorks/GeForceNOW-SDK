@@ -11,16 +11,16 @@ This C-based simple command-line sample demonstrates usage of the APIs dedicated
 
 ### CubeSample
 This is a modified variant of Vulkan Cube app originally distributed with Vulkan SDK. It demonstrates integration with GFN SDK as well as some user controls that use two-way communication.
-See the sample [README](./CubeSample/README.md) for more details.
+See the sample [README](./GdnSampleApp/README.md) for more details.
+
+### OpenClientBrowser
+This C-based simple command-line sample demonstrates usage of the the GfnOpenURLOnClient API. Opening URLs on the connecting client's browser.
 
 ### PartnerDataAPI
 This C-based simple command-line sample demonstrates usage of the two APIs dedicated to obtaining partner-supplied data provided during session initialization, as well as the correct way to free the memory allocated for the data.
 
 ### PreWarmSample
 This C-based simple command-line sample demonstrates usage of the APIs and callbacks associated with putting an application into PreWarm state, and waiting for a user session to connect. This allows an application to preload all common data, allowing a streaming user to bypass must of the loading time and get to the main menu much faster.
-
-### OpenClientBrowser
-This C-based simple command-line sample demonstrates usage of the the GfnOpenURLOnClient API. Opening URLs on the connecting client's browser.
 
 ### SampleLauncher
 This C++-based sample demonstrates usage of the Launcher/Publisher application-focused APIs, including getting a list of supported titles supported by GeForce NOW, as well as invoking the GeForce NOW Windows client to start a streaming session of a title. This sample is meant to be run on both the local client and GeForce NOW cloud environment to understand how all the APIs behave in each environment.
@@ -37,4 +37,4 @@ This C-based sample demonstrates basic SDK usage without relying on the wrapper 
 
 ## Building the Samples
 
-Please see the [root README](./README.md) for details on how to build the samples.
+Please see the [SDK root README](./README.md) for details on how to build the samples.

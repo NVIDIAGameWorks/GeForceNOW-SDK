@@ -29,7 +29,7 @@ void gfnsdk_shutdown();
 void gfnsdk_handleButtonClick(UINT uMsg, int xPos, int yPos, struct SpinState *spin_state, int width);
 
 #ifdef _WIN32
-void gfnsdk_handleTouch(HWND hWnd, UINT uMsg, UINT cInputs, HTOUCHINPUT hTouchInput, struct SpinState *spin_state, int width);
+void gfnsdk_handleTouch(HWND hWnd, UINT cInputs, HTOUCHINPUT hTouchInput, struct SpinState *spin_state, int width);
 #endif
 
 #endif // GFN_SDK_CUBE_APP_INTERFACE_H

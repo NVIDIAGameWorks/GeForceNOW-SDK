@@ -483,11 +483,11 @@
         {
             unsigned int sessionMaxDurationSec;      ///< Maximum total time allowed for the session in seconds
             unsigned int sessionTimeRemainingSec;    ///< Nominal time remaining in the session in seconds
-            char sessionId[SESSION_ID_SIZE];         ///< NVIDIA-defined unique indentifier for the session
+            char sessionId[SESSION_ID_SIZE];         ///< NVIDIA-defined unique identifier for the session
             bool sessionRTXEnabled;                  ///< Defines if RTX support is enabled for the session
         } GfnSessionInfo;
 
-         /// @brief Challenge data passed in to @ref gfnCloudCheck API
+        /// @brief Challenge data passed in to @ref gfnCloudCheck API
         typedef struct GfnCloudCheckChallenge
         {
             const char* nonce;      ///< A pointer to randomly generated data to be used as the payload of the challenge message. If set to nullptr GFN SDK will generate a random challenge on its own.
@@ -500,6 +500,27 @@
             const char* attestationData;        ///< If the cloud check is successful, the attestationData is cryptographically signed message containing the same nonce that was provided in the challenge; otherwise, this field is set to nullptr.
             unsigned int attestationDataSize;   ///< The size of the attestationData field in case it is not empty; zero otherwise
         } GfnCloudCheckResponse;
+
+        /// @brief A type of GFN Cloud environment
+        typedef enum GfnCloudType
+        {
+            CC_CLOUD_TYPE_NULL = 0x00000000,
+            CC_CLOUD_TYPE_TRUSTED = 0x00000001,
+            CC_CLOUD_TYPE_OPEN = 0x00000002,
+            CC_CLOUD_TYPE_ANY = 0x00000003
+        } GfnCloudType;
+
+        /// @brief Application/game state data passed in to @ref gfnSetAppState API
+        typedef enum GfnAppState
+        {
+            gfnAppLoading = 0,              ///< Application is loading
+            gfnAppInMenu = 1,               ///< Application has opened menu options for the user
+            gfnAppRunning = 2,              ///< Application is running and accepting user input
+            gfnAppPaused = 3,               ///< Application is paused, no input accepted
+            gfnAppExiting = 4,              ///< Application is exiting
+            gfnAppErrorDetected = 5,        ///< Application has run into a critical error
+            gfnAppStateMax = 6              ///< Sentinel value, do not use
+        } GfnAppState;
 
         // ============================================================================================
         // Callback signatures
@@ -927,6 +948,42 @@
         /// @retval gfnThrottled             - API call was throttled for exceeding limit
         NVGFNSDK_EXPORT GfnRuntimeError gfnCloudCheck(const GfnCloudCheckChallenge* challenge, GfnCloudCheckResponse* response, bool* isCloudEnvironment);
 
+        ///
+        /// @par Description
+        /// Determines which GFN environment, if any, is available. This is not useful for most developers.
+        /// Only use if you've been instructed to by NVIDIA support.
+        ///
+        /// @par Environment
+        /// Cloud and Client
+        /// 
+        /// @par Platform
+        /// Windows
+        ///
+        /// @par Usage
+        /// This API can be used from any execution context - privileged or not. 
+        ///
+        /// @param requested_cloud_type      - The desired type of the cloud (CC_CLOUD_TYPE_TRUSTED, CC_CLOUD_TYPE_OPEN, or CC_CLOUD_TYPE_ANY) that the caller wants to check for.
+        /// @param challenge                 - Optional input parameter, that can be used to pass in nonce data.
+        ///                                    If a non-null challenge is passed in, then the response parameter is mandatory.
+        /// 
+        /// @param response                  - Optional output parameter, that receives the signed attestation response from the API.
+        /// 
+        /// @param detected_cloud_type       - An optional parameter to receive the actual type of the environment detected at runtime  (CC_CLOUD_TYPE_xxx).
+        ///                                    This parameter is only useful when CC_CLOUD_TYPE_ANY was provided on input in the requested_cloud_type parameter.
+        ///                                    A null pointer can be passed if the caller is not interested in receiving the actual cloud type.
+        ///
+        /// @retval gfnSuccess               - On success indicates the operation was performed successfully.
+        /// @retval gfnInvalidParameter      - NULL pointer passed in response parameter when challenge parameter is nonzero.
+        /// @retval gfnNotAuthorized         - Indicates the application is either not properly onboarded (missing allow - list),
+        ///                                    or the application attempted to perform this function in an unsafe environment (patched game seat).
+        /// @retval gfnBackendError          - Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment.
+        /// @retval gfnUnsupportedAPICall    - When called from a Linux environment.
+        /// @retval gfnThrottled             - API call was throttled for exceeding limit
+        NVGFNSDK_EXPORT GfnRuntimeError gfnGetCloudType(
+            const GfnCloudType requested_cloud_type,
+            const GfnCloudCheckChallenge* challenge,
+            GfnCloudCheckResponse* response,
+            GfnCloudType* detected_cloud_type);
         ///
         /// @par Description
         /// Determines if a specific title is available to launch in current streaming session
@@ -1430,10 +1487,31 @@
         /// @return Otherwise, appropriate error code
         NVGFNSDK_EXPORT GfnRuntimeError gfnOpenURLOnClient(const char* pchUrl);
 
+        ///
+        /// @par Description
+        /// Allows the application or game to inform GFN of its overall running state
+        /// 
+        /// @par Environment
+        /// Cloud
+        /// 
+        /// @par Platform
+        /// Windows, Linux
+        ///
+        /// @par Usage
+        /// Use to inform GFN when the application enters a specific running state to allow GFN to make certain decisions about the session
+        ///
+        /// @param appState - A @ref GfnAppState value
+        ///
+        /// @retval gfnSuccess              - Call was successful
+        /// @retval gfnAPINotInit           - SDK was not initialized
+        /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
+        /// @retval gfnCallWrongEnvironment - API was called outside of a cloud execution environment
+        /// @retval gfnInternalError        - API ran into an internal error
+        /// @return Otherwise, appropriate error code
+        NVGFNSDK_EXPORT GfnRuntimeError gfnSetAppState(GfnAppState appState);
         /// @}
 #ifdef __cplusplus
     } // extern "C"
 #endif
-
 
 #endif // GFN_SDK_RUNTIME_CAPI_H

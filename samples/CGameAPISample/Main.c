@@ -45,7 +45,7 @@ const char* platformId = "GeForce NOW SDK - Sample Test Platform";
 
 static char getKeyPress() {
 #ifdef _WIN32
-    return _getch();
+    return (char)_getch();
 #else
     struct termios oldt, newt;
     char ch;
@@ -148,7 +148,7 @@ void ApplicationShutdown()
 }
 
 // Example application main
-int main(int argc, char* argv[])
+int main()
 {
     GfnError err = gfnSuccess;
 

@@ -2,10 +2,12 @@ var searchData=
 [
   ['gfnactiontype',['GfnActionType',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a3bb7495dbb48372578922529c2eaeebb',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfnapplicationcallbackresult',['GfnApplicationCallbackResult',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a91feb8287f6e3e0aba89b529f328e42e',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['gfnappstate',['GfnAppState',['../_gfn_runtime_sdk___c_a_p_i_8h.html#aed0f4e03dabc0c02d9ae91a36da5aa0d',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfnclientdatachangetype',['GfnClientDataChangeType',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a954ec271aebbdf93440fd9841f0eb8fc',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfnclientinfoupdatedata',['GfnClientInfoUpdateData',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a87eb642377dbb3a80e6e485760facaa1',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfncloudcheckchallenge',['GfnCloudCheckChallenge',['../_gfn_runtime_sdk___c_a_p_i_8h.html#afd28c4929e1fd11ab4beb28a5e6dfea8',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfncloudcheckresponse',['GfnCloudCheckResponse',['../_gfn_runtime_sdk___c_a_p_i_8h.html#ab2e7e5f3608f96e6eedb80e10190cffe',1,'GfnRuntimeSdk_CAPI.h']]],
+  ['gfncloudtype',['GfnCloudType',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a2e2c11141c3d1cf8afd0213485ce597c',1,'GfnRuntimeSdk_CAPI.h']]],
   ['gfndisplaylanguage',['GfnDisplayLanguage',['../_gfn_sdk_8h.html#a4710e548dc0d4f8c66b701706d25a42e',1,'GfnSdk.h']]],
   ['gfnerror',['GfnError',['../_gfn_sdk_8h.html#aa3f788505b9b4e59b21efee6881fa844',1,'GfnSdk.h']]],
   ['gfnisrunningincloudassurance',['GfnIsRunningInCloudAssurance',['../_gfn_runtime_sdk___c_a_p_i_8h.html#a1fa5e44e6ea4087ad75c7fd0ebf7bfa7',1,'GfnRuntimeSdk_CAPI.h']]],

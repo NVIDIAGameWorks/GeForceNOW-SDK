@@ -455,6 +455,105 @@ extern "C"
 
     ///
     /// @par Description
+    /// Determines which GFN environment, if any, is available. This is not useful for most developers.
+    /// Only use if you've been instructed to by NVIDIA support.
+    /// 
+    /// @par Environment
+    /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows
+    ///
+    /// @par Usage
+    /// This API can be used from any execution context - privileged or not. 
+    ///
+    /// @param requested_cloud_type      - The desired type of the cloud (CC_CLOUD_TYPE_TRUSTED, CC_CLOUD_TYPE_OPEN, or CC_CLOUD_TYPE_ANY) that the caller wants to check for.
+    /// @param challenge                 - Optional input parameter, that can be used to pass in nonce data.
+    ///                                    If a non-null challenge is passed in, then the response parameter is mandatory.
+    /// 
+    /// @param response                  - Optional output parameter, that receives the signed attestation response from the API.
+    /// 
+    /// @param detected_cloud_type         - An optional parameter to receive the actual type of the environment detected at runtime (CC_CLOUD_TYPE_xxx).
+    ///                                    This parameter is only useful when multiple cloud types were provided on input in the requested_cloud_type parameter.
+    ///                                    A null pointer can be passed if the caller is not interested in receiving the actual cloud type.
+    ///
+    /// @retval gfnSuccess               - On success indicates cloud check was performed successfully.
+    /// @retval gfnInvalidParameter      - NULL pointer passed in response parameter when challenge parameter is nonzero.
+    /// @retval gfnNotAuthorized         - Indicates the application is either not properly onboarded (missing allow - list),
+    ///                                    or the application attempted to perform cloud check in an unsafe environment (patched game seat).
+    /// @retval gfnBackendError          - Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment.
+    /// @retval gfnUnsupportedAPICall    - When called from a Linux environment.
+    /// @retval gfnThrottled             - API call was throttled for exceeding limit
+    GfnRuntimeError GfnGetCloudType(
+        const GfnCloudType requested_cloud_type,
+        const GfnCloudCheckChallenge* challenge,
+        GfnCloudCheckResponse* response,
+        GfnCloudType* detected_cloud_type);
+
+    ///
+    /// @par Description
+    /// Determines if calling application is running in the "trusted" cloud environment.
+    ///
+    /// This call is functionally equivalent to GfnGetCloudType(CC_CLOUD_TYPE_TRUSTED, &challenge, &response, &detectedCloudEnvironment);
+    /// 
+    /// @par Environment
+    /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows, Linux
+    ///
+    /// @par Usage
+    /// This API can be used from any execution context - privileged or not. 
+    ///
+    /// @param challenge                 - Optional input parameter, that can be used to pass in nonce data.
+    ///                                    If a non-null challenge is passed in, then the response parameter is mandatory.
+    /// 
+    /// @param response                  - Optional output parameter, that receives the signed attestation response from the API.
+    ///
+    /// @retval gfnSuccess               - On success indicates cloud check was performed successfully.
+    /// @retval gfnInvalidParameter      - NULL pointer passed in response parameter when challenge parameter is nonzero.
+    /// @retval gfnNotAuthorized         - Indicates the application is either not properly onboarded (missing allow - list),
+    ///                                    or the application attempted to perform cloud check in an unsafe environment (patched game seat).
+    /// @retval gfnBackendError          - Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment.
+    /// @retval gfnThrottled             - API call was throttled for exceeding limit
+    /// @retval gfnCallWrongEnvironment  - The call succeeded, but the application is not executing in the trusted cloud environment.
+    GfnRuntimeError GfnGetTrustedCloud(
+        const GfnCloudCheckChallenge* challenge,
+        GfnCloudCheckResponse* response);
+
+    /// @par Description
+    /// Determines if calling application is running in the "open" cloud environment.
+    /// This is not useful for most developers.
+    /// Only use if you've been instructed to by NVIDIA support.
+    ///
+    /// This call is functionally equivalent to GfnGetCloudType(CC_CLOUD_TYPE_OPEN, &challenge, &response, &actualCloudEnvironment);
+    ///
+    /// @par Environment
+    /// Cloud and Client
+    /// 
+    /// @par Platform
+    /// Windows, Linux
+    ///
+    /// @par Usage
+    /// This API can be used from any execution context - privileged or not. 
+    ///
+    /// @param challenge                 - Optional input parameter, that can be used to pass in nonce data.
+    ///                                    If a non-null challenge is passed in, then the response parameter is mandatory.
+    /// 
+    /// @param response                  - Optional output parameter, that receives the signed attestation response from the API.
+    ///
+    /// @retval gfnSuccess               - On success indicates cloud check was performed successfully.
+    /// @retval gfnInvalidParameter      - NULL pointer passed in response parameter when challenge parameter is nonzero.
+    /// @retval gfnNotAuthorized         - Indicates the application is either not properly onboarded (missing allow - list),
+    ///                                    or the application attempted to perform cloud check in an unsafe environment (patched game seat).
+    /// @retval gfnBackendError          - Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment.
+    /// @retval gfnThrottled             - API call was throttled for exceeding limit
+    /// @retval gfnCallWrongEnvironment  - The call succeeded, but the application is not executing in the open cloud environment.
+    GfnRuntimeError GfnGetOpenCloud(
+        const GfnCloudCheckChallenge* challenge,
+        GfnCloudCheckResponse* response);
+    ///
+    /// @par Description
     /// Calls @ref gfnGetClientIp to get user client's IP address.
     ///
     /// @par Environment
@@ -1222,6 +1321,30 @@ extern "C"
     /// @retval gfnInternalError        - API ran into an internal error
     /// @return Otherwise, appropriate error code
     GfnRuntimeError GfnOpenURLOnClient(const char* pchUrl);
+
+    ///
+    /// @par Description
+    /// Allows the application or game to inform GFN of its overall running state
+    /// 
+    /// @par Environment
+    /// Cloud
+    /// 
+    /// @par Platform
+    /// Windows, Linux
+    ///
+    /// @par Usage
+    /// Use to inform GFN when the application enters a specific running state to allow GFN to make certain decisions about the session
+    ///
+    /// @param appState - A @ref GfnAppState value
+    ///
+    /// @retval gfnSuccess              - Call was successful
+    /// @retval gfnAPINotInit           - SDK was not initialized
+    /// @retval gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
+    /// @retval gfnCallWrongEnvironment - API was called outside of a cloud execution environment
+    /// @retval gfnInternalError        - API ran into an internal error
+    /// @return Otherwise, appropriate error code
+    GfnRuntimeError GfnSetAppState(GfnAppState appState);
+
     /// @}
 #ifdef __cplusplus
     } // extern "C"
