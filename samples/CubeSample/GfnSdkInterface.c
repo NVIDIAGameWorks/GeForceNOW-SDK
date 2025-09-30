@@ -221,7 +221,7 @@ GfnApplicationCallbackResult GFN_CALLBACK MessageCallback(const GfnString* pMess
 }
 
 void gfnsdk_init(struct SpinState *spin_state) {
-    GfnRuntimeError err = GfnInitializeSdk(gfnDefaultLanguage);
+    GfnRuntimeError err = GfnInitializeSdk();
     if (GFNSDK_FAILED(err))
     {
         // Initialization errors generally indicate a flawed environment. Check error code for details.

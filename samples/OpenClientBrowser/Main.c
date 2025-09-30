@@ -185,13 +185,11 @@ void DoSleep(int secs)
 #endif
 }
 
-// Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
+// Example application initialization method with a call to initialize the GeForce NOW Runtime SDK.
 GfnError SDKInitialize()
 {
-    // Using gfnDefaultLanguage to tell the SDK to use the default system language for any
-    // UI it might show, which won't be the case in this sample.
     printf("\n\nInitializing GFN SDK...\n");
-    GfnError result = GfnInitializeSdk(gfnDefaultLanguage);
+    GfnError result = GfnInitializeSdk();
     if (GFNSDK_FAILED(result))
     {
         // Initialization errors generally indicate a flawed environment. Check error code for details.

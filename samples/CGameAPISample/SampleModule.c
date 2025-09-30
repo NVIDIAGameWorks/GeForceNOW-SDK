@@ -73,7 +73,6 @@ GfnApplicationCallbackResult GFN_CALLBACK AutoSave(void* pContext)
     return crCallbackSuccess;
 }
 
-
 GfnApplicationCallbackResult GFN_CALLBACK SessionInit(const char* params, void* pContext)
 {
     // Callback for when GeForce NOW a user connects to the game seat to start a streaming session.

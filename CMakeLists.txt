@@ -34,14 +34,11 @@ if(NOT GFN_SDK_LIB_DIR)
     )
 endif()
 
-set(SAMPLE_LAUNCHER_INSTALL_ROOT "" CACHE STRING "(Optional) location to install sample launcher with cmake install command")
 set(SAMPLE_CLOUDCHECKAPI_INSTALL_ROOT "" CACHE STRING "(Optional) location to install Cloud Check API sample with cmake install command")
-set(SAMPLES_CEF_URL "" CACHE STRING "(Optional) URL to use to download libcef for launcher sample")
-set(SAMPLES_CEF_PATH "" CACHE STRING "(Optional) Path to find pre-downloaded CEF")
 
 set_property(CACHE SAMPLES_ARCH PROPERTY STRINGS 64 32)
 option(BUILD_SAMPLES "Build the GFN SDK samples" ON)
-set(AVAILABLE_SAMPLES CGameAPISample CloudCheckAPI CubeSample OpenClientBrowser PartnerDataAPI PreWarmSample SDKDllDirectRefSample SampleLauncher)
+set(AVAILABLE_SAMPLES CGameAPISample CloudCheckAPI CubeSample OpenClientBrowser PartnerDataAPI PreWarmSample)
 set(BUILD_SAMPLES_LIST "${AVAILABLE_SAMPLES}" CACHE STRING "List of GFN SDK samples to build (e.g. 'CGameAPISample;CloudCheckAPI)")
 if (LINUX)
     # If the option is set to `OFF` then OpenSSL dependency can be provided by the user instead
@@ -56,22 +53,6 @@ if (LINUX)
 endif ()
 
 ###############################
-
-# For the GfnSdk distribution, GfnRuntimeSdk.dll is precompiled
-if (NOT TARGET GfnRuntime)
-    add_library(GfnRuntime MODULE IMPORTED)
-    if (WIN32)
-        set_target_properties(GfnRuntime PROPERTIES
-            IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/win/${BUILD_ARCH}/GfnRuntimeSdk.dll
-        )
-    elseif (LINUX)
-        set_target_properties(GfnRuntime PROPERTIES
-            IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/linux/${BUILD_ARCH}/GfnRuntimeSdk.so
-        )
-    else ()
-        message(FATAL_ERROR "Unsupported platform")
-    endif ()
-endif ()
 
 add_library(GfnSdkWrapper STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GfnRuntimeSdk_Wrapper.c

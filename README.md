@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 2.6
+# NVIDIA GeForce NOW SDK Release 3.0
 
 ## At a Glance
 
@@ -8,35 +8,29 @@ The GFN SDK provides an ever-growing set of APIs that allows GFN partners to all
 * Run on a wide range of devices without needing to port to each device and operating system.
 * Know when they are running inside the secure GeForce NOW environment to allow the bypass of certain system checks such as Display Driver versioning or application binary verification.
 * Obtain information about the user's client system, including touch support, to tailor the user's experience to their environment.
-* Allow GFN sessions to start from a host application or [GFN Client Deep Link](./doc/SDK-GFN-DEEP-LINKING.pdf), providing streaming of games and applications without needing to build a cloud gaming environment.
+* Allow GFN sessions to start from a host application or [GFN Client Deep Link](./doc/GfnSdk-Deep-Linking.md), providing streaming of games and applications without needing to build a cloud gaming environment.
 * Allow customers to get into games and applications faster with GFN's Pre-Warm features.
 
 The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features into publisher applications and games, as well as more efficient way to integrate games into the GeForce NOW ecosystem.
 
-Please refer to the [SDK GFN Primer](./doc/SDK-GFN-PRIMER.pdf) for a more detailed overview of the features, and to get up and running quickly with the APIs, refer to the [SDK Quick Start Guide](./doc/SDK-GFN-QUICK-START-GUIDE.pdf) for common integration scenarios, and code snippets to use for APIs.
-
 ### What's New in This Release
 
-* Updated LICENSE file to allow partners more freedom on inclusion and distribution of the GFN SDK.
-* Reworked the API selection UI in the Sample Launcher to group APIs for easier use.
-* Added `GfnCloudCheckType` API to allow certain titles to detect the type of the streaming session.
-    * Note this this API supports Windows only for now. Linux support will be added in a future release.
-* Updated the `CloudCheckAPI` Sample to provide example use of the GfnCloudCheckType API.
-* Various bug fixes and improvements.
+* Simplified SDK integration by removing the runtime library which used to be required to enable some SDK features.
+	* This should make future integrations easier and reduce the process overhead of using the SDK.
+	* Clients now only need to include the SDK header and source files in their project.
+	* A side effect of the above change is that some older, largely unused client APIs were removed.
+	* This removal only affects publishing platforms that wanted to integrate the GeForce NOW desktop client into their workflows.
+	* Those requiring this functionally should refer to the GFN Client SDK which offers a much richer and more robust method of integrating a GFN client into other applications.
+* Removed the SampleLauncher sample which was designed to showcase the above APIs but added a significant overhead to build times.
+* Added a set of Editbox APIs; a cleaner, refactored version of existing SetActionZone APIs. These APIs are functionally equivalent.
+* Converted documentation from PDF & html to markdown format for easier viewing on github.
+* Various fixes and improvements.
 
 ## GeForce NOW Developer Portal
 
 * Please [contact us](mailto:gdp-queries@nvidia.com) to register your organization or game with the GeForce NOW Developer Portal.
 
 ## Development Guide
-
-### Software Stack
-
-![Software Stack](./doc/img/software_stack.png)
-
-Each feature has different integration points. Some features define REST Web APIs, while others integrate into the game or publisher application with native C interfaces. Refer to documentation for each feature in the doc folder.
-
-Some features require a compatible version of GeForce NOW to be installed on the client system. The integrated GFN SDK components are designed to take care of downloading and installing GeForce NOW client when needed.
 
 ### GeForce NOW SDK Package
 
@@ -46,39 +40,25 @@ The distribution is laid out as below:
 ├─── CMakeLists.txt
 ├─── CMakePresets.json
 ├─── LICENSE
-├─── LICENSE.samplelauncher.thirdparty
 ├─── LICENSE.thirdparty
 ├─── README.md
-|
 ├─── doc
-|   │   SDK-GFN-ACCOUNT-LINKING-SSO-GUIDE.pdf
-|   │   SDK-GFN-CLOUD-API.pdf
-|   │   SDK-GFN-DEEP-LINKING.pdf
-|   │   SDK-GFN-MOBILE-TOUCH-INTEGRATION-GUIDE.pdf
-|   │   SDK-GFN-IP-API-GUIDE.pdf
-|   │   SDK-GFN-PRIMER.pdf
-|   │   SDK-GFN-QUICK-START-GUIDE.pdf
-|   │   SDK-GFN-UNREALENGINE-INTEGRATION-GUIDE.pdf
-|   └───SDK-GFN-RUNTIME
-|       └───index.html
-|
-├───include
-│       GfnRuntimeSdk_CAPI.h
-│       GfnRuntimeSdk_Wrapper.c
-│       GfnRuntimeSdk_Wrapper.h
-│       GfnSdk.h
-│       GfnSdk_SecureLoadLibrary.c
-│       GfnSdk_SecureLoadLibrary.h
+│   |   GfnSdk-Account-Linking-SSO.md
+│   |   GfnSdk-API-Definitions.md
+│   |   GfnSdk-Cloud-API.md
+│   |   GfnSdk-Deep-Linking.md
+│   |   GfnSdk-Mobile-Touch-Integration.md
+│   |   GfnSdk-IP-API.md
+│   |   GfnSdk-Quick-Start.md
+│   |   GfnSdk-Unreal-Engine-Integration.md
 │
-├───linux
-│   └───x64
-│           GfnRuntimeSdk.so
-├───win
-│   ├───x64
-│   │       GfnRuntimeSdk.dll
-│   │
-│   └───x86
-│           GfnRuntimeSdk.dll
+├───include
+│   |   GfnRuntimeSdk_CAPI.h
+│   |   GfnRuntimeSdk_Wrapper.c
+│   |   GfnRuntimeSdk_Wrapper.h
+│   |   GfnSdk.h
+│   |   GfnSdk_SecureLoadLibrary.c
+│   |   GfnSdk_SecureLoadLibrary.h
 │
 └───samples
     |   README.md
@@ -88,19 +68,17 @@ The distribution is laid out as below:
     ├───CubeSample
     ├───OpenClientBrowser
     ├───PartnerDataAPI
-    ├───PreWarmSample
-    ├───SampleLauncher
-    └───SDKDllDirectRefSample
+    └───PreWarmSample
 
 ```
 
 ## SDK Build Overview
 
-The components that are needed to use the GeForce NOW SDK in your application
-come pre-built, and do not require any additional build steps to use in your
-project(s). Refer to the SDK Primer and Quick Start guides located in the ./doc
-folder for more info on integrating the SDK and calling the APIs in your 
-applications.
+The GeForce NOW SDK comes as a set of headers and source code to be included in
+your project(s). Refer to the Quick Start guide located in the ./doc folder for
+more info on integrating the SDK and calling the APIs in your applications.
+You can also refer to the source code of the included sample projects located
+under ./samples for working code on integrating and calling the APIs.
 
 If you wish to build the samples included in this SDK distribution to use as
 examples on how to call the GeForce NOW SDK's APIs on either Windows or Linux,
@@ -128,7 +106,7 @@ follow the instructions on the website.
 
 You will also need Visual Studio installed, along with the Visual Studio
 Developer Comand Prompt tools installed. Finally, you will need to have 
-Visual Studios command line build tools available as part of your PATH. 
+Visual Studio's command line build tools available as part of your PATH. 
 
 Once these tools are configured, open a command prompt to the root of the
 GeForce NOW SDK distribution package, and use cmake to configure the makefiles
@@ -202,4 +180,4 @@ This will produce the build in a subfolder corresponding to the name of the
 sample under "/samples" in the current directory. You can then run the sample
 from the subfolder. Example:
 
-./_out/x64-linux-release/samples/SampleLauncher/SampleLauncher
+./_out/x64-linux-release/samples/CloudCheckAPI/CloudCheckAPI

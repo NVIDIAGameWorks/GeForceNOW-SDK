@@ -45,10 +45,8 @@
 #   else
 #       define GFN_DLL L"GFN32_V2.dll"
 #   endif
-#   define GFN_CLIENT_SHARED_LIBRARY L"GfnRuntimeSdk.dll"
 #   define GFN_DLL_SUBPATH L"\\NVIDIA Corporation\\GeForceNOW\\SDK\\" GFN_DLL
 #   define PLATFORM_MAX_PATH MAX_PATH
-    HMODULE g_gfnSdkModule;
     CHAR_TYPE g_cloudLibraryPath[PLATFORM_MAX_PATH];
 #elif __linux__
 #   include <time.h>        // time functions for log prints
@@ -59,11 +57,8 @@
 #   include <libgen.h>      // dirname
 #   include <unistd.h>      // readlink
 #   define GFN_SHARED_OBJECT "GfnSdk.so"
-#   define GFN_CLIENT_SHARED_LIBRARY "GfnRuntimeSdk.so"
 #   define GFN_SHARED_OBJECT_PATH "/opt/nvidia/GfnSdk/" GFN_SHARED_OBJECT
 #   define PLATFORM_MAX_PATH PATH_MAX
-
-    void* g_gfnSdkModule = NULL;
     CHAR_TYPE g_cloudLibraryPath[] = GFN_SHARED_OBJECT_PATH;
 #else
 #   error "Unsupported platform"
@@ -90,7 +85,6 @@
 bool g_LoggingInitialized = false;
 
 // Function declarations
-GfnRuntimeError GfnInitializeSdkFromPathDefault(GfnDisplayLanguage language, const CHAR_TYPE* sdkLibraryPath);
 
 // Generic callback function pointer used to wrap the typed callbacks
 typedef void (GFN_CALLBACK* _cb)(int, void* pOptionalData, void* pContext);
@@ -122,22 +116,15 @@ typedef GfnRuntimeError(*gfnGetPartnerSecureDataFn)(const char** partnerSecureDa
 
 typedef bool (*gfnIsTitleAvailableFn)(const char* platformAppId);
 typedef GfnRuntimeError(*gfnGetTitlesAvailableFn)(const char** platformAppIds);
-
 typedef GfnRuntimeError(*gfnFreeFn)(const char** data);
-
-typedef GfnRuntimeError(*gfnRegisterStreamStatusCallbackFn)(StreamStatusCallbackSig streamStatusCallback, void* pUserContext);
-typedef GfnRuntimeError(*gfnStartStreamFn)(StartStreamInput * startStreamInput, StartStreamResponse* response);
-typedef void(*gfnStartStreamAsyncFn)(const StartStreamInput* startStreamInput, StartStreamCallbackSig cb, void* context, unsigned int timeoutMs);
-
-typedef GfnRuntimeError(*gfnStopStreamFn)(void);
-typedef void(*gfnStopStreamAsyncFn)(StopStreamCallbackSig cb, void* context, unsigned int timeoutMs);
 
 typedef GfnRuntimeError(*gfnSetupTitleFn)(const char* platformAppId);
 typedef GfnRuntimeError(*gfnTitleExitedFn)(const char* platformId, const char* platformAppId);
 typedef GfnRuntimeError(*gfnRegisterCallbackFn)(_cb callback, void* userContext);
 typedef GfnRuntimeError(*gfnRegisteCallbackFnWithUIntParam)(_cb callback, unsigned int param, void* userContext);
 typedef GfnRuntimeError(*gfnAppReadyFn)(bool success, const char* status);
-typedef GfnRuntimeError (*gfnSetActionZoneFn)(GfnActionType type, unsigned int id, GfnRect* zone);
+typedef GfnRuntimeError (*gfnSetEditBoxRegionFn)(unsigned int id, GfnRect* region, unsigned int flags);
+typedef GfnRuntimeError (*gfnClearEditBoxRegionFn)(unsigned int id);
 typedef GfnRuntimeError(*gfnSendMessageFn)(const char* pchMessage, unsigned int length);
 typedef GfnRuntimeError(*gfnOpenURLOnClientFn)(const char* pchUrl);
 typedef GfnRuntimeError(*gfnSetAppStateFn)(GfnAppState appState);
@@ -173,7 +160,8 @@ typedef struct GfnSdkCloudLibrary_t
     gfnGetPartnerSecureDataFn GetPartnerSecureData;
     gfnFreeFn Free;
     gfnAppReadyFn AppReady;
-    gfnSetActionZoneFn SetActionZone;
+    gfnSetEditBoxRegionFn SetEditBoxRegion;
+    gfnClearEditBoxRegionFn ClearEditBoxRegion;
     gfnSendMessageFn SendMessage;
 
     gfnGetClientInfoFn GetClientInfo;
@@ -289,38 +277,6 @@ static bool gfnPathExists(const CHAR_TYPE* path)
 #endif
 }
 
-static const CHAR_TYPE* gfnGetFilenameFromPath(const CHAR_TYPE* path)
-{
-#ifdef _WIN32
-    CHAR_TYPE *lastBackSepPos = wcsrchr(path, L'/');
-    CHAR_TYPE *lastForeSepPos = wcsrchr(path, L'\\');
-#elif __linux__
-    CHAR_TYPE *lastBackSepPos = strrchr(path, '/');
-    CHAR_TYPE *lastForeSepPos = strrchr(path, '\\');
-#endif
-
-    CHAR_TYPE* lastSepPos = (lastBackSepPos != NULL && lastBackSepPos > lastForeSepPos) ? lastBackSepPos : lastForeSepPos;
-
-    if (lastSepPos == NULL)
-    {
-        return path;
-    }
-    else
-    {
-        return lastSepPos + 1;
-    }
-}
-
-// This is case sensitive for POSIX, insensitive for WIN32
-static bool gfnPathEqual(const CHAR_TYPE* path1, const CHAR_TYPE* path2)
-{
-#ifdef _WIN32
-    return _wcsicmp(path1, path2) == 0;
-#elif __linux__
-    return strcmp(path1, path2) == 0;
-#endif
-}
-
 static void* gfnLoadLibrary(const CHAR_TYPE* path)
 {
     // For security reasons, it is preferred to check the digital signature before loading the DLL.
@@ -344,68 +300,6 @@ static void* gfnGetSymbol(void* library, char* name)
 #elif __linux__
     return dlsym(library, name);
 #endif
-}
-
-static GfnRuntimeError gfnGetDefaultClientLibraryPath(CHAR_TYPE* path)
-{
-#ifdef _WIN32
-    wchar_t* filename = (wchar_t*)malloc(sizeof(wchar_t) * PLATFORM_MAX_PATH);
-    DWORD pathSize = GetModuleFileNameW(NULL, filename, PLATFORM_MAX_PATH);
-    if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-    {
-        free(filename);
-        filename = (wchar_t*)malloc(sizeof(wchar_t) * (pathSize + 1)); //Room for \0
-        if (!filename)
-        {
-            return gfnInternalError;
-        }
-        pathSize = GetModuleFileNameW(NULL, filename, pathSize + 1);
-    }
-
-    wchar_t* lastSepPos = wcsrchr(filename, L'\\');
-    size_t pathLength = lastSepPos - filename + 1;
-    size_t dllPathLength = pathLength + 18; // "GfnRuntimeSdk.dll\0"
-
-    if (!path)
-    {
-        free(filename);
-        return gfnInternalError;
-    }
-    wcsncpy_s(path, dllPathLength, filename, _TRUNCATE);
-
-    path[pathLength] = L'\0';
-    free(filename);
-    wcsncat_s(path, dllPathLength, L"GfnRuntimeSdk.dll", 17);
-#elif __linux__
-    char buffer[PLATFORM_MAX_PATH];
-    ssize_t len;
-    char* directory = NULL;
-
-    // Get the absolute path of the executable
-    len = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
-
-    // Check for errors
-    if (len == -1) {
-        return gfnInternalError;
-    }
-
-    // Null-terminate the string
-    buffer[len] = '\0';
-
-    // Get the directory path, excluding the executable name
-    directory = dirname(buffer);
-
-    strncpy(path, directory, PLATFORM_MAX_PATH);
-
-    // Append "GfnRuntimeSdk.so" to the directory path
-    if (strlen(path) + strlen("/" GFN_CLIENT_SHARED_LIBRARY) + 1 > PLATFORM_MAX_PATH) {
-        GFN_SDK_LOG("ERROR: Could not get default client library path name: Path too long");
-        return gfnInternalError;
-    }
-
-    strcat(path, "/GfnRuntimeSdk.so");
-#endif
-    return gfnSuccess;
 }
 
 static GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
@@ -440,8 +334,7 @@ static GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
 
     if (!gfnPathExists(g_cloudLibraryPath))
     {
-        GFN_SDK_LOG("SUCCESS: Cloud library does not exist, this is running on the user client");
-        return gfnCloudLibraryNotFound;
+        return gfnInitSuccessClientOnly;
     }
 
     library = gfnLoadLibrary(g_cloudLibraryPath);
@@ -494,7 +387,8 @@ static GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     pCloudLibrary->GetPartnerSecureData = (gfnGetPartnerSecureDataFn)gfnGetSymbol(pCloudLibrary->handle, "gfnGetPartnerSecureData");
     pCloudLibrary->Free = (gfnFreeFn)gfnGetSymbol(pCloudLibrary->handle, "gfnFree");
     pCloudLibrary->AppReady = (gfnAppReadyFn)gfnGetSymbol(pCloudLibrary->handle, "gfnAppReady");
-    pCloudLibrary->SetActionZone = (gfnSetActionZoneFn)gfnGetSymbol(pCloudLibrary->handle, "gfnSetActionZone");
+    pCloudLibrary->SetEditBoxRegion = (gfnSetEditBoxRegionFn)gfnGetSymbol(pCloudLibrary->handle, "gfnSetEditBoxRegion");
+    pCloudLibrary->ClearEditBoxRegion = (gfnClearEditBoxRegionFn)gfnGetSymbol(pCloudLibrary->handle, "gfnClearEditBoxRegion");
     pCloudLibrary->SendMessage = (gfnSendMessageFn)gfnGetSymbol(pCloudLibrary->handle, "gfnSendCustomMessageToClient");
     pCloudLibrary->RegisterExitCallback = (gfnRegisterCallbackFn)gfnGetSymbol(pCloudLibrary->handle, "gfnRegisterExitCallback");
     pCloudLibrary->RegisterPauseCallback = (gfnRegisterCallbackFn)gfnGetSymbol(pCloudLibrary->handle, "gfnRegisterPauseCallback");
@@ -528,6 +422,7 @@ GfnRuntimeError gfnInitializeCloudSdk(void)
     // Already initialized, no need to re-initialize
     if (g_pCloudLibrary != NULL)
     {
+        GFN_SDK_LOG("Cloud library already initialized");
         return g_cloudLibraryStatus;
     }
 
@@ -576,10 +471,6 @@ static enum IsCloud g_isCloud = IsCloud_Unknown;
 #define CHECK_CLOUD_ENVIRONMENT_IMPL(bUseCache)                                             \
     if(g_isCloud == IsCloud_Unknown || !bUseCache)                                          \
     {                                                                                       \
-        if (!g_pCloudLibrary && !g_gfnSdkModule)                                            \
-        {                                                                                   \
-            return gfnAPINotInit;                                                           \
-        }                                                                                   \
         if (!g_pCloudLibrary || !g_pCloudLibrary->IsRunningInCloud)                         \
         {                                                                                   \
             GFN_SDK_LOG("Cannot call cloud function: Wrong environment");                   \
@@ -603,12 +494,9 @@ static enum IsCloud g_isCloud = IsCloud_Unknown;
     CHECK_CLOUD_API_AVAILABLE(Fn);                                      \
     return gfnTranslateCloudStatus(g_pCloudLibrary->Fn(__VA_ARGS__));
 
-GfnRuntimeError GfnInitializeSdk(GfnDisplayLanguage language)
+GfnRuntimeError GfnInitializeSdk(void)
 {
-    // If "client" SDK is already initialized, then we're good to go.
-    // "server" SDK may or may not be initialized depending on mode.
-    GfnRuntimeError clientStatus = gfnSuccess;
-    GfnRuntimeError err = gfnSuccess;
+    GfnRuntimeError initSuccess = gfnSuccess;
 
     if (!g_LoggingInitialized)
     {
@@ -616,225 +504,20 @@ GfnRuntimeError GfnInitializeSdk(GfnDisplayLanguage language)
         g_LoggingInitialized = true;
     }
 
-
-    if (g_gfnSdkModule != NULL)
+    initSuccess = gfnInitializeCloudSdk();
+    if (GFNSDK_FAILED(initSuccess))
     {
-        GFN_SDK_LOG("Client library already initialized, no need to initialize again");
-    }
-    else
-    {
-        CHAR_TYPE* filename = (CHAR_TYPE*)malloc(sizeof(CHAR_TYPE) * PLATFORM_MAX_PATH);
-        if (!filename)
-        {
-            return gfnInternalError;
-        }
-
-        err = gfnGetDefaultClientLibraryPath(filename);
-        if (GFNSDK_FAILED(err))
-        {
-            free(filename);
-            return err;
-        }
-
-        clientStatus = GfnInitializeSdkFromPathDefault(language, filename);
-        free(filename);
-    }
-
-    if (GFNSDK_FAILED(clientStatus))
-    {
-        GFN_SDK_LOG("Initialization failed: %d", clientStatus);
+        if(initSuccess == gfnCloudLibraryNotFound)
+        GFN_SDK_LOG("Cloud library init failed: %d", initSuccess);
         GfnShutdownSdk();
     }
 
-    return clientStatus;
-}
-
-// On WIN32, this accepts a wide char string.
-// On all other platforms, this accepts a UTF-8 string.
-GfnRuntimeError GfnInitializeSdkFromPathDefault(GfnDisplayLanguage language, const CHAR_TYPE* sdkLibraryPath)
-{
-    gfnInitializeRuntimeSdkFn fnGfnInitializeRuntimeSdk = NULL;
-    GfnRuntimeError clientStatus = gfnSuccess;
-    GfnRuntimeError cloudStatus = gfnSuccess;
-    const CHAR_TYPE* filename = NULL;
-
-    // If "client" library is already initialized, then we're good to go.
-    if (g_gfnSdkModule != NULL)
-    {
-        GFN_SDK_LOG("Client library already initialized, no need to initialize again");
-        return gfnSuccess;
-    }
-
-    if (!g_LoggingInitialized)
-    {
-        GFN_SDK_INIT_LOGGING();
-        g_LoggingInitialized = true;
-    }
-
-    filename = gfnGetFilenameFromPath(sdkLibraryPath);
-    if (!filename || !gfnPathEqual(filename, GFN_CLIENT_SHARED_LIBRARY))
-    {
-        GFN_SDK_LOG("Invalid SDK library name");
-        return gfnInvalidParameter;
-    }
-
-    if (!gfnPathExists(sdkLibraryPath))
-    {
-        clientStatus = gfnClientLibraryNotFound;
-    }
-    else
-    {
-
-        GFN_SDK_LOG("Initializing the GfnSdk");
-        // For security reasons, it is preferred to check the digital signature before loading the DLL.
-        // Such code is not provided here to reduce code complexity and library size, and in favor of
-        // any internal libraries built for this purpose.
-        g_gfnSdkModule = gfnLoadLibrary(sdkLibraryPath);
-        if (g_gfnSdkModule == NULL)
-        {
-            clientStatus = gfnClientLibraryNotFound;
-#ifdef _WIN32
-            DWORD lastError = GetLastError();
-            if (lastError == CRYPT_E_NO_MATCH)
-            {
-                GFN_SDK_LOG("ERROR: GFN library failed to load due to invalid signature");
-                clientStatus = gfnBinarySignatureInvalid;
-            }
-#elif __linux__
-            GFN_SDK_LOG("GFN client library is present but unable to be loaded! dlerror=%s", dlerror());
-#endif
-        }
-        else
-        {
-            fnGfnInitializeRuntimeSdk = (gfnInitializeRuntimeSdkFn)gfnGetSymbol(g_gfnSdkModule, "gfnInitializeRuntimeSdk");
-            if (fnGfnInitializeRuntimeSdk == NULL)
-            {
-                clientStatus = gfnAPINotFound;
-            }
-            else
-            {
-                clientStatus = (fnGfnInitializeRuntimeSdk)(language);
-            }
-        }
-    }
-    // The gfnClientLibraryNotFound error means client library was not present.
-    // This is allowed in the GFN cloud environment for robustness reasons as all API
-    // calls are deferred to the cloud library, although this is not a recommended use case.
-    // Any other error, including presence of a client library that couldn't be validated, is fatal.
-    if (GFNSDK_FAILED(clientStatus) && clientStatus != gfnClientLibraryNotFound)
-    {
-        GFN_SDK_LOG("Client SDK library init failed: %d", clientStatus);
-        GfnShutdownSdk();
-        return clientStatus;
-    }
-
-    // With the client library loaded attempt to load the cloud Sdk library if available (inside GFN only) in order to use it
-    // directly for cloud API calls.
-    cloudStatus = gfnInitializeCloudSdk();
-    // gfnCloudLibraryNotFound is allowed, indicating that this is not running in a cloud environment.
-    // All other errors are fatal.
-    if (GFNSDK_FAILED(cloudStatus) && (cloudStatus != gfnCloudLibraryNotFound))
-    {
-        GFN_SDK_LOG("Cloud library init failed: %d", cloudStatus);
-        GfnShutdownSdk();
-        return cloudStatus;
-    }
-
-    // If we could find either SDK library, then this is a fatal condition.
-    if (clientStatus == gfnClientLibraryNotFound && cloudStatus == gfnCloudLibraryNotFound)
-    {
-        GFN_SDK_LOG("Failed to find any valid SDK libraries");
-        return clientStatus;
-    }
-
-    GFN_SDK_LOG("Initialization successful");
-
-    if (GFNSDK_SUCCEEDED(cloudStatus) && clientStatus == gfnClientLibraryNotFound)
-    {
-        return gfnInitSuccessCloudOnly;
-    }
-    if (GFNSDK_SUCCEEDED(clientStatus) && cloudStatus == gfnCloudLibraryNotFound)
-    {
-        return gfnInitSuccessClientOnly;
-    }
-
-    return gfnSuccess;
-}
-
-GfnRuntimeError GfnInitializeSdkFromPathA(GfnDisplayLanguage language, const char* utf8SdkLibraryPath)
-{
-    if (utf8SdkLibraryPath == NULL)
-    {
-        GFN_SDK_LOG("Invalid SDK library path");
-        return gfnInvalidParameter;
-    }
-
-#ifdef _WIN32
-    // On windows, first convert to Unicode-16, then call the implementation.
-    size_t libPathSize = strlen(utf8SdkLibraryPath) + 1;
-    wchar_t* wSdkLibraryPath = (wchar_t*)malloc(libPathSize * sizeof(wchar_t));
-    if (!wSdkLibraryPath)
-    {
-        GFN_SDK_LOG("Failed to allocate for SDK library path");
-        return gfnUnableToAllocateMemory;
-    }
-    int outSize = (int)libPathSize * sizeof(wchar_t);
-    if (!GfnUtf8ToWide(utf8SdkLibraryPath, wSdkLibraryPath, outSize))
-    {
-        GFN_SDK_LOG("Failed to convert SDK library path");
-        free(wSdkLibraryPath);
-        return gfnInternalError;
-    }
-
-    GfnError status = GfnInitializeSdkFromPathDefault(language, wSdkLibraryPath);
-    free(wSdkLibraryPath);
-    return status;
-#elif __linux__
-    // On linux, this is the default encoding. Directly call the implementation.
-    return GfnInitializeSdkFromPathDefault(language, utf8SdkLibraryPath);
-#endif
-}
-
-GfnRuntimeError GfnInitializeSdkFromPathW(GfnDisplayLanguage language, const wchar_t* wSdkLibraryPath)
-{
-    if (wSdkLibraryPath == NULL)
-    {
-        GFN_SDK_LOG("Invalid SDK library path");
-        return gfnInvalidParameter;
-    }
-
-#ifdef _WIN32
-    // On windows, this is the default encoding. Directly call the implementation.
-    return GfnInitializeSdkFromPathDefault(language, wSdkLibraryPath);
-#elif __linux__
-    (void)language;
-    GFN_SDK_LOG("GfnInitializeSdkFromPathW is unsupported on linux");
-    return gfnInvalidParameter;
-#endif
+    return initSuccess;
 }
 
 GfnRuntimeError GfnShutdownSdk(void)
 {
-    gfnShutdownRuntimeSdkFn fnGfnShutdownRuntimeSdk = NULL;
-
     gfnShutDownCloudSdk();
-
-    if (g_gfnSdkModule == NULL)
-    {
-        // Not initialized, no need to shutdown
-        return gfnSuccess;
-    }
-
-    fnGfnShutdownRuntimeSdk = (gfnShutdownRuntimeSdkFn)gfnGetSymbol(g_gfnSdkModule, "gfnShutdownRuntimeSdk");
-    if (fnGfnShutdownRuntimeSdk == NULL)
-    {
-        return gfnAPINotFound;
-    }
-
-    fnGfnShutdownRuntimeSdk();
-
-    gfnFreeLibrary(g_gfnSdkModule);
-    g_gfnSdkModule = NULL;
 
     GFN_SDK_DEINIT_LOGGING();
     return gfnSuccess;
@@ -844,11 +527,6 @@ GfnRuntimeError GfnIsRunningInCloud(bool* runningInCloud)
 {
     CHECK_NULL_PARAM(runningInCloud);
     *runningInCloud = false;
-
-    if (g_pCloudLibrary == NULL && g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
 
     if (g_pCloudLibrary == NULL)
     {
@@ -874,11 +552,6 @@ GfnRuntimeError GfnIsRunningInCloudSecure(GfnIsRunningInCloudAssurance* assuranc
 
     CHECK_NULL_PARAM(assurance);
     *assurance = gfnNotCloud;
-
-    if (g_pCloudLibrary == NULL && g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
 
 #ifdef _WIN32
     if (wcslen(g_cloudLibraryPath) == 0)
@@ -922,11 +595,6 @@ GfnRuntimeError GfnCloudCheck(const GfnCloudCheckChallenge* challenge, GfnCloudC
 
     *isCloudEnvironment = false;
 
-    if (g_pCloudLibrary == NULL && g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
-
 #ifdef _WIN32
     if (wcslen(g_cloudLibraryPath) == 0)
 #elif __linux__
@@ -965,10 +633,6 @@ GfnRuntimeError GfnGetCloudType(
 #if __linux__
     return gfnUnsupportedAPICall;
 #endif
-    if (g_pCloudLibrary == NULL && g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
 
 #ifdef _WIN32
     if (wcslen(g_cloudLibraryPath) == 0)
@@ -1096,7 +760,6 @@ GfnRuntimeError GfnGetTitlesAvailable(const char** platformAppIds)
     DELEGATE_TO_CLOUD_LIBRARY(GetTitlesAvailable, platformAppIds);
 }
 
-
 GfnRuntimeError GfnGetClientInfo(GfnClientInfo* clientInfo)
 {
     GFN_SDK_LOG("Calling GfnGetClientInfo");
@@ -1136,8 +799,15 @@ GfnRuntimeError GfnRegisterClientInfoCallback(ClientInfoCallbackSig clientInfoCa
     CHECK_CLOUD_ENVIRONMENT();
     GFN_SDK_LOG("Registering for ClientInfo updates");
     pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
-    pWrappedContext->fnCallback = (void*)clientInfoCallback;
-    pWrappedContext->pOrigUserContext = pUserContext;
+    if (!!pWrappedContext)
+    {
+        pWrappedContext->fnCallback = (void*)clientInfoCallback;
+        pWrappedContext->pOrigUserContext = pUserContext;
+    }
+    else
+    {
+        return gfnInitFailure;
+    }
 
     // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
     // cppcheck-suppress memleak
@@ -1179,115 +849,24 @@ static void GFN_CALLBACK _gfnNetworkStatusCallbackWrapper(int status, void* upda
 GfnRuntimeError GfnRegisterNetworkStatusCallback(NetworkStatusCallbackSig networkStatusCallback, unsigned int updateRateMs, void* pUserContext)
 {
     _gfnUserContextCallbackWrapper* pWrappedContext = NULL;
-    
+
     CHECK_NULL_PARAM(networkStatusCallback);
     CHECK_CLOUD_ENVIRONMENT();
     GFN_SDK_LOG("Registering for NetworkStatus updates");
     pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
-    pWrappedContext->fnCallback = (void*)networkStatusCallback;
-    pWrappedContext->pOrigUserContext = pUserContext;
+    if (!!pWrappedContext)
+    {
+        pWrappedContext->fnCallback = (void*)networkStatusCallback;
+        pWrappedContext->pOrigUserContext = pUserContext;
+    }
+    else
+    {
+        return gfnInitFailure;
+    }
 
     // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
     // cppcheck-suppress memleak
     DELEGATE_TO_CLOUD_LIBRARY(RegisterNetworkStatusCallback, &_gfnNetworkStatusCallbackWrapper, updateRateMs, (void*)(pWrappedContext));
-}
-
-GfnRuntimeError GfnRegisterStreamStatusCallback(StreamStatusCallbackSig streamStatusCallback, void* userContext)
-{
-    gfnRegisterStreamStatusCallbackFn fnRegisterStreamStatusCallback = NULL;
-
-    if (g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
-
-    fnRegisterStreamStatusCallback = (gfnRegisterStreamStatusCallbackFn)gfnGetSymbol(g_gfnSdkModule, "gfnRegisterStreamStatusCallback");
-
-    if (fnRegisterStreamStatusCallback == NULL)
-    {
-        return gfnAPINotFound;
-    }
-
-    return fnRegisterStreamStatusCallback(streamStatusCallback, userContext);
-}
-
-GfnRuntimeError GfnStartStream(StartStreamInput * startStreamInput, StartStreamResponse* response)
-{
-    gfnStartStreamFn fnGfnStartStream = NULL;
-    
-    if (g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
-
-    fnGfnStartStream = (gfnStartStreamFn)gfnGetSymbol(g_gfnSdkModule, "gfnStartStream");
-
-    if (fnGfnStartStream == NULL)
-    {
-        return gfnAPINotFound;
-    }
-
-    return fnGfnStartStream(startStreamInput, response);
-}
-
-GfnRuntimeError GfnStartStreamAsync(const StartStreamInput* startStreamInput, StartStreamCallbackSig cb, void* context, unsigned int timeoutMs)
-{
-    gfnStartStreamAsyncFn fnGfnStartStreamAsync = NULL;
-    if (g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
-
-    fnGfnStartStreamAsync = (gfnStartStreamAsyncFn)gfnGetSymbol(g_gfnSdkModule, "gfnStartStreamAsync");
-
-    if (fnGfnStartStreamAsync == NULL)
-    {
-        return gfnAPINotFound;
-    }
-
-    fnGfnStartStreamAsync(startStreamInput, cb, context, timeoutMs);
-
-    return gfnSuccess;
-}
-
-GfnRuntimeError GfnStopStream(void)
-{
-    gfnStopStreamFn fnGfnStopStream = NULL;
-
-    if (g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
-
-    fnGfnStopStream = (gfnStopStreamFn)gfnGetSymbol(g_gfnSdkModule, "gfnStopStream");
-
-    if (fnGfnStopStream == NULL)
-    {
-        return gfnAPINotFound;
-    }
-
-    return fnGfnStopStream();
-}
-
-GfnRuntimeError GfnStopStreamAsync(StopStreamCallbackSig cb, void* context, unsigned int timeoutMs)
-{
-    gfnStopStreamAsyncFn fnGfnStopStreamAsync = NULL;
-
-    if (g_gfnSdkModule == NULL)
-    {
-        return gfnAPINotInit;
-    }
-
-    fnGfnStopStreamAsync = (gfnStopStreamAsyncFn)gfnGetSymbol(g_gfnSdkModule, "gfnStopStreamAsync");
-
-    if (fnGfnStopStreamAsync == NULL)
-    {
-        return gfnAPINotFound;
-    }
-
-    fnGfnStopStreamAsync(cb, context, timeoutMs);
-
-    return gfnSuccess;
 }
 
 GfnRuntimeError GfnSetupTitle(const char* platformAppId)
@@ -1314,32 +893,36 @@ GfnRuntimeError GfnAppReady(bool success, const char* status)
 GfnRuntimeError GfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* zone)
 {
     CHECK_CLOUD_ENVIRONMENT();
-    DELEGATE_TO_CLOUD_LIBRARY(SetActionZone, type, id, zone);
+    if (type == gfnEditBox)
+    {
+        if (zone != NULL)
+        {
+            DELEGATE_TO_CLOUD_LIBRARY(SetEditBoxRegion, id, zone, 0 /* no flags */);
+        }
+        else
+        {
+            DELEGATE_TO_CLOUD_LIBRARY(ClearEditBoxRegion, id);
+        }
+    }
+    return gfnAPINotFound;
 }
 
-GfnRuntimeError GfnSendMessage(const char* pchMessage, unsigned int length) {
-    gfnSendMessageFn fnSendMessage = NULL;
+GfnRuntimeError GfnSetEditBoxRegion(unsigned int id, GfnRect* region, unsigned int flags)
+{
+    CHECK_CLOUD_ENVIRONMENT();
+    DELEGATE_TO_CLOUD_LIBRARY(SetEditBoxRegion, id, region, flags);
+}
 
-    if (g_pCloudLibrary != NULL && g_pCloudLibrary->SendMessage != NULL)                                        \
-    {                                                                       \
-        DELEGATE_TO_CLOUD_LIBRARY(SendMessage, pchMessage, length);              \
-    }
-    else
-    {
-        if (g_gfnSdkModule == NULL)
-        {
-            return gfnAPINotInit;
-        }
+GfnRuntimeError GfnClearEditBoxRegion(unsigned int id)
+{
+    CHECK_CLOUD_ENVIRONMENT();
+    DELEGATE_TO_CLOUD_LIBRARY(ClearEditBoxRegion, id);
+}
 
-        fnSendMessage = (gfnSendMessageFn)gfnGetSymbol(g_gfnSdkModule, "gfnSendMessage");
-
-        if (fnSendMessage == NULL)
-        {
-            return gfnAPINotFound;
-        }
-
-        return fnSendMessage(pchMessage, length);
-    }
+GfnRuntimeError GfnSendMessage(const char* pchMessage, unsigned int length)
+{
+    CHECK_CLOUD_ENVIRONMENT();
+    DELEGATE_TO_CLOUD_LIBRARY(SendMessage, pchMessage, length);
 }
 
 GfnRuntimeError GfnOpenURLOnClient(const char* pchUrl) {
@@ -1351,6 +934,7 @@ GfnRuntimeError GfnSetAppState(GfnAppState appState) {
     CHECK_CLOUD_ENVIRONMENT();
     DELEGATE_TO_CLOUD_LIBRARY(SetAppState, appState);
 }
+
 
 static void GFN_CALLBACK _gfnExitCallbackWrapper(int status, void* pUnused, void* pContext)
 {
@@ -1378,8 +962,15 @@ GfnRuntimeError GfnRegisterExitCallback(ExitCallbackSig exitCallback, void* pUse
     GFN_SDK_LOG("Registering for Exit Callback updates");
 
     pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
-    pWrappedContext->fnCallback = (void*)exitCallback;
-    pWrappedContext->pOrigUserContext = pUserContext;
+    if (!!pWrappedContext)
+    {
+        pWrappedContext->fnCallback = (void*)exitCallback;
+        pWrappedContext->pOrigUserContext = pUserContext;
+    }
+    else
+    {
+        return gfnInitFailure;
+    }
 
     // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
     // cppcheck-suppress memleak
@@ -1412,8 +1003,15 @@ GfnRuntimeError GfnRegisterPauseCallback(PauseCallbackSig pauseCallback, void* p
     GFN_SDK_LOG("Registering for Pause Callback updates");
 
     pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
-    pWrappedContext->fnCallback = (void*)pauseCallback;
-    pWrappedContext->pOrigUserContext = pUserContext;
+    if (!!pWrappedContext)
+    {
+        pWrappedContext->fnCallback = (void*)pauseCallback;
+        pWrappedContext->pOrigUserContext = pUserContext;
+    }
+    else
+    {
+        return gfnInitFailure;
+    }
 
     // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
     // cppcheck-suppress memleak
@@ -1432,7 +1030,10 @@ static void GFN_CALLBACK _gfnInstallCallbackWrapper(int status, void* pTitleInst
         return;
     }
     cb = (InstallCallbackSig)(pWrappedContext->fnCallback);
-    cb((TitleInstallationInformation*)pTitleInstallationInformation, pWrappedContext->pOrigUserContext);
+    if (!!cb)
+    {
+        cb((TitleInstallationInformation*)pTitleInstallationInformation, pWrappedContext->pOrigUserContext);;
+    }
 }
 
 GfnRuntimeError GfnRegisterInstallCallback(InstallCallbackSig installCallback, void* pUserContext)
@@ -1445,8 +1046,15 @@ GfnRuntimeError GfnRegisterInstallCallback(InstallCallbackSig installCallback, v
     GFN_SDK_LOG("Registering for Install Callback updates");
 
     pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
-    pWrappedContext->fnCallback = (void*)installCallback;
-    pWrappedContext->pOrigUserContext = pUserContext;
+    if (!!pWrappedContext)
+    {
+        pWrappedContext->fnCallback = (void*)installCallback;
+        pWrappedContext->pOrigUserContext = pUserContext;
+    }
+    else
+    {
+        return gfnInitFailure;
+    }
 
     // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
     // cppcheck-suppress memleak
@@ -1479,8 +1087,15 @@ GfnRuntimeError GfnRegisterSaveCallback(SaveCallbackSig saveCallback, void* pUse
     GFN_SDK_LOG("Registering for Save Callback updates");
 
     pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
-    pWrappedContext->fnCallback = (void*)saveCallback;
-    pWrappedContext->pOrigUserContext = pUserContext;
+    if (!!pWrappedContext)
+    {
+        pWrappedContext->fnCallback = (void*)saveCallback;
+        pWrappedContext->pOrigUserContext = pUserContext;
+    }
+    else
+    {
+        return gfnInitFailure;
+    }
 
     // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
     // cppcheck-suppress memleak
@@ -1512,8 +1127,15 @@ GfnRuntimeError GfnRegisterSessionInitCallback(SessionInitCallbackSig sessionIni
     GFN_SDK_LOG("Registering for SessionInit Callback updates");
 
 	pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
-    pWrappedContext->fnCallback = (void*)sessionInitCallback;
-    pWrappedContext->pOrigUserContext = pUserContext;
+    if (!!pWrappedContext)
+    {
+        pWrappedContext->fnCallback = (void*)sessionInitCallback;
+        pWrappedContext->pOrigUserContext = pUserContext;
+    }
+    else
+    {
+        return gfnInitFailure;
+    }
 
     // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
     // cppcheck-suppress memleak
@@ -1538,37 +1160,25 @@ static void GFN_CALLBACK _gfnMessageCallbackWrapper(int status, void* pMessage, 
 GfnRuntimeError GfnRegisterMessageCallback(MessageCallbackSig messageCallback, void* pUserContext)
 {
     _gfnUserContextCallbackWrapper* pWrappedContext = NULL;
-    gfnRegisterMessageCallbackFn fnRegisterMessageCallback = NULL;
 
     CHECK_NULL_PARAM(messageCallback);
+    CHECK_CLOUD_ENVIRONMENT();
 
-    if (g_pCloudLibrary != NULL && g_pCloudLibrary->RegisterMessageCallback != NULL)
+    pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
+    if (!!pWrappedContext)
     {
-        pWrappedContext = (_gfnUserContextCallbackWrapper*)malloc(sizeof(_gfnUserContextCallbackWrapper));
         pWrappedContext->fnCallback = (void*)messageCallback;
         pWrappedContext->pOrigUserContext = pUserContext;
-
-        // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
-        // cppcheck-suppress memleak
-        DELEGATE_TO_CLOUD_LIBRARY(RegisterMessageCallback, &_gfnMessageCallbackWrapper, pWrappedContext);
     }
     else
     {
-        if (g_gfnSdkModule == NULL)
-        {
-            return gfnAPINotInit;
-        }
-
-        fnRegisterMessageCallback = (gfnRegisterMessageCallbackFn)gfnGetSymbol(g_gfnSdkModule, "gfnRegisterMessageCallback");
-        if (fnRegisterMessageCallback == NULL)
-        {
-            return gfnAPINotFound;
-        }
-
-        return fnRegisterMessageCallback(messageCallback, pUserContext);
+        return gfnInitFailure;
     }
-}
 
+    // Suppress CppCheck warning about memory leak. The cloud DLL takes ownership of the memory and will free on call to gfnShutdownSdk
+    // cppcheck-suppress memleak
+    DELEGATE_TO_CLOUD_LIBRARY(RegisterMessageCallback, &_gfnMessageCallbackWrapper, pWrappedContext);
+}
 
 void gfnInitLogging(void)
 {

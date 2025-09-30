@@ -75,7 +75,7 @@ void ApplicationInitialize()
     printf("\n\nApplication: Initializing...\n");
 
     // Initialize the GeForce NOW Runtime SDK using the C calling convention.
-    GfnRuntimeError err = GfnInitializeSdk(gfnDefaultLanguage);
+    GfnRuntimeError err = GfnInitializeSdk();
     if (GFNSDK_FAILED(err))
     {
         // Initialization errors generally indicate a flawed environment. Check error code for details.
@@ -235,6 +235,73 @@ int main()
         {
             printf("Failed to retrieve GeForce NOW client Country code. GfnError: %d, %s\n", err, GfnErrorToString(err));
         }
+
+        GfnRect rect = { 0.5f, 0.5f, 0.1f, 0.1f, true, gfnRectXYWH };
+        GfnSetEditBoxRegion(1, &rect, 0);
+        rect.value1 = rect.value2 = 0.1f;
+        GfnSetEditBoxRegion(2, &rect, GFN_EDITBOX_FLAG_LONG_PRESS_OVERRIDE);
+        GfnClearEditBoxRegion(1);
+        rect.value1 = rect.value2 = 0.2f;
+        GfnSetEditBoxRegion(3, &rect, GFN_EDITBOX_FLAG_LONG_PRESS_OVERRIDE);
+        GfnClearEditBoxRegion(2);
+        GfnClearEditBoxRegion(3);
+        err = GfnSetActionZone(gfnEditBox, 1, &rect);
+        if (err == gfnSuccess)
+        {
+            printf("Set an action zone.\n");
+        }
+        else
+        {
+            printf("Failed to set an action zone. GfnError: %d, %s\n", err, GfnErrorToString(err));
+        }
+        rect.value1 = rect.value2 = 0.1f;
+        err = GfnSetActionZone(gfnEditBox, 2, &rect);
+        if (err == gfnSuccess)
+        {
+            printf("Set a second action zone.\n");
+        }
+        else
+        {
+            printf("Failed to set a second action zone. GfnError: %d, %s\n", err, GfnErrorToString(err));
+        }
+        err = GfnSetActionZone(gfnEditBox, 1, NULL);
+        if (err == gfnSuccess)
+        {
+            printf("Cleared the first action zone.\n");
+        }
+        else
+        {
+            printf("Failed to clear the first action zone. GfnError: %d, %s\n", err, GfnErrorToString(err));
+        }
+        rect.value1 = rect.value2 = 0.2f;
+        err = GfnSetActionZone(gfnEditBox, 3, &rect);
+        if (err == gfnSuccess)
+        {
+            printf("Set a third action zone.\n");
+        }
+        else
+        {
+            printf("Failed to set a third action zone. GfnError: %d, %s\n", err, GfnErrorToString(err));
+        }
+        err = GfnSetActionZone(gfnEditBox, 2, NULL);
+        if (err == gfnSuccess)
+        {
+            printf("Cleared the second action zone.\n");
+        }
+        else
+        {
+            printf("Failed clear the second action zone. GfnError: %d, %s\n", err, GfnErrorToString(err));
+        }
+        err = GfnSetActionZone(gfnEditBox, 3, NULL);
+        if (err == gfnSuccess)
+        {
+            printf("Cleared the third action zone.\n");
+        }
+        else
+        {
+            printf("Failed clear the third action zone. GfnError: %d, %s\n", err, GfnErrorToString(err));
+        }
+
         char const* partnerSecureData = NULL;
         err = GfnGetPartnerSecureData(&partnerSecureData);
         if (GFNSDK_SUCCEEDED(err)) {

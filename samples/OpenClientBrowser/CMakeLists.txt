@@ -25,20 +25,7 @@ elseif (LINUX)
     target_link_libraries(GfnSdkOpenClientBrowserSample PRIVATE ${X11_LIBRARIES})
 endif (WIN32)
 
-# Copy SDK shared library to output directory to bring the sample up to date
-add_custom_command(
-    OUTPUT "${_gfn_runtime_shared_lib}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GfnRuntime> ${_gfn_runtime_shared_lib}
-    DEPENDS GfnRuntime
-)
-target_sources(GfnSdkOpenClientBrowserSample PRIVATE "${_gfn_runtime_shared_lib}")
-
 install(TARGETS GfnSdkOpenClientBrowserSample
-    DESTINATION ./
-    COMPONENT sdk_openclientbrowserapp
-)
-install(FILES $<TARGET_FILE:GfnRuntime>
     DESTINATION ./
     COMPONENT sdk_openclientbrowserapp
 )

@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2020-2021 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2020-2025 NVIDIA Corporation. All rights reserved.
 
 //
 // ===============================================================================================
@@ -31,12 +31,6 @@
 // Common declarations for GFN SDK APIs
 //
 // ===============================================================================================
-
-/**
-* @file GfnSdk.h
-*
-* Common declarations for GFN SDK APIs
-*/
 
 
 
@@ -59,52 +53,53 @@
 #   include <stddef.h>
 #else
 // Support to be added in a later release
-/// Future support
+// Future support
 #   define GFN_CALLBACK
-/// Future support
+// Future support
 #   define NVGFNSDK_EXPORT
-/// Future support
+// Future support
 #   define NVGFNSDKApi
 #endif
 
+
 #ifndef __cplusplus
-/// @brief Simple aliasing for bool support
+// Simple aliasing for bool support
 #include <stdbool.h>
-/// @brief Simple aliasing for Boolean false
+// Simple aliasing for Boolean false
 #define false 0
-/// @brief Simple aliasing for Boolean true
+// Simple aliasing for Boolean true
 #define true 1
 #endif
 
-/// @brief GFN SDK Major Version
-#define NVGFNSDK_VERSION_MAJOR 2
+// GFN SDK Major Version
+#define NVGFNSDK_VERSION_MAJOR 3
 
-/// @brief GFN SDK Minor Version
-#define NVGFNSDK_VERSION_MINOR 6
+// GFN SDK Minor Version
+#define NVGFNSDK_VERSION_MINOR 0
 
-/// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_SHORT 2.6
+// GFN SDK Version
+#define NVGFNSDK_VERSION_SHORT 3.0
 
-/// @brief GFN SDK Patch Version
+// GFN SDK Patch Version
 #define NVGFNSDK_VERSION_PATCH 0
 
-/// @brief GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 35897475
+// GFN SDK Build Version
+#define NVGFNSDK_VERSION_BUILD 36615226
 
-/// @brief GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 2.6.0.35897475
+// GFN SDK Version
+#define NVGFNSDK_VERSION_LONG 3.0.0.36615226
 
-/// @brief GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "2.6.0.35897475"
-/// @brief GFN SDK PROD Version string
-#define NVGFNSDK_VERSION_STR_PROD "2.6.0"
+// GFN SDK Version string
+#define NVGFNSDK_VERSION_STR   "3.0.0.36615226"
+// GFN SDK PROD Version string
+#define NVGFNSDK_VERSION_STR_PROD "3.0.0"
 
-/// @brief GFN SDK Build CL
-#define NVGFNSDK_VERSION_BUILDCL 35897475
-/// @brief GFN SDK Build High part of the build version
-#define NVGFNSDK_VERSION_BUILDH 3589
-/// @brief GFN SDK Build Low part of the build version
-#define NVGFNSDK_VERSION_BUILDL 7475
+// GFN SDK Build CL
+#define NVGFNSDK_VERSION_BUILDCL 36615226
+// GFN SDK Build High part of the build version
+#define NVGFNSDK_VERSION_BUILDH 3661
+// GFN SDK Build Low part of the build version
+#define NVGFNSDK_VERSION_BUILDL 5226
 
 
 #ifdef __cplusplus
@@ -115,55 +110,56 @@
         // Constants/Enums
         // ============================================================================================
 
-        /// @brief Returned by InitializeGfnRuntime and GfnRuntime API methods
+        // Returned by InitializeGfnRuntime and GfnRuntime API methods
         typedef enum GfnError
         {
-            gfnSuccess = 0, ///< Success
-            gfnInitSuccessClientOnly = 1, ///< SDK initialized, but only cloud independent functionality available (such as gfnStartStream)
-            gfnInitSuccessCloudOnly = 2, ///< SDK initialized, but only cloud functionality is available
-            gfnInitFailure = -1, ///< SDK initialization failure for any reason other than memory allocation failure
-            gfnDllNotPresent = -2, ///< DLL is not present
-            gfnComError = -3, ///< Geforce NOW SDK internal component communication error
-            gfnLibraryCallFailure = -4, ///< Geforce NOW SDK components were reachable, but could not serve the request
-            gfnIncompatibleVersion = -5, ///< Incompatible version
-            gfnUnableToAllocateMemory = -6, ///< Unable to allocate memory
-            gfnInvalidParameter = -7, ///< Invalid parameter
-            gfnInternalError = -8, ///< Generic Geforce NOW SDK internal error
-            gfnUnsupportedAPICall = -9, ///< API Call is not supported
-            gfnInvalidToken = -10, ///< Invalid token
-            gfnTimedOut = -11, ///< Operation timed out
-            gfnSetupTitleFailure = -12, ///< Failed to setup title
-            gfnClientDownloadFailed = -13, ///< Failed to download the Geforce NOW client
-            gfnCallWrongEnvironment = -14, ///< Function limited to specific environment called in wrong environment
-            gfnWebApiFailed = -15, ///< A call to a NVIDIA Web API failed to return valid data
-            gfnStreamFailure = -16, ///< GeForceNOW Streamer hit a failure while starting a stream
-            gfnAPINotFound = -17, ///< Library API call not found
-            gfnAPINotInit = -18, ///< API not initialized
-            gfnStreamStopFailure = -19, ///< Failed to stop active streaming session
-            gfnUnhandledException = -20, ///< Unhandled exceptions
-            gfnIPCFailure = -21, ///< Messagebus IPC failures
-            gfnCanceled = -22, ///< Activity was canceled, for example, user canceled the download of GFN client
-            gfnElevationRequired = -23, ///< API call required to be run from an elevated process
-            gfnThrottled = -24, ///< API call throttled
-            gfnInputExpected = -25, ///< API call was expecting input param to have a value
-            gfnBinarySignatureInvalid = -26, ///< An attempt to load a binary failed because the digital signature was found to be invalid
-            gfnCloudLibraryNotFound = -27, ///< Necessary GFN cloud-based SDK library cannot be found
-            gfnClientLibraryNotFound = -28, ///< Necessary GFN client-based SDK library cannot be found
-            gfnNoData = -29, ///< Requested data is empty or doesn't exist
-            gfnNotAuthorized = -30, ///<API Call failed because it was called from unauthorized process
-            gfnBackendError = -31 ///<Failed to communicate with the GFN backend service
+            gfnSuccess = 0, // Success
+            gfnInitSuccessClientOnly = 1, // SDK initialized, but only cloud independent functionality available (such as gfnStartStream)
+            gfnInitSuccessCloudOnly = 2, // SDK initialized, but only cloud functionality is available
+            gfnInitFailure = -1, // SDK initialization failure for any reason other than memory allocation failure
+            gfnDllNotPresent = -2, // DLL is not present
+            gfnComError = -3, // Geforce NOW SDK internal component communication error
+            gfnLibraryCallFailure = -4, // Geforce NOW SDK components were reachable, but could not serve the request
+            gfnIncompatibleVersion = -5, // Incompatible version
+            gfnUnableToAllocateMemory = -6, // Unable to allocate memory
+            gfnInvalidParameter = -7, // Invalid parameter
+            gfnInternalError = -8, // Generic Geforce NOW SDK internal error
+            gfnUnsupportedAPICall = -9, // API Call is not supported
+            gfnInvalidToken = -10, // Invalid token
+            gfnTimedOut = -11, // Operation timed out
+            gfnSetupTitleFailure = -12, // Failed to setup title
+            gfnClientDownloadFailed = -13, // Failed to download the Geforce NOW client
+            gfnCallWrongEnvironment = -14, // Function limited to specific environment called in wrong environment
+            gfnWebApiFailed = -15, // A call to a NVIDIA Web API failed to return valid data
+            gfnStreamFailure = -16, // GeForceNOW Streamer hit a failure while starting a stream
+            gfnAPINotFound = -17, // Library API call not found
+            gfnAPINotInit = -18, // API not initialized
+            gfnStreamStopFailure = -19, // Failed to stop active streaming session
+            gfnUnhandledException = -20, // Unhandled exceptions
+            gfnIPCFailure = -21, // Messagebus IPC failures
+            gfnCanceled = -22, // Activity was canceled, for example, user canceled the download of GFN client
+            gfnElevationRequired = -23, // API call required to be run from an elevated process
+            gfnThrottled = -24, // API call throttled
+            gfnInputExpected = -25, // API call was expecting input param to have a value
+            gfnBinarySignatureInvalid = -26, // An attempt to load a binary failed because the digital signature was found to be invalid
+            gfnCloudLibraryNotFound = -27, // Necessary GFN cloud-based SDK library cannot be found
+            gfnClientLibraryNotFound = -28, // Necessary GFN client-based SDK library cannot be found
+            gfnNoData = -29, // Requested data is empty or doesn't exist
+            gfnNotAuthorized = -30, //API Call failed because it was called from unauthorized process
+            gfnBackendError = -31, //Failed to communicate with the GFN backend service
+            gfnEntitlementNotFound = -32, // User/App is not entitled
         } GfnError;
 
-        ///
-        /// @par Description
-        /// GfnRuntimeError error description function
-        ///
-        /// @par Usage
-        /// Use to determine provide a text description to an GfnError value
-        ///
-        /// @param error - GfnError type value
-        ///
-        /// @retval string literal of text associated to the error
+        //
+        // Description
+        // GfnRuntimeError error description function
+        //
+        // Usage
+        // Use to determine provide a text description to an GfnError value
+        //
+        // error - GfnError type value
+        //
+        // string literal of text associated to the error
         static inline char const * GfnErrorToString(GfnError err)
         {
             switch (err)
@@ -201,128 +197,133 @@
             case gfnNoData: return "Requested data is empty or does not exist";
             case gfnNotAuthorized: return "API Call failed because it was called from unauthorized process";
             case gfnBackendError: return "Failed to communicate with the GFN backend service";
+            case gfnEntitlementNotFound: return "User/App is not entitled";
             default: return "Unknown Error";
             }
         }
 
-        ///
-        /// @par Description
-        /// GfnRuntimeError success function
-        ///
-        /// @par Usage
-        /// Use to determine if GfnRuntimeError value translates to success
-        ///
-        /// @param code - GfnRuntimeError type value
-        ///
-        /// @retval true - GfnRuntimeError value indicates success
-        /// @retval false - GfnRuntimeError value indicates failure
+        //
+        // Description
+        // GfnRuntimeError success function
+        //
+        // Usage
+        // Use to determine if GfnRuntimeError value translates to success
+        //
+        // Parameters
+        // code - GfnRuntimeError type value
+        //
+        // Return Values
+        // true - GfnRuntimeError value indicates success
+        // false - GfnRuntimeError value indicates failure
         static inline bool GFNSDK_SUCCEEDED(GfnError code)
         {
             return code >= 0;
         }
 
-        ///
-        /// @par Description
-        /// GfnRuntimeError failure function
-        ///
-        /// @par Usage
-        /// Use to determine if GfnRuntimeError value translates to failure
-        ///
-        /// @param code - GfnRuntimeError type value
-        ///
-        /// @retval true - GfnRuntimeError value indicates failure
-        /// @retval false - GfnRuntimeError value indicates success
+        //
+        // Description
+        // GfnRuntimeError failure function
+        //
+        // Usage
+        // Use to determine if GfnRuntimeError value translates to failure
+        //
+        // Parameters
+        // code - GfnRuntimeError type value
+        //
+        // Return Values
+        // true - GfnRuntimeError value indicates failure
+        // false - GfnRuntimeError value indicates success
         static inline bool GFNSDK_FAILED(GfnError code)
         {
             return code < 0;
         }
 
-        /// @brief Values for languages supported by the GFN SDK, used to define which language any SDK dialogs should be displayed in.
+        // Values for languages supported by the GFN SDK, used to define which language any SDK dialogs should be displayed in.
         typedef enum GfnDisplayLanguage
         {
-            gfnDefaultLanguage = 0, ///< Uses the default system language
-            gfn_bg_BG = 1, ///< Bulgarian (Bulgaria)
-            gfn_cs_CZ = 2, ///< Czech (Czech Republic)
-            gfn_nl_NL = 3, ///< Dutch (Netherlands)
-            gfn_de_DE = 4, ///< German (Germany)
-            gfn_el_GR = 5, ///< Greek (Greece)
-            gfn_en_US = 6, ///< English (US)
-            gfn_en_UK = 7, ///< English (Great Britain)
-            gfn_es_ES = 8, ///< Spanish (Spain)
-            gfn_es_MX = 9, ///< Spanish (Mexico)
-            gfn_fi_FI = 10, ///< Finnish (Finland)
-            gfn_fr_FR = 11, ///< French (France)
-            gfn_hu_HU = 12, ///< Hungarian (Hungary)
-            gfn_it_IT = 13, ///< Italian (Italy)
-            gfn_ja_JP = 14, ///< Japanese (Japan)
-            gfn_ko_KR = 15, ///< Korean (Korea)
-            gfn_nb_NO = 16, ///< Norwegian - Bokmål (Norway)
-            gfn_po_PO = 17, ///< Polish (Poland)
-            gfn_pt_BR = 18, ///< Portuguese (Brazil)
-            gfn_pt_PT = 19, ///< Portuguese (Portugal)
-            gfn_ro_RO = 20, ///< Romanian (Romania)
-            gfn_ru_RU = 21, ///< Russian (Russia)
-            gfn_sv_SE = 22, ///< Swedish (Sweden)
-            gfn_th_TH = 23, ///< Thai (Thailand)
-            gfn_tr_TR = 24, ///< Turkish (Turkey)
-            gfn_uk_UA = 25, ///< Ukrainian (Ukraine)
-            gfn_zh_CN = 26, ///< Chinese (China)
-            gfn_zh_TW = 27, ///< Chinese (Taiwan)
-            gfn_en_GB = 28, ///< English (Great Britain)
-            gfn_hr_HR = 29, ///< Croatian (Croatia)
-            gfn_sk_SK = 30, ///< Slovak (Slovakia)
-            gfn_sl_SI = 31, ///< Slovenian (Slovenia)
-            gfn_da_DK = 32, ///< Danish (Denmark)
-            gfnMaxLanguage = gfn_da_DK  ///< Last Supported Locale (Sentinel Value)
+            gfnDefaultLanguage = 0, // Uses the default system language
+            gfn_bg_BG = 1, // Bulgarian (Bulgaria)
+            gfn_cs_CZ = 2, // Czech (Czech Republic)
+            gfn_nl_NL = 3, // Dutch (Netherlands)
+            gfn_de_DE = 4, // German (Germany)
+            gfn_el_GR = 5, // Greek (Greece)
+            gfn_en_US = 6, // English (US)
+            gfn_en_UK = 7, // English (Great Britain)
+            gfn_es_ES = 8, // Spanish (Spain)
+            gfn_es_MX = 9, // Spanish (Mexico)
+            gfn_fi_FI = 10, // Finnish (Finland)
+            gfn_fr_FR = 11, // French (France)
+            gfn_hu_HU = 12, // Hungarian (Hungary)
+            gfn_it_IT = 13, // Italian (Italy)
+            gfn_ja_JP = 14, // Japanese (Japan)
+            gfn_ko_KR = 15, // Korean (Korea)
+            gfn_nb_NO = 16, // Norwegian - Bokmål (Norway)
+            gfn_po_PO = 17, // Polish (Poland)
+            gfn_pt_BR = 18, // Portuguese (Brazil)
+            gfn_pt_PT = 19, // Portuguese (Portugal)
+            gfn_ro_RO = 20, // Romanian (Romania)
+            gfn_ru_RU = 21, // Russian (Russia)
+            gfn_sv_SE = 22, // Swedish (Sweden)
+            gfn_th_TH = 23, // Thai (Thailand)
+            gfn_tr_TR = 24, // Turkish (Turkey)
+            gfn_uk_UA = 25, // Ukrainian (Ukraine)
+            gfn_zh_CN = 26, // Chinese (China)
+            gfn_zh_TW = 27, // Chinese (Taiwan)
+            gfn_en_GB = 28, // English (Great Britain)
+            gfn_hr_HR = 29, // Croatian (Croatia)
+            gfn_sk_SK = 30, // Slovak (Slovakia)
+            gfn_sl_SI = 31, // Slovenian (Slovenia)
+            gfn_da_DK = 32, // Danish (Denmark)
+            gfnMaxLanguage = gfn_da_DK  // Last Supported Locale (Sentinel Value)
         } GfnDisplayLanguage;
 
-        /// @brief Formats to specify a rect with top-left as origin
+        // Formats to specify a rect with top-left as origin
         typedef enum GfnRectFormat
         {
-            /// value1 : Left
-            /// value2 : Top
-            /// value3 : Right
-            /// value4 : Bottom
+            // value1 : Left
+            // value2 : Top
+            // value3 : Right
+            // value4 : Bottom
             gfnRectLTRB = 0,
 
-            /// value1 : Top Left Corner's X coordinate
-            /// value2 : Top Left Corner's Y coordinate
-            /// value3 : Width
-            /// value4 : Height
+            // value1 : Top Left Corner's X coordinate
+            // value2 : Top Left Corner's Y coordinate
+            // value3 : Width
+            // value4 : Height
             gfnRectXYWH,
 
-            /// Sentinel value, do not use
+            // Sentinel value, do not use
             gfnRectMAX
         } GfnRectFormat;
 
-        /// @brief struct to reference a rect
+        // struct to reference a rect
         typedef struct GfnRect
         {
-            float value1;         ///< value1 as per format
-            float value2;         ///< value2 as per format
-            float value3;         ///< value3 as per format
-            float value4;         ///< value4 as per format
-            bool normalized;      ///< true : coordinates are normalized between 0.0-1.0, false : absolute coordinates
-            GfnRectFormat format; ///< rect format as listed in GfnRectFormat
+            float value1;         // value1 as per format
+            float value2;         // value2 as per format
+            float value3;         // value3 as per format
+            float value4;         // value4 as per format
+            bool normalized;      // true : coordinates are normalized between 0.0-1.0, false : absolute coordinates
+            GfnRectFormat format; // rect format as listed in GfnRectFormat
         } GfnRect;
 
-        /// @brief struct to reference a string with length data
+        // struct to reference a string with length data
         typedef struct GfnString
         {
-            const char* pchString; ///< char pointer to string
-            unsigned int length;   ///< length of string
+            const char* pchString; // char pointer to string
+            unsigned int length;   // length of string
         } GfnString;
 
-        /// @brief Client resolution
+        // Client resolution
         typedef struct GfnResolutionInfo
         {
-            unsigned int verticalPixels; ///< height of the resolution in pixels
-            unsigned int horizontalPixels; ///< width of the resolution in pixels
+            unsigned int verticalPixels; // height of the resolution in pixels
+            unsigned int horizontalPixels; // width of the resolution in pixels
         } GfnResolutionInfo;
+
 
 #ifdef __cplusplus
     } // extern "C"
 #endif
-
 
 #endif // GFN_SDK_CAPI_H

@@ -64,13 +64,11 @@ static void waitForSpaceBar() {
     } while (c != ' ');
 }
 
-// Example application initialization method with a call to initialize the Geforce NOW Runtime SDK.
+// Example application initialization method with a call to initialize the GeForce NOW Runtime SDK.
 GfnError SDKInitialize()
 {
-    // Using gfnDefaultLanguage to tell the SDK to use the default system language for any
-    // UI it might show, which won't be the case in this sample.
     printf("\n\nInitializing GFN SDK...\n");
-    GfnError result = GfnInitializeSdk(gfnDefaultLanguage);
+    GfnError result = GfnInitializeSdk();
     if (GFNSDK_FAILED(result))
     {
         // Initialization errors generally indicate a flawed environment. Check error code for details.
@@ -136,9 +134,7 @@ bool BasicCloudCheck()
     return bIsCloudEnvironment;
 }
 
-// Example method to call the GfnPartnerData() API method. This will return any data that was
-// passed into the session start request either via the PartnerData field from the call to the
-// GfnSdkStartStream() API, or via a web client launch as part of the Deeplink URL.
+// Example method to call the GfnPartnerData() API method. This will return any data that was passed into the session start request.
 void GetPartnerData()
 {
     printf("\n\nObtaining Partner Data...\n");
@@ -164,10 +160,7 @@ void GetPartnerData()
     }
 }
 
-// Example method to call the GfnPartnerSecureData() API method. This will return any data that
-// was passed into the session start request that is either passed by the session launch client
-// via the GfnSdkStartStream() API or was sent in response to Deep Link nonce validation request
-// from a partner's web backend.
+// Example method to call the GfnPartnerSecureData() API method. This will return any data that was passed into the session start request.
 void GetPartnerSecureData()
 {
     printf("\n\nObtaining Partner Secure Data...\n");

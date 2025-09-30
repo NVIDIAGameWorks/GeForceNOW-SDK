@@ -70,10 +70,8 @@ static void waitForSpaceBar() {
 // Application callbacks are registered with the SDK after it is initialized if running in Cloud mode.
 GfnError SDKInitialize()
 {
-    // Using gfnDefaultLanguage to tell the SDK to use the default system language for any
-    // UI it might show, which won't be the case in this sample.
     printf("\n\nInitializing GFN SDK...\n");
-    GfnError result = GfnInitializeSdk(gfnDefaultLanguage);
+    GfnError result = GfnInitializeSdk();
     if (GFNSDK_FAILED(result))
     {
         // Initialization errors generally indicate a flawed environment. Check error code for details.
