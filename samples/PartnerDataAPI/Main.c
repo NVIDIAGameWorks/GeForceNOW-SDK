@@ -38,7 +38,7 @@
 #endif
 
 // Keyboard input helper function
-static char getKeyPress() {
+static char GetKeyPress() {
     char ch = { '\0' };
 #ifdef _WIN32
     ch = (char)_getch();
@@ -55,12 +55,12 @@ static char getKeyPress() {
 }
 
 // Loop exit helper function that waits for spacebar press
-static void waitForSpaceBar() {
+static void WaitForSpaceBar() {
     printf("\n\nPress space bar to exit...\n\n");
     char c;
     do
     {
-        c = getKeyPress();
+        c = GetKeyPress();
     } while (c != ' ');
 }
 
@@ -197,10 +197,11 @@ int main()
         return -1;
     }
 
-    // PartnerData-related APIs can only be called in the cloud environment, and so that must be checked first.
+    // PartnerData-related APIs can only be called in the GFN cloud environment, and so that must be checked first.
     if(!BasicCloudCheck())
     {
-        printf("Not running in GeForce NOW Cloud environment, exiting early without calling Cloud APIs.\n");
+        printf("Not running in GeForce NOW Cloud environment, exiting early without calling GeForce NOW Cloud APIs.\n");
+        printf("Please see https://developer.geforcenow.com for more information on obtaining access to GeForce NOW.\n");
     }
     else
     {
@@ -213,7 +214,7 @@ int main()
     SDKShutdown();
 
     // Ready for application exit based on Spacebar press.
-    waitForSpaceBar();
+    WaitForSpaceBar();
 
     return 0;
 }

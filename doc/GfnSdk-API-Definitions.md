@@ -76,27 +76,6 @@ Return Values:
 | true | Application is running on a GFN game seat virtual machine in the GeForce NOW cloud. |
 | false | Application is not running in the GeForce NOW cloud or in a GeForce NOW test environment. This value will also be returned if called before gfnInitializeRuntimeSdk(). |
 
-### gfnIsRunningInCloudSecure
-
-```c
-
-NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnIsRunningInCloudSecure(GfnIsRunningInCloudAssurance* assurance);
-
-```
-
-Determines if calling application is running in GFN environment or not, and what degree of security assurance is assigned to the result.
-
-Environment: Cloud and Client   
-Platform: Windows, Linux   
-Parameters:   
-| Value | Meaning |
-| :---- | :---- |
-| assurance | Level of assurance that API is running in GFN cloud environment |
-Return Values:
-| Value | Meaning |
-| :---- | :---- |
-| gfnSuccess | On success, otherwise, appropriate error code. |
-
 
 ### gfnCloudCheck
 
@@ -941,22 +920,6 @@ typedef enum GfnApplicationCallbackResult
 ```
 
 Returned by callbacks the application registers with the GeForce NOW Runtime SDK, or passes in to asynchronous SDK calls.
-
-### GfnIsRunningInCloudAssurance
-
-```c
-
-typedef enum GfnIsRunningInCloudAssurance
-{
-	gfnNotCloud = 0,                  // Not considered to be running in GFN cloud, as it looks like a client/local system.
-	gfnIsCloudLowAssurance = 1,       // Considered to be running in GFN Cloud, using software heuristics that are not guaranteed against circumvention.
-	gfnIsCloudMidAssurance = 2,       // Considered to be running in GFN Cloud, using software and network heuristics that are difficult to circumvent.
-	gfnIsCloudHighAssurance = 3       // Considered to be running in GFN Cloud, using software and hardware heuristics that are near impossible to circumvent.
-} GfnIsRunningInCloudAssurance;
-
-```
-
-Returned from gfnIsRunningInCloudSecure to denote security assurance that the calling application is running, untampered, in the GFN cloud environment.
 
 
 ### GfnCloudCheckChallenge

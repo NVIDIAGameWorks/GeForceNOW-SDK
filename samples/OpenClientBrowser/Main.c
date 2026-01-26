@@ -60,7 +60,7 @@ unsigned int g_consoleLine;
 #endif
 
 // Keyboard input helper function
-static char getKeyPress()
+static char GetKeyPress()
 {
 #ifdef _WIN32
     return (char)_getch();
@@ -80,12 +80,12 @@ static char getKeyPress()
 }
 
 // Loop exit helper function that waits for spacebar press
-static char waitForInput()
+static char WaitForInput()
 {
     char c;
     do
     {
-        c = getKeyPress();
+        c = GetKeyPress();
     } while (c != ' ' && (c < '1' || c > '7'));
     return c;
 }
@@ -165,7 +165,7 @@ void ShowStatus(const char* text, bool shouldWait)
 #endif
     if (shouldWait)
     {
-        waitForInput();
+        WaitForInput();
     }
 }
 
@@ -198,22 +198,22 @@ GfnError SDKInitialize()
     }
     else
     {
-        // Initalization success, which the return value hints at the environment detected
+        // Initialization success, which the return value hints at the environment detected
         switch (result)
         {
         case gfnInitSuccessClientOnly:
             // Detected this looks like a client system (outside GFN cloud).
             // Only client-related API methods should be called.
-            printf("SDK initalization success, detected client environment.\n");
+            printf("SDK initialization success, detected client environment.\n");
             break;
         case gfnInitSuccessCloudOnly:
             // Detected this looks like a GFN cloud system (GFN server).
             // Only GFN cloud-related API methods should be called.
-            printf("SDK initalization success, detected cloud environment.\n");
+            printf("SDK initialization success, detected cloud environment.\n");
             break;
         default:
             // Generic success case
-            printf("SDK initalization success.\n");
+            printf("SDK initialization success.\n");
             break;
         }
     }
@@ -221,12 +221,12 @@ GfnError SDKInitialize()
     return result;
 }
 
-// Example application shutdown method with a call to shut down the Geforce NOW Runtime SDK
+// Example application shutdown method with a call to shut down the GeForce NOW Runtime SDK
 void SDKShutdown()
 {
     printf("\n\nShutting down GFN SDK...\n");
 
-    // Shut down the Geforce NOW Runtime SDK. Note that it's safe to call
+    // Shut down the GeForce NOW Runtime SDK. Note that it's safe to call
     // gfnShutdownRuntimeSdk even if the SDK was not initialized.
     // If a failure is returned, its worth noting, but nothing can be done about it.
     GfnError result = GfnShutdownSdk();
@@ -250,7 +250,7 @@ bool BasicCloudCheck()
     }
     else
     {
-        printf("Application %s executing in Geforce NOW Cloud environment.\n", (bIsCloudEnvironment) ? "is" : "is not");
+        printf("Application %s executing in GeForce NOW Cloud environment.\n", (bIsCloudEnvironment) ? "is" : "is not");
     }
     return bIsCloudEnvironment;
 }
@@ -371,7 +371,7 @@ int main()
     SetupDisplay();
     ClearDisplay();
 #endif
-    // First step: Initialize the Geforce NOW Runtime SDK before any other SDK method calls.
+    // First step: Initialize the GeForce NOW Runtime SDK before any other SDK method calls.
     GfnError result;
     result = SDKInitialize();
     if (GFNSDK_FAILED(result))
@@ -385,7 +385,8 @@ int main()
     // GfnOpenURLOnClient can only be called in the cloud environment, and so that must be checked first.
     if (!BasicCloudCheck())
     {
-        ShowStatus("Not running in Geforce NOW Cloud environment, exiting early without calling Cloud APIs.", true);
+        ShowStatus("Not running in GeForce NOW Cloud environment, exiting early without calling Cloud APIs.", false);
+        ShowStatus("Please see https://developer.geforecenow.com for information on running applications in the GeForce NOW Cloud environment.", true);
     }
     else
     {
@@ -396,7 +397,7 @@ int main()
 #endif
             BasicCloudCheck();
             DisplayPrompt();
-            c = waitForInput();
+            c = WaitForInput();
             char str_input[2];
             sprintf(str_input, "%c", c);
             ShowText(str_input);

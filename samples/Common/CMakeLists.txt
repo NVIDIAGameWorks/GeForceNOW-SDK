@@ -2,11 +2,16 @@ set(UTILS_LIB_TARGET GfnSdkSampleCommonUtils)
 add_library(${UTILS_LIB_TARGET} STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/GfnCloudCheckAppAdapter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/GfnCloudCheckUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/GfnSocketUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/GfnUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/GfnUtils.c
     $<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_SOURCE_DIR}/Platform/Posix/GfnCloudCheckUtils.c>
+    $<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_SOURCE_DIR}/Platform/Posix/GfnSocketUtils.c>
     $<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_SOURCE_DIR}/Platform/Win/GfnCloudCheckUtils.c>
+    $<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_SOURCE_DIR}/Platform/Win/GfnSocketUtils.c>
 )
 set_target_properties(${UTILS_LIB_TARGET} PROPERTIES FOLDER "Dist/Samples")
-set_target_properties(${UTILS_LIB_TARGET} PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/GfnCloudCheckUtils.h")
+set_target_properties(${UTILS_LIB_TARGET} PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/GfnCloudCheckUtils.h;${CMAKE_CURRENT_SOURCE_DIR}/GfnSocketUtils.h;${CMAKE_CURRENT_SOURCE_DIR}/GfnUtils.h")
 target_include_directories(${UTILS_LIB_TARGET} PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -14,11 +19,10 @@ target_include_directories(${UTILS_LIB_TARGET} PUBLIC
 
 if (MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS")
+    target_compile_definitions(${UTILS_LIB_TARGET} PRIVATE _WINSOCK_DEPRECATED_NO_WARNINGS)
+    target_link_libraries(${UTILS_LIB_TARGET} PRIVATE ws2_32)
 elseif (LINUX)
-    target_compile_options(${UTILS_LIB_TARGET} 
-        PRIVATE
-            ${STRICT_WARNINGS}
-    )
+    target_compile_options(${UTILS_LIB_TARGET} PRIVATE ${STRICT_WARNINGS})
 endif()
 
 if (LINUX AND BUILD_INTERNAL_OPENSSL)

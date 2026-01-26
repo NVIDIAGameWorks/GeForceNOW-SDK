@@ -33,6 +33,12 @@
 // Leverage the Sample Helpers for GfnCloudCheck() challenge and response data
 #include "GfnCloudCheckUtils.h"
 
+// Leverage the Sample Helpers for GfnSocketUtils()
+#include "GfnSocketUtils.h"
+
+// Leverage the Sample Helpers for utility functions
+#include "GfnUtils.h"
+
 #ifdef _WIN32
 #   include <conio.h>
 #elif __linux__
@@ -40,11 +46,171 @@
 #   include <unistd.h>
 #endif
 
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 // Defined the minimum allowable size for the nonce used for GfnCloudCheck()
 #define CLOUD_CHECK_MIN_NONCE_SIZE 16
 
+// Function to call CloudCheck web endpoint using HTTP client
+void CloudCheckWebEndpoint()
+{
+    printf("\n\nCalling CloudCheck web endpoint using C HTTP client...\n");
+    
+    // Generate a nonce for the request
+    char nonce[CLOUD_CHECK_MIN_NONCE_SIZE] = { 0 };
+    if (!GfnCloudCheckGenerateNonce(nonce, CLOUD_CHECK_MIN_NONCE_SIZE)) {
+        printf("Failed to generate nonce for web request\n");
+        return;
+    }
+
+    // Convert nonce to base64 string for JSON
+    // This ensures the binary data is properly transmitted as a string
+    unsigned int b64_buffer_size = GfnGetBase64EncodedLength(CLOUD_CHECK_MIN_NONCE_SIZE);
+    if (b64_buffer_size == (unsigned int)-1) {
+        printf("Failed to calculate base64 buffer size\n");
+        return;
+    }
+    
+    char* nonce_b64 = malloc(b64_buffer_size);
+    if (nonce_b64 == NULL) {
+        printf("Failed to allocate memory for base64 encoding\n");
+        return;
+    }
+    
+    int b64_len = GfnBase64Encode((const unsigned char*)nonce, CLOUD_CHECK_MIN_NONCE_SIZE, nonce_b64, b64_buffer_size);
+    if (b64_len < 0) {
+        printf("Failed to encode nonce to base64\n");
+        free(nonce_b64);
+        return;
+    }
+
+    // Prepare JSON request
+    char json_request[512];
+#ifdef _WIN32
+    sprintf_s(json_request, sizeof(json_request), 
+             "{\"nonce\":\"%s\"}", nonce_b64);
+#else
+    snprintf(json_request, sizeof(json_request), 
+             "{\"nonce\":\"%s\"}", nonce_b64);
+#endif
+
+    printf("Sending request to CloudCheck web endpoint...\n");
+    printf("Request JSON: %s\n", json_request);
+
+    // Create socket and send request
+#ifdef _WIN32
+    SOCKET sockfd = CreateSocket("gfnsdk.nvgeforcenow.com", 80);
+    if (sockfd == INVALID_SOCKET)
+#else
+    int sockfd = CreateSocket("gfnsdk.nvgeforcenow.com", 80);
+    if (sockfd < 0)
+#endif
+    {
+        printf("Failed to create socket\n");
+        return;
+    }
+
+#ifdef _WIN32
+    if (SendHttpRequest(sockfd, "gfnsdk.nvgeforcenow.com", "/CloudCheck", json_request) == SOCKET_ERROR)
+#else
+    if (SendHttpRequest(sockfd, "gfnsdk.nvgeforcenow.com", "/CloudCheck", json_request) < 0)
+#endif
+    {
+        printf("Failed to send HTTP request\n");
+        CleanupSocket(sockfd);
+        return;
+    }
+
+    // Receive response
+    char* response = ReceiveHttpResponse(sockfd);
+    CleanupSocket(sockfd);
+
+    if (response == NULL)
+    {
+        printf("Failed to receive response\n");
+        return;
+    }
+
+    printf("Response: %s\n", response);
+    
+    // Parse HTTP response
+    char* body_start = strstr(response, "\r\n\r\n");
+    if (body_start)
+    {
+        body_start += 4; // Skip past headers
+
+        // Check if response contains JWT
+        if (strstr(body_start, "\"jwt\"") != NULL)
+        {
+            printf("JWT response received from web endpoint\n");
+
+            // Extract the JWT from the JSON response
+            char* jwt_start = strstr(body_start, "\"jwt\":\"");
+            if (jwt_start)
+            {
+                jwt_start += 7; // Skip past "jwt":"
+                char* jwt_end = strchr(jwt_start, '"');
+                if (jwt_end)
+                {
+                    // Calculate JWT length and create a null-terminated copy
+                    unsigned int jwt_len = (unsigned int)(jwt_end - jwt_start);
+                    char* jwt = malloc(jwt_len + 1);
+                    if (jwt)
+                    {
+#ifdef _WIN32
+                        strncpy_s(jwt, jwt_len + 1, jwt_start, jwt_len);
+#else
+                        strncpy(jwt, jwt_start, jwt_len);
+                        jwt[jwt_len] = '\0';
+#endif
+                        // Verify the attestation data using the base64-encoded nonce that was sent
+                        printf("Verifying JWT...\n");
+                        if (GfnCloudCheckVerifyAttestationData(jwt, nonce_b64, (unsigned int)strlen(nonce_b64)))
+                        {
+                            printf("CloudCheck web endpoint: Response data is valid.\n");
+                            printf("CloudCheck web endpoint: Application is running in GeForce NOW Cloud environment with high level of confidence.\n");
+                        } else
+                        {
+                            printf("CloudCheck web endpoint: Response data is not valid. Considered not running in GFN.\n");
+                        }
+                        free(jwt);
+                    } else
+                    {
+                        printf("Failed to allocate memory for JWT extraction\n");
+                    }
+                }
+                else
+                {
+                    printf("Failed to find end of JWT in response\n");
+                }
+            } 
+            else
+            {
+                printf("Failed to find JWT in response\n");
+            }
+        }
+        else if (strstr(body_start, "\"error\"") != NULL)
+        {
+            printf("Error response received from web endpoint\n");
+        }
+        else
+        {
+            printf("Unexpected response format from web endpoint\n");
+        }
+    }
+    else
+    {
+        printf("Failed to parse HTTP response\n");
+    }
+    free(response);
+    free(nonce_b64);
+}
+
 // Keyboard input helper function
-static char getKeyPress() {
+static char getKeyPress()
+{
 #ifdef _WIN32
     return (char)_getch();
 #elif __linux__
@@ -63,7 +229,8 @@ static char getKeyPress() {
 }
 
 // Loop exit helper function that waits for spacebar press
-static void waitForSpaceBar() {
+static void waitForSpaceBar()
+{
     printf("\n\nPress space bar to exit...\n\n");
     char c;
     do
@@ -377,7 +544,8 @@ int main()
         printf("Press 4 to use GfnGetCloudType to check if this is a trusted game seat\n");
         printf("Press 5 to use GfnGetCloudType to check if this is an open game seat\n");
         printf("Press 6 to use GfnGetCloudType to check if this is a GFN game seat and if so, which type\n");
-        printf("Press 7 to use GfnGetCloudType without a challenge-response\n\n");
+        printf("Press 7 to use GfnGetCloudType without a challenge-response\n");
+        printf("Press 8 to call CloudCheck web endpoint\n\n");
         printf("Press space bar to shutdown...\n");
 
         c = getKeyPress();
@@ -404,6 +572,9 @@ int main()
             break;
         case '7':
             CheckIfAnyTypeNoChallenge();
+            break;
+        case '8':
+            CloudCheckWebEndpoint();
             break;
         case ' ':
             break;

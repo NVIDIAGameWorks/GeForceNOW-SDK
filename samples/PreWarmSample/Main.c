@@ -38,7 +38,7 @@
 #endif
 
 // Keyboard input helper function
-static char getKeyPress() {
+static char GetKeyPress() {
 #ifdef _WIN32
     return (char)_getch();
 #elif __linux__
@@ -57,12 +57,12 @@ static char getKeyPress() {
 }
 
 // Loop exit helper function that waits for spacebar press
-static void waitForSpaceBar() {
+static void WaitForSpaceBar() {
     printf("\n\nPress space bar to exit...\n\n");
     char c;
     do
     {
-        c = getKeyPress();
+        c = GetKeyPress();
     } while (c != ' ');
 }
 
@@ -176,7 +176,8 @@ int main()
     // Pre-warm requires to be running in GFN.
     if (!BasicCloudCheck())
     {
-        printf("Not running in GFN, will not go through pre-warm work.\n");
+        printf("Not running in GFN, will not go through pre-warm work as this is a GeForce NOW Cloud feature.\n");
+        printf("Please see https://developer.geforcenow.com for more information on obtaining access to GeForce NOW.\n");
     }
     else
     {
@@ -199,7 +200,7 @@ int main()
     SDKShutdown();
 
     // Ready for application exit based on Spacebar press.
-    waitForSpaceBar();
+    WaitForSpaceBar();
 
     return 0;
 }

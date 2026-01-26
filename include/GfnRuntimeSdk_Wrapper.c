@@ -97,7 +97,6 @@ typedef GfnRuntimeError(*gfnCloudInitializeRuntimeSdkFn)(float libVersion);   //
 typedef GfnRuntimeError(*gfnCloudInitializeRuntimeSdkV3Fn)(char* strLibVersion);
 typedef void(*gfnCloudShutdownRuntimeSdkFn)(void);
 typedef bool(*gfnIsRunningInCloudFn)(void);
-typedef GfnRuntimeError(*gfnIsRunningInCloudSecureFn)(GfnIsRunningInCloudAssurance* assurance);
 typedef GfnRuntimeError(*gfnCloudCheckFn)(const GfnCloudCheckChallenge* challenge, GfnCloudCheckResponse* response, bool* isCloudEnvironment);
 typedef GfnRuntimeError(*gfnGetCloudTypeFn)(GfnCloudType requested_cloud_type, const GfnCloudCheckChallenge* challenge, GfnCloudCheckResponse* response, GfnCloudType* detected_cloud_type);
 typedef GfnRuntimeError(*gfnGetClientIpFn)(const char** cientIp);
@@ -141,7 +140,6 @@ typedef struct GfnSdkCloudLibrary_t
     gfnCloudShutdownRuntimeSdkFn ShutdownRuntimeSdk;
     gfnIsInitializedFn IsInitialized;
     gfnIsRunningInCloudFn IsRunningInCloud;
-    gfnIsRunningInCloudSecureFn IsRunningInCloudSecure;
     gfnCloudCheckFn CloudCheck;
     gfnGetCloudTypeFn GetCloudType;
     gfnRegisterCallbackFn RegisterExitCallback;
@@ -373,7 +371,6 @@ static GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     pCloudLibrary->ShutdownRuntimeSdk = (gfnCloudShutdownRuntimeSdkFn)gfnGetSymbol(pCloudLibrary->handle, "gfnShutdownRuntimeSdk2");
     pCloudLibrary->IsInitialized = (gfnIsInitializedFn)gfnGetSymbol(pCloudLibrary->handle, "gfnIsInitialized");
     pCloudLibrary->IsRunningInCloud = (gfnIsRunningInCloudFn)gfnGetSymbol(pCloudLibrary->handle, "gfnIsRunningInCloud");
-    pCloudLibrary->IsRunningInCloudSecure = (gfnIsRunningInCloudSecureFn)gfnGetSymbol(pCloudLibrary->handle, "gfnIsRunningInCloudSecure");
     pCloudLibrary->CloudCheck = (gfnCloudCheckFn)gfnGetSymbol(pCloudLibrary->handle, "gfnCloudCheck");
     pCloudLibrary->GetCloudType = (gfnGetCloudTypeFn)gfnGetSymbol(pCloudLibrary->handle, "gfnGetCloudType");
     pCloudLibrary->IsTitleAvailable = (gfnIsTitleAvailableFn)gfnGetSymbol(pCloudLibrary->handle, "gfnIsTitleAvailable");
@@ -402,6 +399,7 @@ static GfnRuntimeError gfnLoadCloudLibrary(GfnSdkCloudLibrary** ppCloudLibrary)
     pCloudLibrary->RegisterMessageCallback = (gfnRegisterCallbackFn)gfnGetSymbol(pCloudLibrary->handle, "gfnRegisterCustomMessageCallback");
     pCloudLibrary->OpenURLOnClient = (gfnOpenURLOnClientFn)gfnGetSymbol(pCloudLibrary->handle, "gfnOpenURLOnClient");
     pCloudLibrary->GetSessionInfo = (gfnGetSessionInfoFn)gfnGetSymbol(pCloudLibrary->handle, "gfnGetSessionInfo");
+    pCloudLibrary->SetAppState = (gfnSetAppStateFn)gfnGetSymbol(pCloudLibrary->handle, "gfnSetAppState");
 
     GFN_SDK_LOG("Successfully loaded cloud libary");
 
@@ -544,49 +542,6 @@ GfnRuntimeError GfnIsRunningInCloud(bool* runningInCloud)
 
     GFN_SDK_LOG("Success: %d", *runningInCloud);
     return gfnSuccess;
-}
-
-GfnRuntimeError GfnIsRunningInCloudSecure(GfnIsRunningInCloudAssurance* assurance)
-{
-    GfnRuntimeError status = gfnSuccess;
-
-    CHECK_NULL_PARAM(assurance);
-    *assurance = gfnNotCloud;
-
-#ifdef _WIN32
-    if (wcslen(g_cloudLibraryPath) == 0)
-#elif __linux__
-    if (strlen(g_cloudLibraryPath) == 0)
-#endif
-    {
-        GFN_SDK_LOG("Cloud library path not defined, which denotes an API call without Initialize succeeding, treating as not in cloud");
-        return gfnSuccess;
-    }
-
-#ifdef _WIN32
-    if (gfnCheckLibraryGfnSignatureW(g_cloudLibraryPath) == FALSE)
-    {
-        GFN_SDK_LOG("Cloud library path does not have valid GFN signing, treating as not in cloud");
-        return gfnSuccess;
-    }
-#endif
-
-    if (g_pCloudLibrary == NULL)
-    {
-        GFN_SDK_LOG("No cloud library present, call succeeds");
-        return gfnSuccess;
-    }
-
-    if (g_pCloudLibrary->IsRunningInCloudSecure == NULL)
-    {
-        GFN_SDK_LOG("API Not Found");
-        return gfnAPINotFound;
-    }
-
-    status = gfnTranslateCloudStatus(g_pCloudLibrary->IsRunningInCloudSecure(assurance));
-    GFN_SDK_LOG("status=%d assurance=%d", status, *assurance);
-
-    return status;
 }
 
 GfnRuntimeError GfnCloudCheck(const GfnCloudCheckChallenge* challenge, GfnCloudCheckResponse* response, bool* isCloudEnvironment)
@@ -904,7 +859,7 @@ GfnRuntimeError GfnSetActionZone(GfnActionType type, unsigned int id, GfnRect* z
             DELEGATE_TO_CLOUD_LIBRARY(ClearEditBoxRegion, id);
         }
     }
-    return gfnAPINotFound;
+    return gfnInvalidParameter;
 }
 
 GfnRuntimeError GfnSetEditBoxRegion(unsigned int id, GfnRect* region, unsigned int flags)

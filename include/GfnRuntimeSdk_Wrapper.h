@@ -132,7 +132,6 @@ extern "C"
     // This API is meant to fill the need to quickly determine if the call looks to be in the
     // GFN cloud environment. It purposefully trades off resource-intensive checks for fast response.
     // Do not tie any logic or features of value to this API as the call stack could be tampered with.
-    // For that purpose, use GfnIsRunningInCloudSecure.
     //
     // This function's definition differs from the export that it wraps, as it returns a GfnRuntimeError
     // instead of bool
@@ -147,40 +146,6 @@ extern "C"
     // gfnCloudLibraryNotFound   - GFN SDK cloud-side library could not be found
     // gfnAPINotFound            - The API was not found in the GFN SDK Library
     GfnRuntimeError GfnIsRunningInCloud(bool* runningInCloud);
-
-    //
-    // Description
-    // Calls gfnIsRunningInCloudSecure to determine if calling application is running in GFN environment,
-    // and what level of security assurance that the result is valid.
-    //
-    // Environment
-    // Cloud and Client
-    // 
-    // Platform
-    // Windows
-    //
-    // Usage
-    // Call from an NVIDIA-approved process to securely determine whether running in GFN cloud, and use the
-    // GfnIsRunningInCloudAssurance value to decide the risk to enable any application specific logic
-    // for that environment.
-    //
-    // This API must be called from a process that has been registered with NVIDIA, or it will return an error.
-    // Refer to the Cloud Check API Guide on how to get your application registered. To prevent
-    // man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity
-    // of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance
-    // to decide if the check was certain enough without tampering to enable the logic or feature associated
-    // with the API call.
-    //
-    // Parameters
-    // assurance                  - Likelihood and level of security assurance defined via GfnIsRunningInCloudAssurance 
-    //                                    that API is running in GFN cloud environment
-    //
-    // Return Values
-    // gfnSuccess                - If the query was successful.
-    // gfnClientLibraryNotFound  - GFN SDK client-side library could not be found
-    // gfnCloudLibraryNotFound   - GFN SDK cloud-side library could not be found
-    // gfnAPINotFound            - The API was not found in the GFN SDK Library
-    GfnRuntimeError GfnIsRunningInCloudSecure(GfnIsRunningInCloudAssurance* assurance);
 
     //
     // Description

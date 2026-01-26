@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 3.0
+# NVIDIA GeForce NOW SDK Release 4.0
 
 ## At a Glance
 
@@ -15,15 +15,8 @@ The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features
 
 ### What's New in This Release
 
-* Simplified SDK integration by removing the runtime library which used to be required to enable some SDK features.
-	* This should make future integrations easier and reduce the process overhead of using the SDK.
-	* Clients now only need to include the SDK header and source files in their project.
-	* A side effect of the above change is that some older, largely unused client APIs were removed.
-	* This removal only affects publishing platforms that wanted to integrate the GeForce NOW desktop client into their workflows.
-	* Those requiring this functionally should refer to the GFN Client SDK which offers a much richer and more robust method of integrating a GFN client into other applications.
-* Removed the SampleLauncher sample which was designed to showcase the above APIs but added a significant overhead to build times.
-* Added a set of Editbox APIs; a cleaner, refactored version of existing SetActionZone APIs. These APIs are functionally equivalent.
-* Converted documentation from PDF & html to markdown format for easier viewing on github.
+* Added REST API support for CloudCheck via HTTP endpoint, enabling language-agnostic integration
+* Removed the legacy GfnIsRunningInCloudSecure API from SDK wrappers
 * Various fixes and improvements.
 
 ## GeForce NOW Developer Portal

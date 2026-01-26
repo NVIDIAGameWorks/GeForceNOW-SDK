@@ -107,17 +107,6 @@
             crCallbackFailure = -1  // Return to indicate that a callback did not perform the requested operation
         } GfnApplicationCallbackResult;
 
-        /** Returned from gfnIsRunningInCloudSecure to denote security assurance that the calling application is running, untampered,
-        *   in the GFN cloud environment.
-         */
-        typedef enum GfnIsRunningInCloudAssurance
-        {
-            gfnNotCloud = 0,                  // Not considered to be running in GFN cloud, as it looks like a client/local system.
-            gfnIsCloudLowAssurance = 1,       // Considered to be running in GFN Cloud, using software heuristics that are not guaranteed against circumvention.
-            gfnIsCloudMidAssurance = 2,       // Considered to be running in GFN Cloud, using software and network heuristics that are difficult to circumvent.
-            gfnIsCloudHighAssurance = 3       // Considered to be running in GFN Cloud, using software and hardware heuristics that are near impossible to circumvent.
-        } GfnIsRunningInCloudAssurance;
-
         // Input to the function registered via gfnRegisterInstallCallback (if any).
         typedef struct TitleInstallationInformation
         {
@@ -611,36 +600,6 @@
         //                                     GeForce NOW test environment. This value will also be returned if
         //                                     called before gfnInitializeRuntimeSdk().
         NVGFNSDK_EXPORT bool NVGFNSDKApi gfnIsRunningInCloud(void);
-
-        //
-        // Description
-        // Determines if calling application is running in GFN environment or not, and what degree of security assurance is
-        // assigned to the result.
-        //
-        // Environment
-        // Cloud and Client
-        // 
-        // Platform
-        // Windows, Linux
-        //
-        // Usage
-        // Call from an NVIDIA-approved process to securely determine whether running in GFN cloud, and use the
-        // GfnIsRunningInCloudAssurance value to decide the risk to enable any application specific logic
-        // for that environment.
-        //
-        // This API must be called from a process that has been registered with NVIDIA, or it will return an error.
-        // Refer to the Cloud Check API Guide on how to get your application registered. To prevent
-        // man-in-the-middle (MiM) attacks, you must also securely load the SDK library, checking the integrity
-        // of the digital signature on the binary. Make sure to use the value returned from GfnIsRunningInCloudAssurance
-        // to decide if the check was certain enough without tampering to enable the logic or feature associated
-        // with the API call.
-        //
-        // Parameters
-        // assurance                - Level of assurance that API is running in GFN cloud environment
-        //
-        // Return Values
-        // gfnSuccess               - On success, otherwise, appropriate error code
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnIsRunningInCloudSecure(GfnIsRunningInCloudAssurance* assurance);
 
         //
         // Description

@@ -12,6 +12,7 @@ Document History
 | 3.2 | 09/30/2024 | Clarification on usage to bypass hard drive checks |
 | 3.3 | 11/12/2024 | Removed “Windows only” limitation for GfnCloudCheck API |
 | 4.0 | 07/02/2025 | Conversion from PDF to Markdown |
+| 4.1 | 11/12/2025 | Added REST API documentation for CloudCheck; Removed GfnIsRunningInCloudSecure API from SDK wrappers |
 
 ## Introduction
 The Cloud Check API is a part of the GeForce NOW (GFN) SDK which allows application developers to check whether their applications are running on GFN.
@@ -22,7 +23,7 @@ The Cloud Check API is a part of the GeForce NOW (GFN) SDK which allows applicat
 * Security, anti-cheat or game integrity focused developers who may wish to alter the behavior of these security mechanisms in the context of the GFN environment.
 
 ## Overview
-This document contains a high-level overview of GFN Cloud Check APIs, as well as information concerning best practices when running on GFN.
+This document contains a high-level overview of GFN Cloud Check APIs, including both the direct SDK integration approach and the REST API approach, as well as information concerning best practices when running on GFN.
 
 ## Key Concepts
 Game developers can use Cloud Check API to customize behavior or optimize performance of their games on GFN. The API can be used in different scenarios, for example:
@@ -47,9 +48,8 @@ The table below lists all wrapper methods related to the GFN Cloud Check API.
 
 | Method | Description |
 | :---- | :---- |
-| GfnCloudCheck | This method securely determines whether the application is running in the GFN environment. Optionally, it allows the caller to participate in the cryptographic cloud environment verification process. |
+| GfnCloudCheck | This method securely determines whether the application is running in the GFN environment. Optionally, it allows the caller to participate in the cryptographic cloud environment verification process. Also available via REST API endpoint `/CloudCheck`. |
 | GfnIsRunningInCloud | This method determines whether the application is running in the GFN environment. |
-| GfnIsRunningInCloudSecure | This method is a legacy cloud check API, supported for backward compatibility only, and should not be used for new integrations.  |
 
 This document describes the GFN Cloud Check API methods based on the wrapper definitions as wrapper provides the benefits of binary validation. The base definition of all methods is the same as wrapper methods, see GfnRuntimeSdk\_CAPI.h header file for base definition.
 
@@ -226,34 +226,133 @@ GfnRuntimeError GfnIsRunningInCloud(
 | gfnAPINotInit  | Indicates GFN SDK was not initialized. Prior to calling this function, ensure that the *GfnInitializeSdk* function is called first, and include any applicable partner ID provided by NVIDIA. |
 | gfnAPINotFound | Indicates the function was not found in the GFN SDK Library. |
 
-## GfnIsRunningInCloudSecure
-*GfnIsRunningInCloudSecure* is a legacy API function supported for backward compatibility. This function has been internally modified to redirect to the *GfnCloudCheck* function. This function is a legacy cloud check API, supported for backward compatibility only, and should not be used for new integrations 
-### Wrapper Interface
-```c
-GfnRuntimeError GfnIsRunningInCloudSecure(
-[out] GfnIsRunningInCloudAssurance* assurance);
+
+## GfnCloudCheck via REST API
+The *GfnCloudCheck* functionality is also available via a REST API endpoint that runs on GFN VMs. This approach allows third-party applications to perform cloud checks without directly linking against the GFN SDK libraries.
+
+### Overview
+The REST API acts as a bridge between third-party applications and the GFN Runtime SDK, providing a RESTful HTTP interface for cloud check operations. This is particularly useful for:
+
+* Applications written in languages that cannot easily consume the C-based GFN SDK
+* Containerized or sandboxed applications that need to verify they are running on GFN
+* Cross-platform applications that prefer HTTP-based communication
+* Applications that want to avoid direct SDK integration complexity
+
+### Service Configuration
+The REST API service is available on GFN VMs with the following configuration:
+
+* **Bind Address**: 127.255.255.254
+* **Port**: 80
+* **Hostname**: gfnsdk.nvgeforcenow.com (resolves to 127.255.255.254 on GFN VMs)
+* **Platform Support**: Windows and Linux
+
+### API Endpoint
+
+#### POST /CloudCheck
+
+Performs a cloud check operation using the GFN SDK.
+
+**Request Format:**
+
+```http
+POST /CloudCheck HTTP/1.1
+Host: gfnsdk.nvgeforcenow.com
+Content-Type: application/json
+Content-Length: <length>
+
+{
+  "nonce": "<base64-encoded-string>"
+}
 ```
 
-### Parameters
-`[out] GfnIsRunningInCloudAssurance* assurance`
+**Request Parameters:**
 
-This is a pointer to a *GfnIsRunningInCloudAssurance* enum value whose semantics are defined below:
+|| Parameter | Type | Required | Description |
+|| :-------- | :--- | :------- | :---------- |
+|| nonce | string | Yes | Base64-encoded nonce data. Minimum 16 bytes (before encoding). The nonce should be randomly generated for each request to prevent replay attacks. |
 
-| Value                   | Meaning |
-| :---------------------- | :---- |
-| gfnNotCloud             | Not considered to be running in GFN cloud. |
-| gfnIsCloudLowAssurance  | Deprecated |
-| gfnIsCloudMidAssurance  | Determined to be running in GFN Cloud, using software and network heuristics that are difficult to circumvent. |
-| gfnIsCloudHighAssurance | Deprecated |
+**Response Format:**
 
-###  Return value
-`GfnError`
+Success (HTTP 200):
+```json
+{
+  "jwt": "<JWT-attestation-data>"
+}
+```
 
-| Value           | Meaning |
-| :-------------- | :----   |
-| gfnSuccess      | The query was successful, and the return parameter is valid. |
-| gfnAPINotInit   | Indicates GFN SDK was not initialized. Prior to calling this function, ensure that the *GfnInitializeSdk* function is called first, and include any applicable partner ID provided by NVIDIA. |
-| gfnAPINotFound  | Indicates the function was not found in the GFN SDK Library |
+Error responses:
+
+|| HTTP Status | Response Body | Meaning |
+|| :---------- | :------------ | :------ |
+|| 400 Bad Request | `{"error": "-5", "message": "Invalid parameter in the request"}` | Invalid JSON format or nonce too short (less than 16 bytes) |
+|| 403 Forbidden | `{"error": "-6", "message": "Unauthorized process"}` | Application is not properly onboarded or has tampered files |
+|| 429 Too Many Requests | `{"error": "-10", "message": "Too many requests in a given amount of time"}` | Rate limit exceeded (max 3 attempts per minute) |
+|| 500 Internal Server Error | `{"error": "-4", "message": "Failed to communicate with GFN backend service"}` | Backend communication failure |
+
+### Usage
+
+#### Basic REST API CloudCheck Example
+
+The following code snippet demonstrates the key steps for using the REST API endpoint:
+
+```c
+// 1. Generate and base64-encode a nonce
+char nonce[16] = { 0 };
+GfnCloudCheckGenerateNonce(nonce, 16);
+char* nonce_b64 = malloc(GfnGetBase64EncodedLength(16));
+GfnBase64Encode((const unsigned char*)nonce, 16, nonce_b64, ...);
+
+// 2. Create JSON request body
+char json_request[512];
+sprintf(json_request, "{\"nonce\":\"%s\"}", nonce_b64);
+
+// 3. Create socket and connect (Windows: WSAStartup, socket, connect)
+struct sockaddr_in serverAddr;
+SOCKET sockfd = socket(AF_INET, SOCK_STREAM, 0);
+// ... set up serverAddr for gfnsdk.nvgeforcenow.com:80
+connect(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+
+// 4. Send HTTP POST request
+char request[2048];
+sprintf(request, "POST /CloudCheck HTTP/1.1\r\nHost: gfnsdk.nvgeforcenow.com\r\n"
+                 "Content-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s",
+                 strlen(json_request), json_request);
+send(sockfd, request, strlen(request), 0);
+
+// 5. Receive response and extract JWT from JSON
+char buffer[4096];
+recv(sockfd, buffer, sizeof(buffer), 0);
+// Parse response to extract JWT from {"jwt":"<token>"}
+
+// 6. Verify the JWT attestation data
+bool isValid = GfnCloudCheckVerifyAttestationData(jwt, nonce_b64, strlen(nonce_b64));
+```
+
+**For a complete working example**, see the CloudCheckAPI sample in the SDK distribution at `Dist/samples/CloudCheckAPI/Main.c`. The sample includes full implementation with proper error handling, memory management, and cross-platform support for both Windows and Linux.
+
+### Important Considerations
+
+1. **Nonce Encoding**: When using the REST API, the nonce must be base64-encoded before sending in the JSON request. The same base64-encoded nonce string must be used when verifying the JWT attestation data.
+
+2. **Rate Limiting**: The CloudCheck endpoint is rate-limited to 10 requests per minute per process. Applications should cache the cloud check result when possible.
+
+3. **Service Availability**: The REST API service is only available on GFN VMs. Attempts to connect to `gfnsdk.nvgeforcenow.com` from non-GFN systems will fail as the hostname will not resolve.
+
+4. **Verification**: The JWT returned by the REST API uses the same format and can be verified using the same `GfnCloudCheckVerifyAttestationData()` function and verification utilities described in the Appendix.
+
+5. **Helper Utilities**: The GFN SDK includes optional socket utility functions in `GfnSocketUtils.h` and `GfnSocketUtils.c` (Platform-specific: Win/Posix) that wrap standard socket APIs to simplify HTTP communication. Developers can use these helpers or implement HTTP requests using their preferred HTTP client library or standard platform socket APIs (e.g., Winsock on Windows, POSIX sockets on Linux).
+
+### Comparison: Direct SDK vs REST API
+
+|| Aspect | Direct SDK (GfnCloudCheck) | REST API |
+|| :----- | :------------------------- | :------- |
+|| Integration | Requires linking GFN SDK libraries | HTTP client only |
+|| Language Support | C/C++ primarily | Any language with HTTP support |
+|| Performance | Direct function call (fastest) | HTTP overhead (minimal) |
+|| Deployment | SDK wrapper must be distributed | No additional deployment needed |
+|| Security Level | Identical | Identical |
+|| JWT Verification | Same utilities can be used | Same utilities can be used |
+|| Use Cases | Native applications | Cross-platform, containerized, or language-agnostic apps |
 
 
 ## Security Best Practices

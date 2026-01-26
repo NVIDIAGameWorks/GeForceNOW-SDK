@@ -28,6 +28,7 @@
 #endif
 #include "GfnSdkInterface.h"
 
+// Sends ACK-STATE messages to client application via GfnSendMessage API.
 void ackSpinChange(struct SpinState *spin_state)
 {
     char ackMessage[100];
@@ -43,6 +44,7 @@ void ackSpinChange(struct SpinState *spin_state)
     }
 }
 
+// Decreases cube spin, then lets client know about new state.
 void gfnsdk_decreaseSpin(struct SpinState *spin_state)
 {
     if (!spin_state->pause)
@@ -59,6 +61,7 @@ void gfnsdk_decreaseSpin(struct SpinState *spin_state)
     ackSpinChange(spin_state);
 }
 
+// Decreases cube spin, then lets client know about new state.
 void gfnsdk_increaseSpin(struct SpinState *spin_state)
 {
     if (!spin_state->pause)
@@ -75,6 +78,7 @@ void gfnsdk_increaseSpin(struct SpinState *spin_state)
     ackSpinChange(spin_state);
 }
 
+// Pauses cube spin, then lets client know about new state.
 void gfnsdk_togglePauseState(struct SpinState *spin_state)
 {
     static float original_spin_angle = 0;
@@ -92,6 +96,7 @@ void gfnsdk_togglePauseState(struct SpinState *spin_state)
     ackSpinChange(spin_state);
 }
 
+// Reverses cube spin direction, then lets client know about new state.
 void gfnsdk_reverseSpin(struct SpinState *spin_state)
 {
     if (!spin_state->pause)
@@ -101,6 +106,7 @@ void gfnsdk_reverseSpin(struct SpinState *spin_state)
     ackSpinChange(spin_state);
 }
 
+// Handles direct user input on this application UI.
 void gfnsdk_handleButtonClick(UINT uMsg, int xPos, int yPos, struct SpinState *spin_state, int width)
 {
 #ifdef _WIN32
@@ -143,6 +149,7 @@ void gfnsdk_handleButtonClick(UINT uMsg, int xPos, int yPos, struct SpinState *s
 }
 
 #ifdef _WIN32
+// Handles direct user touch input on this application UI, which does not originate from client application.
 void gfnsdk_handleTouch(HWND hWnd, UINT cInputs, HTOUCHINPUT hTouchInput, struct SpinState* spin_state, int width)
 {
     PTOUCHINPUT pInputs = (PTOUCHINPUT)malloc(sizeof(TOUCHINPUT) * cInputs);
@@ -174,6 +181,8 @@ void gfnsdk_handleTouch(HWND hWnd, UINT cInputs, HTOUCHINPUT hTouchInput, struct
 }
 #endif
 
+// Callback function registered via GfnRegisterMessageCallback.
+// Receives messages originating from the client application that dictate spin changes for the cube.
 GfnApplicationCallbackResult GFN_CALLBACK MessageCallback(const GfnString* pMessage, void* pContext)
 {
     printf("Message from client: '%s' length=%u\n", pMessage->pchString, pMessage->length);
@@ -213,13 +222,16 @@ GfnApplicationCallbackResult GFN_CALLBACK MessageCallback(const GfnString* pMess
     }
     else
     {
-        outLength = snprintf(ackMessage, 100, "unrecognised message");
+        outLength = snprintf(ackMessage, 100, "unrecognized message");
         spinUpdated = false;
     }
 
     return crCallbackSuccess;
 }
 
+// GFN SDK initializer function.
+// Calls GfnInitializeSdk to set up the SDK and GfnIsRunningInCloud to confirm the application is running inside GFN.
+// If found to be running in GFN, then GfnRegisterMessageCallback is called to registered callback function.
 void gfnsdk_init(struct SpinState *spin_state) {
     GfnRuntimeError err = GfnInitializeSdk();
     if (GFNSDK_FAILED(err))
@@ -243,11 +255,14 @@ void gfnsdk_init(struct SpinState *spin_state) {
     }
     else
     {
-        printf("GFNSDK: Not running in cloud environment!\n");
+        printf("GFNSDK: Not running in GeForce NOW cloud environment! The functionality of this sample requires running in GeForce NOW.\n");
+        printf("GFNSDK: Please see https://developer.geforcenow.com for more information on accessing GeForce NOW systems.\n");
         return;
     }
 }
 
+// GFN SDK shutdown function.
+// Call GfnShutdownSdk to unload the SDK from the application.
 void gfnsdk_shutdown() {
     GfnRuntimeError err = GfnShutdownSdk();
     if (GFNSDK_FAILED(err))
