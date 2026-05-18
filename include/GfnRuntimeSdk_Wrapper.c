@@ -585,9 +585,6 @@ GfnRuntimeError GfnGetCloudType(
     GfnCloudType* detected_cloud_type)
 {
     GfnRuntimeError status = gfnSuccess;
-#if __linux__
-    return gfnUnsupportedAPICall;
-#endif
 
 #ifdef _WIN32
     if (wcslen(g_cloudLibraryPath) == 0)

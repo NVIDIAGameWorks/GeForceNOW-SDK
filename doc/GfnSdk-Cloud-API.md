@@ -13,6 +13,7 @@ Document History
 | 3.3 | 11/12/2024 | Removed “Windows only” limitation for GfnCloudCheck API |
 | 4.0 | 07/02/2025 | Conversion from PDF to Markdown |
 | 4.1 | 11/12/2025 | Added REST API documentation for CloudCheck; Removed GfnIsRunningInCloudSecure API from SDK wrappers |
+| 4.2 | 04/29/2026 | Fixed GitHub Markdown tables (REST API and comparison sections), Added documentation for JWT response claims including session information claims, challenge-only claims, and cloud type detection via nonce/ononce.|
 
 ## Introduction
 The Cloud Check API is a part of the GeForce NOW (GFN) SDK which allows application developers to check whether their applications are running on GFN.
@@ -267,9 +268,9 @@ Content-Length: <length>
 
 **Request Parameters:**
 
-|| Parameter | Type | Required | Description |
-|| :-------- | :--- | :------- | :---------- |
-|| nonce | string | Yes | Base64-encoded nonce data. Minimum 16 bytes (before encoding). The nonce should be randomly generated for each request to prevent replay attacks. |
+| Parameter | Type | Required | Description |
+| :-------- | :--- | :------- | :---------- |
+| nonce | string | Yes | Base64-encoded nonce data. Minimum 16 bytes (before encoding). The nonce should be randomly generated for each request to prevent replay attacks. |
 
 **Response Format:**
 
@@ -282,12 +283,12 @@ Success (HTTP 200):
 
 Error responses:
 
-|| HTTP Status | Response Body | Meaning |
-|| :---------- | :------------ | :------ |
-|| 400 Bad Request | `{"error": "-5", "message": "Invalid parameter in the request"}` | Invalid JSON format or nonce too short (less than 16 bytes) |
-|| 403 Forbidden | `{"error": "-6", "message": "Unauthorized process"}` | Application is not properly onboarded or has tampered files |
-|| 429 Too Many Requests | `{"error": "-10", "message": "Too many requests in a given amount of time"}` | Rate limit exceeded (max 3 attempts per minute) |
-|| 500 Internal Server Error | `{"error": "-4", "message": "Failed to communicate with GFN backend service"}` | Backend communication failure |
+| HTTP Status | Response Body | Meaning |
+| :---------- | :------------ | :------ |
+| 400 Bad Request | `{"error": "-5", "message": "Invalid parameter in the request"}` | Invalid JSON format or nonce too short (less than 16 bytes) |
+| 403 Forbidden | `{"error": "-6", "message": "Unauthorized process"}` | Application is not properly onboarded or has tampered files |
+| 429 Too Many Requests | `{"error": "-10", "message": "Too many requests in a given amount of time"}` | Rate limit exceeded (max 3 attempts per minute) |
+| 500 Internal Server Error | `{"error": "-4", "message": "Failed to communicate with GFN backend service"}` | Backend communication failure |
 
 ### Usage
 
@@ -344,15 +345,15 @@ bool isValid = GfnCloudCheckVerifyAttestationData(jwt, nonce_b64, strlen(nonce_b
 
 ### Comparison: Direct SDK vs REST API
 
-|| Aspect | Direct SDK (GfnCloudCheck) | REST API |
-|| :----- | :------------------------- | :------- |
-|| Integration | Requires linking GFN SDK libraries | HTTP client only |
-|| Language Support | C/C++ primarily | Any language with HTTP support |
-|| Performance | Direct function call (fastest) | HTTP overhead (minimal) |
-|| Deployment | SDK wrapper must be distributed | No additional deployment needed |
-|| Security Level | Identical | Identical |
-|| JWT Verification | Same utilities can be used | Same utilities can be used |
-|| Use Cases | Native applications | Cross-platform, containerized, or language-agnostic apps |
+| Aspect | Direct SDK (GfnCloudCheck) | REST API |
+| :----- | :------------------------- | :------- |
+| Integration | Requires linking GFN SDK libraries | HTTP client only |
+| Language Support | C/C++ primarily | Any language with HTTP support |
+| Performance | Direct function call (fastest) | HTTP overhead (minimal) |
+| Deployment | SDK wrapper must be distributed | No additional deployment needed |
+| Security Level | Identical | Identical |
+| JWT Verification | Same utilities can be used | Same utilities can be used |
+| Use Cases | Native applications | Cross-platform, containerized, or language-agnostic apps |
 
 
 ## Security Best Practices
@@ -382,10 +383,33 @@ The GFN SDK fully validates the JWT before providing it to the caller in the *Gf
    
 The table below details all steps that can be performed to validate the provided JWT.
 
-| Field | Location | Mandatory | Value | Details |
+| Field | Location  | Mandatory | Value | Details |
 | :---- | :-------- | :---- | :---- | :---- |
 | x5c   | Header    | Yes | Valid certificate chain | The x5c field contains the certificate chain with the first element pointing to the leaf certificate. The caller must verify that the certificate chain is valid. The root certificate has to be pinned in the verifier code, as it is not a part of the chain. |
 | alg   | Header    | Yes | RS512 | Lofn currently uses RSASHA512, so the alg field must be set to RS512. |
 | kid   | Header    | No  | UUID | The kid field must be set to a UUID that was generated at the time of creation of the leaf certificate. |
 | nonce | Data      | Yes | Input nonce | The nonce field must match the nonce that was provided in the GfnCloudCheckChallenge struct passed to GfnCloudCheck. |
 | n/a   | Signature | Yes | RSASHA512  signature | Digital signature over header and body validated using RSASHA512 algorithm. |
+
+### JWT Response Claims
+
+The SDK populates following claims in the JWT response payload. These claims are available in the `attestationData` field of the `GfnCloudCheckResponse` structure.
+
+#### Standard Claims
+
+| Claim | Type    | Description |
+| :---- | :---    | :---------- |
+| expms | Integer | Expiration time in milliseconds since Unix epoch. The response must be validated before this time; responses past expiration should be rejected. |
+| nonce | String  | Base64-encoded echo of the challenge nonce. Must match the nonce provided in the GfnCloudCheckChallenge. |
+
+#### Session Information Claims
+
+These claims are populated from the GFN session configuration and provide additional context about the environment.
+
+| Claim | Type   | Description |
+| :---- | :---   | :---------- |
+| uid   | String | Obfuscated user identifier for content partners. Derived from the session's user information. |
+| plid  | String | Platform identifier indicating the GFN environment. |
+| cty   | String | Country code of the user's location (e.g., `"US"`, `"DE"`). |
+| cip   | String | Client IP address of the user connected to the GFN session. |
+| sid   | String | GFN session identifier string. |

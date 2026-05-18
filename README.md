@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 4.0
+# NVIDIA GeForce NOW SDK Release 4.1
 
 ## At a Glance
 
@@ -15,8 +15,7 @@ The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features
 
 ### What's New in This Release
 
-* Added REST API support for CloudCheck via HTTP endpoint, enabling language-agnostic integration
-* Removed the legacy GfnIsRunningInCloudSecure API from SDK wrappers
+* Enabled GetCloudType API for Linux
 * Various fixes and improvements.
 
 ## GeForce NOW Developer Portal
