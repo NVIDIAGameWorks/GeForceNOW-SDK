@@ -107,14 +107,6 @@
             crCallbackFailure = -1  // Return to indicate that a callback did not perform the requested operation
         } GfnApplicationCallbackResult;
 
-        // Input to the function registered via gfnRegisterInstallCallback (if any).
-        typedef struct TitleInstallationInformation
-        {
-            const char* pchPlatformAppId; // Platform application ID passed into the API.
-            const char* pchBuildPath;     // The path at which game build files can be found.
-            const char* pchMetadataPath;  // Optionally contains the path at which game metadata can be found, else NULL.
-        } TitleInstallationInformation;
-
         // Specifies the action in GfnSetActionZone API
         // Deprecated with SetActionZone removal
         typedef enum GfnActionType
@@ -236,17 +228,6 @@
             CC_CLOUD_TYPE_ANY = 0x00000003
         } GfnCloudType;
 
-        // Application/game state data passed in to gfnSetAppState API
-        typedef enum GfnAppState
-        {
-            gfnAppLoading = 0,              // Application is loading
-            gfnAppInMenu = 1,               // Application has opened menu options for the user
-            gfnAppRunning = 2,              // Application is running and accepting user input
-            gfnAppPaused = 3,               // Application is paused, no input accepted
-            gfnAppExiting = 4,              // Application is exiting
-            gfnAppErrorDetected = 5,        // Application has run into a critical error
-            gfnAppStateMax = 6              // Sentinel value, do not use
-        } GfnAppState;
 
         // ============================================================================================
         // Callback signatures
@@ -258,8 +239,6 @@
         typedef GfnApplicationCallbackResult(GFN_CALLBACK *ExitCallbackSig)(void* pUserContext);
         // Callback function for notification when a game should pause due to user changing focus from the session. Register via gfnRegisterPauseCallback API.
         typedef GfnApplicationCallbackResult(GFN_CALLBACK *PauseCallbackSig)(void* pUserContext);
-        // Callback function for notification when a game is being installed to allow for installation actions. Register via gfnRegisterInstallCallback API.
-        typedef GfnApplicationCallbackResult(GFN_CALLBACK *InstallCallbackSig)(const TitleInstallationInformation* pInfo, void* pUserContext);
         // Callback function for notifications when a game should save its state. Register via gfnRegisterSaveCallback API.
         typedef GfnApplicationCallbackResult(GFN_CALLBACK* SaveCallbackSig)(void* pUserContext);
         // Callback function for notifications when a game should continue late-stage initialization. Register via gfnRegisterSessionInitCallback API.
@@ -394,34 +373,6 @@
         // gfnCallWrongEnvironment - If callback could not be registered since this function
         //                                   was called outside of a cloud execution environment
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterPauseCallback(PauseCallbackSig pauseCallback, void* pUserContext);
-
-        //
-        // Description
-        // Register an application callback with GeForce NOW to be called after a successful call to
-        // gfnSetupTitle. Typically, the callback would handle any additional installation steps that
-        // are necessary after GeForce NOW performs its own setup for a given title.
-        //
-        // Environment
-        // Cloud
-        //
-        // Platform
-        // Windows, Linux
-        // 
-        // Usage
-        // Register a function to call after a successful call to gfnSetupTitle.
-        //
-        // Parameters
-        // installCallback            - Function pointer to application code to call after
-        //                                     GeForce NOW successfully performs its own title setup.
-        // pUserContext               - Pointer to user context, which will be passed unmodified to the
-        //                                     registered callback. Can be NULL.
-        // Return Values
-        // gfnSuccess                - On success, when running in a GeForce NOW environment
-        // gfnInternalError          - If callback could not be registered
-        // gfnInvalidParameter       - If installCallback function pointer is NULL.
-        // gfnCallWrongEnvironment   - If callback could not be registered since this function
-        //                                   was called outside of a cloud execution environment
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterInstallCallback(InstallCallbackSig installCallback, void* pUserContext);
 
         //
         // Description
@@ -588,7 +539,7 @@
         // This API is meant to fill the need to quickly determine if the call looks to be in the
         // GFN cloud environment. It purposefully trades off resource-intensive checks for fast response.
         // Do not tie any logic or features of value to this API as the call stack could be tampered with.
-        // For that purpose, use gfnIsRunningInCloudSecure.
+        // For that purpose, use gfnCloudCheck.
         //
         // Parameters
         // none
@@ -642,7 +593,7 @@
         // Cloud and Client
         // 
         // Platform
-        // Windows
+        // Windows, Linux
         //
         // Usage
         // This API can be used from any execution context - privileged or not. 
@@ -664,7 +615,6 @@
         // gfnNotAuthorized         - Indicates the application is either not properly onboarded (missing allow - list),
         //                                    or the application attempted to perform this function in an unsafe environment (patched game seat).
         // gfnBackendError          - Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment.
-        // gfnUnsupportedAPICall    - When called from a Linux environment.
         // gfnThrottled             - API call was throttled for exceeding limit
         NVGFNSDK_EXPORT GfnRuntimeError gfnGetCloudType(
             const GfnCloudType requested_cloud_type,
@@ -719,60 +669,6 @@
         // gfnInvalidParameter      - NULL pointer passed in
         // gfnCallWrongEnvironment  - If called in a client environment
         NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetTitlesAvailable(const char** ppchPlatformAppIds);
-
-        //
-        // Description
-        // Notifies GeForce NOW that an application should be readied for launch. GeForce NOW
-        // will make the build files associated with the application available at the path
-        // returned in the SetupTitleResult struct passed in to the ConfirmTitleSetup callback
-        // provided by the caller. Additionally, GeForce NOW will set all necessary settings to
-        // optimize for the GeForce NOW cloud environment, and download any associated user data,
-        // including save files.
-        //
-        // Environment
-        // Cloud
-        // 
-        // Platform
-        // Windows, Linux
-        //
-        // Usage
-        // Use to prepare an application for launch on GeForce NOW, and block on the result.
-        //
-        // Parameters
-        // pchPlatformAppId - Identifier of the requested application to setup
-        //
-        // Return Values
-        // gfnSuccess               - On success
-        // gfnInvalidParameter      - NULL pointer passed in
-        // gfnCallWrongEnvironment  - If called in a client environment
-        // gfnSetupTitleFailure     - The GeForce NOW SDK failed to set up the title
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnSetupTitle(const char* pchPlatformAppId);
-
-        //
-        // Description
-        // Notifies GFN that an application has exited. GFN will then start the
-        // shutdown process for that application. Note that this is for use by
-        // platform clients only and assumes the application has already completed
-        // execution. To shutdown from within an application itself, gfnShutdownRuntimeSDK is used.
-        //
-        // Environment
-        // Cloud
-        // 
-        // Platform
-        // Windows, Linux
-        //
-        // Usage
-        // Use to notify GFN that your application has exited.
-        //
-        // Parameters
-        // pchPlatformId             - Identifier of the launcher service, e.g. "Steam"
-        // pchPlatformAppId          - Identifier of the application that has exited.
-        //
-        // Return Values
-        // gfnSuccess               - On success
-        // gfnInvalidParameter      - NULL pointer passed in
-        // gfnCallWrongEnvironment  - If called in a client environment
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnTitleExited(const char* pchPlatformId, const char* pchPlatformAppId);
 
         //
         // Description
@@ -916,31 +812,7 @@
         NVGFNSDK_EXPORT GfnRuntimeError gfnGetSessionInfo(GfnSessionInfo* sessionInfo);
         //
         // Description
-        // Retrieves non-secure partner data that is based into the session.
-        //
-        // Environment
-        // Cloud
-        // 
-        // Platform
-        // Windows, Linux
-        //
-        // Usage
-        // Use during cloud session to retrieve partner data based in during session initialization.
-        //
-        // Parameters
-        // ppchPartnerData          - Populated with the partner data in string form if found
-        //                                   Call gfnFree to release the memory when done with data
-        //
-        // Return Values
-        // gfnSuccess              - Partner data successfully retrieved from session data
-        // gfnNoData               - No partner data found in session data
-        // gfnInvalidParameter     - NULL pointer passed in
-        // gfnCallWrongEnvironment - Called in a client environment
-        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetPartnerData(const char** ppchPartnerData);
-
-        //
-        // Description
-        // Retrieves secure partner data that is sent to the session as part of the response to Deep Link nonce validation.
+        // Retrieves secure partner data supplied for the current session.
         //
         // Environment
         // Cloud
@@ -964,11 +836,11 @@
 
         //
         // Description
-        // Releases memory allocated by Get functions such as, but not limited to, gfnGetPartnerData,
-        // gfnGetPartnerSecureData, or gfnGetTitlesAvailable
+        // Releases memory allocated by Get functions such as gfnGetPartnerSecureData or
+        // gfnGetTitlesAvailable.
         //
         // Environment
-        // Cloud
+        // Cloud and Client
         // 
         // Platform
         // Windows, Linux
@@ -1155,30 +1027,35 @@
         // gfnInternalError        - API ran into an internal error
         NVGFNSDK_EXPORT GfnRuntimeError gfnOpenURLOnClient(const char* pchUrl);
 
+
+
         //
         // Description
-        // Allows the application or game to inform GFN of its overall running state
-        // 
+        // Requests termination of the current GFN streaming session. The session is torn down
+        // gracefully; the ExitCallback registered via gfnRegisterExitCallback will be invoked
+        // prior to session teardown as usual.
+        //
         // Environment
         // Cloud
-        // 
+        //
         // Platform
         // Windows, Linux
         //
         // Usage
-        // Use to inform GFN when the application enters a specific running state to allow GFN to make certain decisions about the session
+        // Call when the application needs to programmatically end the GFN streaming session
         //
         // Parameters
-        // appState - A GfnAppState value
+        // pchPartnerTerminationReason  - Optional UTF-8 string describing why the session is
+        //                                being terminated. Pass NULL or empty string if no reason
+        //                                is provided.
         //
         // Return Values
-        // gfnSuccess              - Call was successful
+        // gfnSuccess              - Session termination was successfully requested
         // gfnAPINotInit           - SDK was not initialized
         // gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
         // gfnCallWrongEnvironment - API was called outside of a cloud execution environment
-        // gfnInternalError        - API ran into an internal error
-        NVGFNSDK_EXPORT GfnRuntimeError gfnSetAppState(GfnAppState appState);
-
+        // gfnComError             - There was an SDK internal communication error
+        NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnTerminateSession(const char* pchPartnerTerminationReason);
 
 #ifdef __cplusplus
     } // extern "C"

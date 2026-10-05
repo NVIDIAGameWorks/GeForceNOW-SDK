@@ -188,20 +188,20 @@ extern "C"
     // Cloud and Client
     // 
     // Platform
-    // Windows
+    // Windows, Linux
     //
     // Usage
     // This API can be used from any execution context - privileged or not. 
     //
     // Parameters
-    // requested_cloud_type      - The desired type of the cloud (CC_CLOUD_TYPE_TRUSTED, CC_CLOUD_TYPE_OPEN, or CC_CLOUD_TYPE_ANY) that the caller wants to check for.
+    // requestedCloudType        - The desired type of the cloud (CC_CLOUD_TYPE_TRUSTED, CC_CLOUD_TYPE_OPEN, or CC_CLOUD_TYPE_ANY) that the caller wants to check for.
     // challenge                 - Optional input parameter, that can be used to pass in nonce data.
     //                                    If a non-null challenge is passed in, then the response parameter is mandatory.
     // 
     // response                  - Optional output parameter, that receives the signed attestation response from the API.
     // 
-    // detected_cloud_type       - An optional parameter to receive the actual type of the environment detected at runtime (CC_CLOUD_TYPE_xxx).
-    //                                    This parameter is only useful when multiple cloud types were provided on input in the requested_cloud_type parameter.
+    // detectedCloudType         - An optional parameter to receive the actual type of the environment detected at runtime (CC_CLOUD_TYPE_xxx).
+    //                                    This parameter is only useful when multiple cloud types were provided on input in the requestedCloudType parameter.
     //                                    A null pointer can be passed if the caller is not interested in receiving the actual cloud type.
     //
     // Return Values
@@ -210,13 +210,12 @@ extern "C"
     // gfnNotAuthorized         - Indicates the application is either not properly onboarded (missing allow - list),
     //                                    or the application attempted to perform cloud check in an unsafe environment (patched game seat).
     // gfnBackendError          - Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment.
-    // gfnUnsupportedAPICall    - When called from a Linux environment.
     // gfnThrottled             - API call was throttled for exceeding limit
     GfnRuntimeError GfnGetCloudType(
-        const GfnCloudType requested_cloud_type,
+        const GfnCloudType requestedCloudType,
         const GfnCloudCheckChallenge* challenge,
         GfnCloudCheckResponse* response,
-        GfnCloudType* detected_cloud_type);
+        GfnCloudType* detectedCloudType);
 
     //
     // Description
@@ -428,33 +427,7 @@ extern "C"
 
     //
     // Description
-    // Calls GfnGetPartnerData to retrieves non-secure partner data that is passed into the session.
-    //
-    // Environment
-    // Cloud
-    // 
-    // Platform
-    // Windows, Linux
-    //
-    // Usage
-    // Use during cloud session to retrieve partner data
-    //
-    // Parameters
-    // partnerData              - Populated with the partner data in string form if found
-    //                                   Call GfnFree to free the memory
-    //
-    // Return Values
-    // gfnSuccess              - Partner data successfully retrieved from session data
-    // gfnNoData               - No partner data found in session data
-    // gfnInvalidParameter     - NULL pointer passed in
-    // gfnCallWrongEnvironment - If called in a client environment
-    // gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
-    // gfnAPINotFound          - The API was not found in the GFN SDK Library
-    GfnRuntimeError GfnGetPartnerData(const char** partnerData);
-
-    //
-    // Description
-    // Calls GfnGetPartnerSecureData to retrieves secure partner data that is passed into the session.
+    // Calls gfnGetPartnerSecureData to retrieve secure partner data supplied for the current session.
     //
     // Environment
     // Cloud
@@ -466,7 +439,7 @@ extern "C"
     // Use during cloud session to retrieve secure partner data
     //
     // Parameters
-    // partnerSecureData         - Populated with the secure partner data in string for if found
+    // partnerSecureData         - Populated with the secure partner data in string form if found
     //                                    Call GfnFree to free the memory
     //
     // Return Values
@@ -561,56 +534,6 @@ extern "C"
 
     //
     // Description
-    // Calls gfnSetupTitle to notify GeForce NOW that an application should be readied for launch.
-    //
-    // Environment
-    // Cloud
-    // 
-    // Platform
-    // Windows, Linux
-    //
-    // Usage
-    // Use to prepare an application for launch on GeForce NOW, and block on the result.
-    //
-    // Parameters
-    // platformAppId             - Identifier of the requested application to setup
-    //
-    // Return Values
-    // gfnSuccess               - On success
-    // gfnInvalidParameter      - NULL pointer passed in
-    // gfnCallWrongEnvironment  - If called in a client environment
-    // gfnSetupTitleFailure     - The GeForce NOW SDK failed to set up the title
-    // gfnCloudLibraryNotFound  - GFN SDK cloud-side library could not be found
-    // gfnAPINotFound           - The API was not found in the GFN SDK Library
-    GfnRuntimeError GfnSetupTitle(const char* platformAppId);
-
-    //
-    // Description
-    // Calls gfnTitleExited to notify GFN that an application has exited.
-    //
-    // Environment
-    // Cloud
-    // 
-    // Platform
-    // Windows, Linux
-    //
-    // Usage
-    // Use to notify GFN that your application has exited.
-    //
-    // Parameters
-    // platformId                - Identifier of the launcher service, e.g. "Steam"
-    // platformAppId             - Identifier of the application that has exited.
-    //
-    // Return Values
-    // gfnSuccess               - On success
-    // gfnInvalidParameter      - NULL pointer passed in
-    // gfnCallWrongEnvironment  - If called in a client environment
-    // gfnCloudLibraryNotFound  - GeForce NOW SDK cloud-side library could not be found
-    // gfnAPINotFound           - The API was not found in the GeForce NOW SDK Library
-    GfnRuntimeError GfnTitleExited(const char* platformId, const char* platformAppId);
-
-    //
-    // Description
     // Calls gfnRegisterExitCallback to register an application function that is called when
     // the user has requested to end the GeForce NOW session.
     //
@@ -671,35 +594,6 @@ extern "C"
     // gfnCloudLibraryNotFound - GeForce NOW SDK cloud-side library could not be found
     // gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
     GfnRuntimeError GfnRegisterPauseCallback(PauseCallbackSig pauseCallback, void* userContext);
-
-    //
-    // Description
-    // Calls gfnRegisterInstallCallback to register an application callback with GeForce NOW
-    // to be called after a successful call to gfnSetupTitle.
-    //
-    // Environment
-    // Cloud
-    // 
-    // Platform
-    // Windows, Linux
-    //
-    // Usage
-    // Register a function to call after a successful call to gfnSetupTitle.
-    //
-    // Parameters
-    // installCallback          - Function pointer to application code to call after
-    //                                   GeForce NOW successfully performs its own title setup.
-    // userContext              - Pointer to user context, which will be passed unmodified to the
-    //                                   registered callback. Can be NULL.
-    //
-    // Return Values
-    // gfnSuccess              - On success, when running in a GeForce NOW environment
-    // gfnInvalidParameter     - If installCallback function pointer is NULL
-    // gfnCallWrongEnvironment - If callback could not be registered since this function
-    //                                   was called outside of a cloud execution environment
-    // gfnCloudLibraryNotFound - GeForce NOW SDK cloud-side library could not be found
-    // gfnAPINotFound          - The API was not found in the GFN SDK Library
-    GfnRuntimeError GfnRegisterInstallCallback(InstallCallbackSig installCallback, void* userContext);
 
     //
     // Description
@@ -1006,30 +900,35 @@ extern "C"
     // gfnInternalError        - API ran into an internal error
     GfnRuntimeError GfnOpenURLOnClient(const char* pchUrl);
 
+
+
     //
     // Description
-    // Allows the application or game to inform GFN of its overall running state
-    // 
+    // Requests termination of the current GFN streaming session. The session is torn down
+    // gracefully; the ExitCallback registered via gfnRegisterExitCallback will be invoked
+    // prior to session teardown as usual.
+    //
     // Environment
     // Cloud
-    // 
+    //
     // Platform
     // Windows, Linux
     //
     // Usage
-    // Use to inform GFN when the application enters a specific running state to allow GFN to make certain decisions about the session
+    // Call when the application needs to programmatically end the GFN streaming session
     //
     // Parameters
-    // appState - A GfnAppState value
+    // pchPartnerTerminationReason  - Optional UTF-8 string describing why the session is
+    //                                being terminated. Pass NULL or empty string if no reason
+    //                                is provided.
     //
     // Return Values
-    // gfnSuccess              - Call was successful
+    // gfnSuccess              - Session termination was successfully requested
     // gfnAPINotInit           - SDK was not initialized
     // gfnAPINotFound          - The API was not found in the GeForce NOW SDK Library
     // gfnCallWrongEnvironment - API was called outside of a cloud execution environment
-    // gfnInternalError        - API ran into an internal error
-    GfnRuntimeError GfnSetAppState(GfnAppState appState);
-
+    // gfnComError             - There was an SDK internal communication error
+    GfnRuntimeError GfnTerminateSession(const char* pchPartnerTerminationReason);
 
 #ifdef __cplusplus
     } // extern "C"

@@ -3,6 +3,7 @@
 | Version | Date | Description of Change | 
 | :----: | :----: | :---- |
 | 1.0 | 07/11/2025 | First revision |
+| 5.0 | 09/10/2026 | Removed gfnGetPartnerData, aligned API descriptions, parameters, return codes, and data types with `GfnRuntimeSdk_CAPI.h`. |
 
 ## Introduction
 NVIDIA GeForce NOW (GFN) allows users to enjoy their library of PC games on many internet-enabled devices via the power of cloud gaming. This includes PCs, Macs, Smart TVs, and mobile devices such as smartphones and tablets. 
@@ -12,6 +13,17 @@ GFN has the ability to onboard your Windows and Linux games and applications as-
 This document is provided as part of the SDK to aid in getting the developer up to speed with the SDK quickly, as well as providing source code pointers for the most common of integration scenarios.
 
 ## APIs
+
+The return value tables in this section list the values that are specific to each function. In addition to those values, every function that returns a *GfnRuntimeError* can return the following:-
+
+| Value | Meaning |
+| :---- | :---- |
+| gfnAPINotInit | gfnInitializeRuntimeSdk was not called, or it did not succeed. |
+| gfnInvalidParameter | A required pointer parameter was NULL. |
+
+Applications that use the C wrapper (the *Gfn\** functions declared in `GfnRuntimeSdk_Wrapper.h`) can also receive `gfnAPINotFound` if the function is missing from the loaded GFN SDK library, and `gfnCloudLibraryNotFound` if the cloud-side library could not be loaded.
+
+The complete list of values is in [Function Return/Error Values](#function-returnerror-values).
 
 ### Initialize and Shutdown Functions
 The functions in this section of the document are used to initialize the SDK before any other API functions are called, and to shutdown the SDK to allow for resource cleanup when a title no longer needs to use the GFN SDK.
@@ -120,7 +132,7 @@ NVGFNSDK_EXPORT GfnRuntimeError gfnGetCloudType(const GfnCloudType requested_clo
 Determines which GFN environment, if any, is available. This is not useful for most developers. Only use if you've been instructed to by NVIDIA support.
 
 Environment: Cloud and Client   
-Platform: Windows   
+Platform: Windows, Linux   
 Parameters:   
 | Value | Meaning |
 | :---- | :---- |
@@ -136,7 +148,6 @@ Return Values:
 | gfnInvalidParameter | NULL pointer passed in response parameter when challenge parameter is nonzero. |
 | gfnNotAuthorized | Indicates the application is either not properly onboarded (missing allow - list), or the application attempted to perform cloud check in an unsafe environment (patched game seat). |
 | gfnBackendError | Indicates the API could not communicate with the GFN backend services to confirm it is running in GFN environment. |
-| gfnUnsupportedAPICall | When called from a Linux environment. |
 | gfnThrottled | API call was throttled for exceeding limit. |
 
 
@@ -187,7 +198,7 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnInvalidParameter | NULL pointer passed in response parameter when challenge parameter is nonzero. |
+| gfnInvalidParameter | NULL pointer passed in. |
 | gfnCallWrongEnvironment | Function called in a client environment. |
 
 ### gfnGetClientIp
@@ -236,6 +247,7 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
+| gfnNoData | No language code found. |
 | gfnInvalidParameter | NULL pointer passed in. |
 | gfnCallWrongEnvironment | Function called in a client environment. |
 
@@ -261,7 +273,7 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnInvalidParameter | NULL pointer passed in. |
+| gfnInvalidParameter | NULL pointer passed in, or buffer length is too small. |
 | gfnCallWrongEnvironment | Function called in a client environment. |
 
 
@@ -286,7 +298,7 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnInvalidParameter | NULL pointer passed in. |
+| gfnInvalidParameter | NULL pointer passed in, or buffer length is too small. |
 | gfnCallWrongEnvironment | Function called in a client environment. |
 
 
@@ -312,34 +324,9 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnInvalidParameter | NULL pointer passed in. |
+| gfnInvalidParameter | NULL pointer passed in, or buffer length is too small. |
 | gfnCallWrongEnvironment | Function called in a client environment. |
 
-
-### gfnGetPartnerData
-
-```c
-
-NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetPartnerData(const char** ppchPartnerData);
-
-```
-
-Gets various information about the current streaming session.
-
-Environment: Cloud   
-Platform: Windows, Linux   
-Parameters:   
-| Value | Meaning |
-| :---- | :---- |
-| ppchPartnerData | Populated with the partner data in string form if found. Call gfnFree to release the memory when done with data. |
-
-Return Values:
-| Value | Meaning |
-| :---- | :---- |
-| gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnNoData | No partner data found in session data. |
-| gfnInvalidParameter | NULL pointer passed in. |
-| gfnCallWrongEnvironment | Function called in a client environment. |
 
 ### gfnGetPartnerSecureData
 
@@ -349,7 +336,7 @@ NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnGetPartnerSecureData(const char**
 
 ```
 
-Retrieves secure partner data that is sent to the session as part of the response to Deep Link nonce validation.
+Retrieves secure partner data supplied for the current session.
 
 Environment: Cloud   
 Platform: Windows, Linux     
@@ -379,9 +366,9 @@ NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnFree(const char** ppchData);
 
 ```
 
-Releases memory allocated by Get functions such as, but not limited to, gfnGetPartnerData, gfnGetPartnerSecureData, or gfnGetTitlesAvailable.
+Releases memory allocated by Get functions such as gfnGetPartnerSecureData or gfnGetTitlesAvailable. Call this function only when the memory is populated with valid data; calling it with an invalid pointer or data results in a memory exception being thrown.
 
-Environment: Cloud   
+Environment: Cloud and Client   
 Platform: Windows, Linux   
 Parameters:   
 | Value | Meaning |
@@ -391,9 +378,9 @@ Parameters:
 Return Values:
 | Value | Meaning |
 | :---- | :---- |
-| gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnInvalidParameter | NULL pointer passed in. |
-| gfnCallWrongEnvironment | Function called in a client environment. |
+| gfnSuccess | Memory successfully released. |
+| gfnInvalidParameter | Invalid pointer or data passed in. |
+
 
 
 ### gfnSetEditBoxRegion
@@ -420,11 +407,11 @@ Return Values:
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
 | gfnInputExpected | Expected zone to have a value. |
-| gfnComError |There was SDK internal communication error. |
+| gfnComError | There was SDK internal communication error. |
 | gfnCallWrongEnvironment | If called in a client environment. |
 | gfnAPINotInit | SDK was not initialized. |
 | gfnAPINotFound | The API was not found in the GeForce NOW SDK Library. |
-| gfnInvalidParameter | NULL pointer passed in. |
+| gfnInvalidParameter | Invalid parameters provided. |
 | gfnThrottled | API call was throttled for exceeding limit. |
 | gfnUnhandledException | API ran into an unhandled error and caught an exception before it returned to client code. |
 
@@ -451,13 +438,14 @@ Return Values:
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
 | gfnInputExpected | Expected zone to have a value. |
-| gfnComError |There was SDK internal communication error. |
+| gfnComError | There was SDK internal communication error. |
 | gfnCallWrongEnvironment | If called in a client environment. |
 | gfnAPINotInit | SDK was not initialized. |
 | gfnAPINotFound | The API was not found in the GeForce NOW SDK Library. |
-| gfnInvalidParameter | NULL pointer passed in. |
+| gfnInvalidParameter | Invalid parameters provided. |
 | gfnThrottled | API call was throttled for exceeding limit. |
 | gfnUnhandledException | API ran into an unhandled error and caught an exception before it returned to client code. |
+
 
 
 ### gfnSetActionZone
@@ -485,11 +473,11 @@ Return Values:
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
 | gfnInputExpected | Expected zone to have a value. |
-| gfnComError |There was SDK internal communication error. |
+| gfnComError | There was SDK internal communication error. |
 | gfnCallWrongEnvironment | If called in a client environment. |
 | gfnAPINotInit | SDK was not initialized. |
 | gfnAPINotFound | The API was not found in the GeForce NOW SDK Library. |
-| gfnInvalidParameter | NULL pointer passed in. |
+| gfnInvalidParameter | Invalid parameters provided. |
 | gfnThrottled | API call was throttled for exceeding limit. |
 | gfnUnhandledException | API ran into an unhandled error and caught an exception before it returned to client code. |
 
@@ -510,7 +498,6 @@ Parameters:
 | Value | Meaning |
 | :---- | :---- |
 | pchMessage | Character string of the message to send. |
-| id | Unique unsigned int type identifier for this action zone. |
 | length | Length of pchMessage in characters, which cannot exceed 8K in length. |
 
 
@@ -518,12 +505,11 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnComError |There was SDK internal communication error. |
-| gfnCallWrongEnvironment | If called in a client environment. |
+| gfnComError | There was SDK internal communication error. |
 | gfnAPINotInit | SDK was not initialized. |
 | gfnAPINotFound | The API was not found in the GeForce NOW SDK Library. |
-| gfnInvalidParameter | NULL pointer passed in. |
-| gfnThrottled | API call was throttled for exceeding limit. |
+| gfnInvalidParameter | Invalid parameters provided, or message exceeded allowed length. |
+| gfnThrottled | API call was throttled for exceeding limit of 30 messages per second. |
 | gfnUnhandledException | API ran into an unhandled error and caught an exception before it returned to client code. |
 
 
@@ -536,7 +522,7 @@ NVGFNSDK_EXPORT GfnRuntimeError gfnOpenURLOnClient(const char* pchUrl);
 
 ```
 
-Requests the client application to open a URL in their local web browser.
+Requests the client application to open a URL in their local web browser. These requests are fire-and-forget, and usage is limited to 5 URL requests every second, with no more than 25 URL requests per minute.
 
 Environment: Cloud   
 Platform: Windows, Linux   
@@ -550,42 +536,16 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnComError |There was SDK internal communication error. |
-| gfnCallWrongEnvironment | If called in a client environment. |
 | gfnAPINotInit | SDK was not initialized. |
 | gfnAPINotFound | The API was not found in the GeForce NOW SDK Library. |
-| gfnInvalidParameter | NULL pointer passed in. |
-| gfnThrottled | API call was throttled for exceeding limit. |
-| gfnUnhandledException | API ran into an unhandled error and caught an exception before it returned to client code. |
+| gfnCallWrongEnvironment | API was called outside of a cloud execution environment. |
+| gfnInvalidParameter | Invalid pointer provided, or URL exceeded allowed length. |
+| gfnThrottled | API call was throttled for exceeding limit of 5 messages per second or 25 total per session. |
+| gfnInternalError | API ran into an internal error. |
 
 
 
-### gfnSetAppState
 
-```c
-
-NVGFNSDK_EXPORT GfnRuntimeError gfnSetAppState(GfnAppState appState);
-
-```
-
-Allows the application or game to inform GFN of its overall running state.
-
-Environment: Cloud   
-Platform: Windows, Linux   
-Parameters:   
-| Value | Meaning |
-| :---- | :---- |
-| appState | A GfnAppState value. |
-
-
-Return Values:
-| Value | Meaning |
-| :---- | :---- |
-| gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnCallWrongEnvironment | If called in a client environment. |
-| gfnAPINotInit | SDK was not initialized. |
-| gfnAPINotFound | The API was not found in the GeForce NOW SDK Library. |
-| gfnInvalidParameter | NULL pointer passed in. |
 
 
 ### gfnAppReady
@@ -615,59 +575,33 @@ Return Values:
 
 
 
-### gfnSetupTitle
+
+### gfnTerminateSession
 
 ```c
 
-NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnSetupTitle(const char* pchPlatformAppId);
+NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnTerminateSession(const char* pchPartnerTerminationReason);
 
 ```
 
-Requests GeForce NOW to set up a GFN title to be readied for launch.
+Requests graceful termination of the current GFN streaming session. The exit callback registered through `gfnRegisterExitCallback` is invoked before session teardown.
 
 Environment: Cloud   
 Platform: Windows, Linux   
 Parameters:   
 | Value | Meaning |
 | :---- | :---- |
-| pchPlatformAppId | Identifier of the requested application to setup. |
-
-
-Return Values:
-| Value | Meaning |
-| :---- | :---- |
-| gfnSuccess | On success, otherwise, appropriate error code. |
-| gfnAPINotInit | SDK was not initialized. |
-| gfnInvalidParameter | NULL pointer passed in. |
-| gfnCallWrongEnvironment | If called in a client environment. |
-| gfnSetupTitleFailure | The GeForce NOW SDK failed to set up the title. |
-
-### gfnTitleExited
-
-```c
-
-NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnTitleExited(const char* pchPlatformId, const char* pchPlatformAppId);
-
-```
-
-Notifies GFN that an application has exited. GFN will then start the shutdown process for that application.
-
-Environment: Cloud   
-Platform: Windows, Linux   
-Parameters:   
-| Value | Meaning |
-| :---- | :---- |
-| pchPlatformId | Identifier of the launcher service, e.g. "Steam". |
-| pchPlatformAppId | Identifier of the application that has exited. |
-
+| pchPartnerTerminationReason | Optional UTF-8 string describing why the session is being terminated. Pass NULL or an empty string if no reason is provided. |
 
 Return Values:
 | Value | Meaning |
 | :---- | :---- |
-| gfnSuccess | On success, otherwise, appropriate error code. |
+| gfnSuccess | Session termination was successfully requested. |
 | gfnAPINotInit | SDK was not initialized. |
-| gfnInvalidParameter | NULL pointer passed in. |
-| gfnCallWrongEnvironment | If called in a client environment. |
+| gfnAPINotFound | The API was not found in the GeForce NOW SDK Library. |
+| gfnCallWrongEnvironment | Function called outside a cloud environment. |
+| gfnComError | The SDK encountered an internal communication error. |
+
 
 
 ### Callback Functions
@@ -696,10 +630,8 @@ Return Values:
 | :---- | :---- |
 | gfnSuccess | On success, when running in a GeForce NOW environment |
 | gfnInternalError | If callback could not be registered |
-| gfnInvalidParameter | If callback function pointer is NULL |
+| gfnInvalidParameter | If exitCallback function pointer is NULL |
 | gfnCallWrongEnvironment | If callback could not be registered since this function was called outside of a cloud execution environment |
-| gfnAPINotInit | SDK was not initialized |
-| gfnAPINotFound | If the API was not found in the GeForce NOW SDK Library |
 
 ### gfnRegisterPauseCallback
 
@@ -724,38 +656,8 @@ Return Values:
 | :---- | :---- |
 | gfnSuccess | On success, when running in a GeForce NOW environment |
 | gfnInternalError | If callback could not be registered |
-| gfnInvalidParameter | If callback function pointer is NULL |
+| gfnInvalidParameter | If pauseCallback function pointer is NULL |
 | gfnCallWrongEnvironment | If callback could not be registered since this function was called outside of a cloud execution environment |
-| gfnAPINotInit | SDK was not initialized |
-| gfnAPINotFound | If the API was not found in the GeForce NOW SDK Library |
-
-### gfnRegisterInstallCallback
-
-```c
-
-NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterInstallCallback(InstallCallbackSig installCallback, void* pUserContext);
-
-```
-
-Register an application callback with GeForce NOW to be called after a successful call to gfnSetupTitle. Typically, the callback would handle any additional installation steps that are necessary after GeForce NOW performs its own setup for a given title.
-
-Environment: Cloud   
-Platform: Windows, Linux   
-Parameters:  
-| Value | Meaning |
-| :---- | :---- |
-| installCallback | Function pointer to application code to call after GeForce NOW successfully performs its own title setup. |
-| pUserContext | Pointer to user context, which will be passed unmodified to the registered callback. Can be NULL. |
-
-Return Values:   
-| Value | Meaning |
-| :---- | :---- |
-| gfnSuccess | On success, when running in a GeForce NOW environment |
-| gfnInternalError | If callback could not be registered |
-| gfnInvalidParameter | If callback function pointer is NULL |
-| gfnCallWrongEnvironment | If callback could not be registered since this function was called outside of a cloud execution environment |
-| gfnAPINotInit | SDK was not initialized |
-| gfnAPINotFound | If the API was not found in the GeForce NOW SDK Library |
 
 ### gfnRegisterSaveCallback
 
@@ -780,10 +682,6 @@ Return Values:
 | :---- | :---- |
 | gfnSuccess | On success, when running in a GeForce NOW environment |
 | gfnInternalError | If callback could not be registered |
-| gfnInvalidParameter | If callback function pointer is NULL |
-| gfnCallWrongEnvironment | If callback could not be registered since this function was called outside of a cloud execution environment |
-| gfnAPINotInit | SDK was not initialized |
-| gfnAPINotFound | If the API was not found in the GeForce NOW SDK Library |
 
 ### gfnRegisterSessionInitCallback
 
@@ -807,11 +705,10 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, when running in a GeForce NOW environment |
-| gfnInternalError | If callback could not be registered |
-| gfnInvalidParameter | If callback function pointer is NULL |
-| gfnCallWrongEnvironment | If callback could not be registered since this function was called outside of a cloud execution environment |
+| gfnInvalidParameter | If sessionInitCallback function pointer is NULL |
 | gfnAPINotInit | SDK was not initialized |
 | gfnAPINotFound | If the API was not found in the GeForce NOW SDK Library |
+| gfnCallWrongEnvironment | If the on-seat DLL detected that it was not on a game seat |
 
 
 ### gfnRegisterMessageCallback
@@ -822,7 +719,7 @@ NVGFNSDK_EXPORT GfnRuntimeError NVGFNSDKApi gfnRegisterMessageCallback(MessageCa
 
 ```
 
-Register an application callback with GeForce NOW to be called when certain client info that is part of gfnGetClientInfo API changes. 
+Registers an application callback with GeForce NOW to be called when a custom message is received from the client.
 
 Environment: Cloud   
 Platform: Windows, Linux   
@@ -836,11 +733,10 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, when running in a GeForce NOW environment |
-| gfnInternalError | If callback could not be registered |
-| gfnInvalidParameter | If callback function pointer is NULL |
-| gfnCallWrongEnvironment | If callback could not be registered since this function was called outside of a cloud execution environment |
+| gfnInvalidParameter | If messageCallback function pointer is NULL |
 | gfnAPINotInit | SDK was not initialized |
 | gfnAPINotFound | If the API was not found in the GeForce NOW SDK Library |
+| gfnCallWrongEnvironment | If the on-seat DLL detected that it was not on a game seat |
 
 
 
@@ -866,11 +762,10 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, when running in a GeForce NOW environment |
-| gfnInternalError | If callback could not be registered |
-| gfnInvalidParameter | If callback function pointer is NULL |
-| gfnCallWrongEnvironment | If callback could not be registered since this function was called outside of a cloud execution environment |
+| gfnInvalidParameter | If clientInfoCallback function pointer is NULL |
 | gfnAPINotInit | SDK was not initialized |
 | gfnAPINotFound | If the API was not found in the GeForce NOW SDK Library |
+| gfnCallWrongEnvironment | If the on-seat DLL detected that it was not on a game seat |
 
 
 
@@ -897,11 +792,10 @@ Return Values:
 | Value | Meaning |
 | :---- | :---- |
 | gfnSuccess | On success, when running in a GeForce NOW environment |
-| gfnInternalError | If callback could not be registered |
-| gfnInvalidParameter | If callback function pointer is NULL |
-| gfnCallWrongEnvironment | If callback could not be registered since this function was called outside of a cloud execution environment |
+| gfnInvalidParameter | If networkStatusCallback function pointer is NULL |
 | gfnAPINotInit | SDK was not initialized |
 | gfnAPINotFound | If the API was not found in the GeForce NOW SDK Library |
+| gfnCallWrongEnvironment | If the on-seat DLL detected that it was not on a game seat |
 
 
 ## Data Types
@@ -960,28 +854,13 @@ typedef enum GfnCloudType
     CC_CLOUD_TYPE_NULL = 0x00000000,      // Unknown session type
     CC_CLOUD_TYPE_TRUSTED = 0x00000001,   // Trusted session type
     CC_CLOUD_TYPE_OPEN = 0x00000002,      // Open session type
-    CC_CLOUD_TYPE_ANY = 0x00000003        // Other session type
+    CC_CLOUD_TYPE_ANY = 0x00000003        // Request or match any cloud type
 } GfnCloudType;
 
 ```
 
-Type of GFN Cloud environment as returned from the gfnCloudType function.
+Type of GFN Cloud environment used with the gfnGetCloudType function.
 
-
-### TitleInstallationInformation
-
-```c
-
-typedef struct TitleInstallationInformation
-{
-	const char* pchPlatformAppId; // Platform application ID passed into the API.
-	const char* pchBuildPath;     // The path at which game build files can be found.
-	const char* pchMetadataPath;  // Optionally contains the path at which game metadata can be found, else NULL.
-} TitleInstallationInformation;
-
-```
-
-Input to the function registered via gfnRegisterInstallCallback (if any).
 
 ### GfnActionType
 
@@ -1024,32 +903,6 @@ typedef enum GfnOsType
 
 Types of operating systems that can be reported by the SDK.
 
-### GfnInputType
-
-```c
-
-typedef enum GfnInputType
-{
-	gfnUnknownInput = 0,
-	gfnMouse = 1,
-	gfnKeyboard = 2,
-	gfnMouseKeyboard = 3,
-	gfnXInputGamepad = 4,
-	gfnXInputGamepadPartial = 5,
-	gfnDirectInputGamepad = 6,
-	gfnDirectInputGamepadPartial = 7,
-	gfnJoystick = 8,
-	gfnWheel = 9,
-	gfnTouchscreen = 10,
-	gfnWiiController = 11,
-	gfnKinectController = 12,
-	gfnInputTypeMax = 12
-} GfnInputType;
-
-```
-
-Types of input used by the client device running the GFN client application.
-
 ### GfnClientInfo
 
 ```c
@@ -1080,7 +933,6 @@ typedef enum GfnClientInfoChangeType
 	gfnClientResolution = 2,            // Change in resolution of GFN Client
 	gfnSafeZone = 3,                    // Change in safe zone rectangle (due to device switch or rotation)
 	gfnClientDataChangeTypeMax = 3      // Sentinel value for GfnClientInfoChangeType
-	gfnClientDataChangeTypeMax = 0      // Sentinel value for GfnClientInfoChangeType
 } GfnClientDataChangeType;
 
 ```
@@ -1125,9 +977,9 @@ typedef enum GfnNetworkStatusChangeType
 
 ```
 
-An update notification for a piece of network status data.
+Types of network status changes that can be reported to gfnRegisterNetworkStatusCallback.
 
-### GfnNetworkStatusChangeType
+### GfnNetworkStatusUpdateData
 
 ```c
 
@@ -1139,11 +991,11 @@ typedef struct GfnNetworkStatusUpdateData
     {
         unsigned int RTDAverageLatencyMs;   // Round Trip Delay - Average Latency in milliseconds
     } data;
-} GfnNetworkStatusChangeType;
+} GfnNetworkStatusUpdateData;
 
 ```
 
-Types of input used by the client device running the GFN client application.
+An update notification for a piece of network status data.
 
 
 
@@ -1165,24 +1017,7 @@ Data structure used by the gfnGetSessionInfo function.
  
 
 
-### GfnAppState
 
-```c
-
-typedef enum GfnAppState
-{
-	gfnAppLoading = 0,              // Application is loading
-	gfnAppInMenu = 1,               // Application has opened menu options for the user
-	gfnAppRunning = 2,              // Application is running and accepting user input
-	gfnAppPaused = 3,               // Application is paused, no input accepted
-	gfnAppExiting = 4,              // Application is exiting
-	gfnAppErrorDetected = 5,        // Application has run into a critical error
-	gfnAppStateMax = 6              // Sentinel value, do not use
-} GfnAppState;
-
-```
-
-Application/game state data passed in to gfnSetAppState function.
 
 
 ### GfnRectFormat
@@ -1243,7 +1078,6 @@ typedef struct GfnString
 
 Struct to reference a string with length data.
 
-_V3
 ### GfnResolutionInfo
 
 ```c
@@ -1257,7 +1091,6 @@ typedef struct GfnResolutionInfo
 ```
 
 Data structure used to represent the display resolution of the client device used for the current GFN session.
-_V3
 
 
 
@@ -1272,15 +1105,15 @@ This section of the document provides the list of all possible API function retu
 | gfnInitFailure | SDK initialization failure for any reason other than memory allocation failure. |
 | gfnDllNotPresent | GFN-related DLL is not present. |
 | gfnComError | GFN SDK internal component communication error. |
-| gfnLibraryCallFailure |GFN SDK could not serve the request. |
+| gfnLibraryCallFailure | GFN SDK could not serve the request. |
 | gfnIncompatibleVersion | Incompatible version of GFN SDK found. |
 | gfnUnableToAllocateMemory | Unable to allocate memory. |
 | gfnInvalidParameter | Invalid parameter. |
 | gfnInternalError | Generic GFN SDK internal error. |
 | gfnUnsupportedAPICall | API Call is not supported. |
-| gfnInvalidToken |  Invalid toke. |
+| gfnInvalidToken | Invalid token. |
 | gfnTimedOut | Operation timed out. |
-| gfnSetupTitleFailure | Failed to setup title. |
+| gfnSetupTitleFailure | Failed to setup title (Deprecated). |
 | gfnClientDownloadFailed | GFN SDK component download failure. |
 | gfnCallWrongEnvironment | Function limited to specific environment (e.g., Cloud) and called in wrong environment (e.g., Client). |
 | gfnWebApiFailed | A call to a NVIDIA Web API failed to return valid data. |

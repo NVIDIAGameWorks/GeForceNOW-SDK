@@ -134,32 +134,6 @@ bool BasicCloudCheck()
     return bIsCloudEnvironment;
 }
 
-// Example method to call the GfnPartnerData() API method. This will return any data that was passed into the session start request.
-void GetPartnerData()
-{
-    printf("\n\nObtaining Partner Data...\n");
-
-    char const* partnerData = NULL;
-    GfnError result = GfnGetPartnerData(&partnerData);
-    switch (result)
-    {
-    case gfnThrottled:
-        printf("GfnGetPartnerData: API call rate limit exceeded. Try again later.\n");
-        break;
-    case gfnNoData:
-        printf("GfnGetPartnerData: No partner data found.\n");
-        break;
-    case gfnSuccess:
-        printf("GfnGetPartnerData: API call returned partner data:\n\n%s\n", partnerData);
-        // Memory was allocated for the partner data. To avoid leaks, call GfnFree only in this case.
-        GfnFree(&partnerData);
-        break;
-    default:
-        printf("GfnGetPartnerData: API call returned error: %d, %s\n", result, GfnErrorToString(result));
-        break;
-    }
-}
-
 // Example method to call the GfnPartnerSecureData() API method. This will return any data that was passed into the session start request.
 void GetPartnerSecureData()
 {
@@ -205,8 +179,6 @@ int main()
     }
     else
     {
-        GetPartnerData();
-
         GetPartnerSecureData();
     }
 

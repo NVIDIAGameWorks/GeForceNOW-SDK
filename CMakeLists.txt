@@ -38,7 +38,7 @@ set(SAMPLE_CLOUDCHECKAPI_INSTALL_ROOT "" CACHE STRING "(Optional) location to in
 
 set_property(CACHE SAMPLES_ARCH PROPERTY STRINGS 64 32)
 option(BUILD_SAMPLES "Build the GFN SDK samples" ON)
-set(AVAILABLE_SAMPLES CGameAPISample CloudCheckAPI CubeSample OpenClientBrowser PartnerDataAPI PreWarmSample)
+set(AVAILABLE_SAMPLES CGameAPISample CloudCheckAPI CubeSample OpenClientBrowser PartnerDataAPI PreWarmSample SessionTerminationSample)
 set(BUILD_SAMPLES_LIST "${AVAILABLE_SAMPLES}" CACHE STRING "List of GFN SDK samples to build (e.g. 'CGameAPISample;CloudCheckAPI)")
 if (LINUX)
     # If the option is set to `OFF` then OpenSSL dependency can be provided by the user instead

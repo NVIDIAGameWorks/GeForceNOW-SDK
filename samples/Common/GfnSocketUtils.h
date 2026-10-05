@@ -76,4 +76,4 @@ extern "C" {
 }
 #endif
 
-#endif // __GFN_SOCKET_UTILS_H__ 
+#endif // __GFN_SOCKET_UTILS_H__

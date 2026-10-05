@@ -14,6 +14,7 @@ Document History
 | 4.0 | 07/02/2025 | Conversion from PDF to Markdown |
 | 4.1 | 11/12/2025 | Added REST API documentation for CloudCheck; Removed GfnIsRunningInCloudSecure API from SDK wrappers |
 | 4.2 | 04/29/2026 | Fixed GitHub Markdown tables (REST API and comparison sections), Added documentation for JWT response claims including session information claims, challenge-only claims, and cloud type detection via nonce/ononce.|
+| 5.0 | 09/10/2026 | Corrected REST response codes, sample links |
 
 ## Introduction
 The Cloud Check API is a part of the GeForce NOW (GFN) SDK which allows application developers to check whether their applications are running on GFN.
@@ -127,7 +128,7 @@ The simple flavor of the GfnCloudCheck API call is intended for scenarios for lo
 * Optimize startup sequence for GFN systems  
 * Bypass hardware and software revision checks, such as  
   * Display Driver version, as GFN will guarantee the display driver is latest  
-  * Hard drive type, as all GFN systems use SDD-type drives for high performance
+  * Hard drive type, as all GFN systems use SSD-type drives for high performance
 
 The C code below demonstrates API call usage in these scenarios:
 
@@ -135,8 +136,8 @@ The C code below demonstrates API call usage in these scenarios:
 bool SimpleGfnCloudCheck()
 {
     bool isCloud = false;
-    GfnError result = GfnCloudCheck(nullptr, nullptr, &isCloud);
-    if (result != GfnError::gfnSuccess) {
+    GfnError result = GfnCloudCheck(NULL, NULL, &isCloud);
+    if (result != gfnSuccess) {
         // Function failure means that it cannot be securely considered   // GFN
         return false;
     }
@@ -148,7 +149,7 @@ bool SimpleGfnCloudCheck()
 The C Code below shows how attestation data returned from the *GfnCloudCheck* API call can be locally verified on the game seat using platform native APIs. The nonce used in the *GfnCloudCheck* call is locally generated. 
 
 ```c
-#define NONCE_SIZE 16;
+#define NONCE_SIZE 16
 bool ValidatedGfnCheck()
 {
     bool bCloudCheck = false;
@@ -158,16 +159,16 @@ bool ValidatedGfnCheck()
     }
     else {
         GfnCloudCheckChallenge challenge = { nonce, _countof(nonce) };
-        GfnCloudCheckResponse response = { nullptr, 0 };
+        GfnCloudCheckResponse response = { NULL, 0 };
 
-        GfnError result = GfnCloudCheck(&challenge, &response, nullptr);
-        if (result != GfnError::gfnSuccess) {
+        GfnError result = GfnCloudCheck(&challenge, &response, NULL);
+        if (result != gfnSuccess) {
             // Function failure means that it cannot be securely considered as GFN
             bCloudCheck = false;
         }
         else {
 		    // Function returned success, but need to validate data before considering as GFN
-            if (response.attestationData != nullptr) {
+            if (response.attestationData != NULL) {
                 bCloudCheck = GfnCloudCheckVerifyAttestationData(response.attestationData, challenge.nonce, challenge.nonceSize);
                 GfnFree(&response.attestationData);
             }
@@ -197,7 +198,7 @@ Implementation (\*.c) file:
 
 Win: [https://github.com/NVIDIAGameWorks/GeForceNOW-SDK/tree/master/samples/Common/Platform/Win/GfnCloudCheckUtils.c](https://github.com/NVIDIAGameWorks/GeForceNOW-SDK/tree/master/samples/Common/Platform/Win/GfnCloudCheckUtils.c)
 
-Linux: [https://github.com/NVIDIAGameWorks/GeForceNOW-SDK/tree/master/samples/Common/Platform/Posix/GfnCloudCheckUtils.c](https://github.com/NVIDIAGameWorks/GeForceNOW-SDK/tree/master/samples/Common/Platform/Win/GfnCloudCheckUtils.c)
+Linux: [https://github.com/NVIDIAGameWorks/GeForceNOW-SDK/tree/master/samples/Common/Platform/Posix/GfnCloudCheckUtils.c](https://github.com/NVIDIAGameWorks/GeForceNOW-SDK/tree/master/samples/Common/Platform/Posix/GfnCloudCheckUtils.c)
 
 
 ## GfnIsRunningInCloud
@@ -272,6 +273,8 @@ Content-Length: <length>
 | :-------- | :--- | :------- | :---------- |
 | nonce | string | Yes | Base64-encoded nonce data. Minimum 16 bytes (before encoding). The nonce should be randomly generated for each request to prevent replay attacks. |
 
+The complete HTTP request body must not exceed 4096 bytes.
+
 **Response Format:**
 
 Success (HTTP 200):
@@ -285,10 +288,12 @@ Error responses:
 
 | HTTP Status | Response Body | Meaning |
 | :---------- | :------------ | :------ |
-| 400 Bad Request | `{"error": "-5", "message": "Invalid parameter in the request"}` | Invalid JSON format or nonce too short (less than 16 bytes) |
-| 403 Forbidden | `{"error": "-6", "message": "Unauthorized process"}` | Application is not properly onboarded or has tampered files |
-| 429 Too Many Requests | `{"error": "-10", "message": "Too many requests in a given amount of time"}` | Rate limit exceeded (max 3 attempts per minute) |
-| 500 Internal Server Error | `{"error": "-4", "message": "Failed to communicate with GFN backend service"}` | Backend communication failure |
+| 400 Bad Request | `Invalid JSON` | Request body is not valid JSON. |
+| 400 Bad Request | `{"error": "-7", "message": "Invalid parameter in the request"}` | Nonce is missing or is outside the 16–128 byte range. |
+| 403 Forbidden | `{"error": "-30", "message": "Unauthorized process"}` | Application is not properly onboarded or has tampered files. |
+| 413 Payload Too Large | `Request body too large` | Request body exceeds 4096 bytes. |
+| 429 Too Many Requests | `{"error": "-24", "message": "Too many requests in a given amount of time"}` | Runtime SDK rate limit exceeded. |
+| 500 Internal Server Error | `{"error": "-31", "message": "Failed to communicate with GFN backend service"}` | Backend communication failure. |
 
 ### Usage
 
@@ -329,7 +334,7 @@ recv(sockfd, buffer, sizeof(buffer), 0);
 bool isValid = GfnCloudCheckVerifyAttestationData(jwt, nonce_b64, strlen(nonce_b64));
 ```
 
-**For a complete working example**, see the CloudCheckAPI sample in the SDK distribution at `Dist/samples/CloudCheckAPI/Main.c`. The sample includes full implementation with proper error handling, memory management, and cross-platform support for both Windows and Linux.
+**For a complete working example**, see the CloudCheckAPI sample at `samples/CloudCheckAPI/Main.c`. The sample includes full implementation with proper error handling, memory management, and cross-platform support for both Windows and Linux.
 
 ### Important Considerations
 
@@ -386,7 +391,7 @@ The table below details all steps that can be performed to validate the provided
 | Field | Location  | Mandatory | Value | Details |
 | :---- | :-------- | :---- | :---- | :---- |
 | x5c   | Header    | Yes | Valid certificate chain | The x5c field contains the certificate chain with the first element pointing to the leaf certificate. The caller must verify that the certificate chain is valid. The root certificate has to be pinned in the verifier code, as it is not a part of the chain. |
-| alg   | Header    | Yes | RS512 | Lofn currently uses RSASHA512, so the alg field must be set to RS512. |
+| alg   | Header    | Yes | RS512 | GFN currently uses RSASHA512, so the alg field must be set to RS512. |
 | kid   | Header    | No  | UUID | The kid field must be set to a UUID that was generated at the time of creation of the leaf certificate. |
 | nonce | Data      | Yes | Input nonce | The nonce field must match the nonce that was provided in the GfnCloudCheckChallenge struct passed to GfnCloudCheck. |
 | n/a   | Signature | Yes | RSASHA512  signature | Digital signature over header and body validated using RSASHA512 algorithm. |
@@ -408,7 +413,7 @@ These claims are populated from the GFN session configuration and provide additi
 
 | Claim | Type   | Description |
 | :---- | :---   | :---------- |
-| uid   | String | Obfuscated user identifier for content partners. Derived from the session's user information. |
+| uid   | String | User identifier for content partners. Derived from the session's user information. |
 | plid  | String | Platform identifier indicating the GFN environment. |
 | cty   | String | Country code of the user's location (e.g., `"US"`, `"DE"`). |
 | cip   | String | Client IP address of the user connected to the GFN session. |

@@ -1,4 +1,4 @@
-# NVIDIA GeForce NOW SDK Release 4.1
+# NVIDIA GeForce NOW SDK Release 5.0
 
 ## At a Glance
 
@@ -15,8 +15,18 @@ The GFN SDK is ever-evolving to provide easy integration of GeForce NOW features
 
 ### What's New in This Release
 
-* Enabled GetCloudType API for Linux
-* Various fixes and improvements.
+* Removed the deprecated `GfnGetPartnerData` and `gfnGetPartnerData` APIs. Use
+  `GfnGetPartnerSecureData` or `gfnGetPartnerSecureData` to retrieve
+  partner-supplied data.
+* Removed the `SetupTitle`, `TitleExited`, and `RegisterInstallCallback` APIs
+  along with their `Gfn`- and `gfn`-prefixed variants. The
+  `TitleInstallationInformation` struct and `InstallCallbackSig` callback
+  signature, used only by `RegisterInstallCallback`, were removed as well. Title
+  setup and teardown are now handled entirely by GeForce NOW, so no application
+  action is required.
+* Added `GfnTerminateSession` and `gfnTerminateSession` for applications that
+  need to request graceful termination of the current GFN streaming session.
+* Various fixes and documentation improvements.
 
 ## GeForce NOW Developer Portal
 
@@ -60,7 +70,8 @@ The distribution is laid out as below:
     ├───CubeSample
     ├───OpenClientBrowser
     ├───PartnerDataAPI
-    └───PreWarmSample
+    ├───PreWarmSample
+    └───SessionTerminationSample
 
 ```
 

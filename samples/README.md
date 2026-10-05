@@ -1,6 +1,6 @@
 # Overview
 This directory contains sample projects that demonstrate proper use of the various APIs that are part of GeForce NOW (GFN) SDK.
-Each sample is designed to provide examples of API usage in the most comment integration scenarios.
+Each sample is designed to provide examples of API usage in the most common integration scenarios.
 
 # Samples
 
@@ -16,7 +16,6 @@ The sample is intended for game developers that want their games to know when ru
 - GfnCloudCheck with GfnCloudCheckChallenge and GfnCloudCheckResponse usage
 - GfnRegisterExitCallback
 - GfnRegisterPauseCallback
-- GfnRegisterInstallCallback
 - GfnRegisterSaveCallback
 - GfnRegisterSessionInitCallback
 - GfnRegisterMessageCallback
@@ -26,13 +25,11 @@ The sample is intended for game developers that want their games to know when ru
 - GfnGetClientLanguageCode
 - GfnGetClientCountryCode
 - GfnGetClientInfo
-- GfnGetPartnerData
 - GfnGetPartnerSecureData
 - GfnFree
 - GfnSetEditBoxRegion
 - GfnClearEditBoxRegion
 - GfnSetActionZone
-- GfnSetupTitle
 
 ## CloudCheckAPI
 This C-based simple command-line sample demonstrates usage of all the various native and REST APIs dedicated to checking if running in the GFN cloud environment.
@@ -71,19 +68,18 @@ The sample is intended for developers that need their games or applications runn
 - GfnOpenURLOnClient
 
 ## PartnerDataAPI
-This C-based simple command-line sample demonstrates usage of the two APIs dedicated to obtaining partner-supplied data provided during session initialization, as well as the correct way to free the memory allocated for the data.
+This C-based simple command-line sample demonstrates usage of the API dedicated to obtaining partner-supplied data provided during session initialization, as well as the correct way to free the memory allocated for the data.
 
 ### Intended Audience
 The sample is intended for developers that need their games or applications running inside the GeForce NOW cloud environment to obtain custom data provided as part of the session launch by the client streaming application.
 
 ### APIs Demonstrated
-- GfnGetPartnerData
 - GfnGetPartnerSecureData
 - GfnFree
 
 ## PreWarmSample
 This C-based simple command-line sample demonstrates usage of the APIs and callbacks associated with putting an application into PreWarm state, and waiting for a user session to connect.
-This allows an application to preload all common data, allowing a streaming user to bypass must of the loading time and get to the main menu much faster.
+This allows an application to preload all common data, allowing a streaming user to bypass most of the loading time and get to the main menu much faster.
 
 ### Intended Audience
 The sample is intended for developers that have games or applications that will support GeForce NOW's PreWarm feature.
@@ -92,6 +88,17 @@ The sample is intended for developers that have games or applications that will 
 - GfnIsRunningInCloud
 - GfnRegisterSessionInitCallback
 - GfnAppReady
+
+## SessionTerminationSample
+This C-based command-line sample demonstrates how an application can request graceful termination of the current GFN streaming session and handle the exit callback invoked during teardown.
+
+### Intended Audience
+The sample is intended for developers whose games or applications need to programmatically end a GFN streaming session.
+
+### APIs Demonstrated
+- GfnIsRunningInCloud
+- GfnRegisterExitCallback
+- GfnTerminateSession
 
 # Building the Samples
 Please see the [SDK root README](../README.md) for details on how to build the samples.

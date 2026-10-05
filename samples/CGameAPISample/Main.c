@@ -39,8 +39,6 @@
 
 bool g_MainDone = false;
 int g_pause_call_counter = 0;
-const char* platformAppId = "GeForce NOW SDK - Sample C App";
-const char* platformId = "GeForce NOW SDK - Sample Test Platform";
 #define CLOUD_CHECK_MIN_NONCE_SIZE 16
 
 static char GetKeyPress() {
@@ -100,12 +98,6 @@ GfnError RegisterCallbacks()
     if (result != gfnSuccess)
     {
         printf("Error registering PauseApp callback: %d, %s\n", result, GfnErrorToString(result));
-        overallResult = result;
-    }
-    result = GfnRegisterInstallCallback(InstallApp, NULL);
-    if (result != gfnSuccess)
-    {
-        printf("Error registering InstallApp callback: %d, %s\n", result, GfnErrorToString(result));
         overallResult = result;
     }
     result = GfnRegisterSaveCallback(AutoSave, NULL);
@@ -335,17 +327,6 @@ int main()
             printf("Failed to retrieve PartnerSecureData\n");
         }
 
-        char const* partnerData = NULL;
-        result = GfnGetPartnerData(&partnerData);
-        if (GFNSDK_SUCCEEDED(result)) {
-            printf("GfnGetPartnerData: [%s]\n", partnerData);
-            GfnFree(&partnerData);
-        }
-        else
-        {
-            printf("Failed to retrieve PartnerData\n");
-        }
-
         GfnClientInfo clientInfo = { 0 };
         result = GfnGetClientInfo(&clientInfo);
         if (result == gfnSuccess)
@@ -378,16 +359,6 @@ int main()
         {
             printf("Failed to retrieve initial session info. GfnError: %d, %s\n", result, GfnErrorToString(result));
         }
-        // Try "setting up" a title!
-        result = GfnSetupTitle(platformAppId);
-        if (result == gfnSuccess)
-        {
-            printf("Setup GFN Title\n");
-        }
-        else
-        {
-            printf("Failed to setup GFN Title: %d, %s\n", result, GfnErrorToString(result));
-        }
     }
 
     // Application main loop
@@ -407,16 +378,6 @@ int main()
         else
         {
             printf("Failed to retrieve final session info. GfnError: %d, %s\n", result, GfnErrorToString(result));
-        }
-        // Notify GeForce Now about title exiting
-        result = GfnTitleExited(platformId, platformAppId);
-        if (result == gfnSuccess)
-        {
-            printf("GFN Title Exited\n");
-        }
-        else
-        {
-            printf("GFN Title Exited failed: %d, %s\n", result, GfnErrorToString(result));
         }
     }
 

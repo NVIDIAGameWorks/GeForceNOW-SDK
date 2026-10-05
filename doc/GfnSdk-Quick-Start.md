@@ -158,7 +158,7 @@ The SDK supports calling an API repeatedly, however, most APIs return static dat
 
 ### Thread Safety
 
-Several SDK API functions either work asynchronously, or have an asynchronous variant. When calling such functions or registering for callbacks in multi-threaded processes, it is important to keep the calls and returned data straight. For example, care must be taken when one thread calls GfnGetPartnerData that allocates memory, and another thread is tasked with the call to GfnFree. In such cases, it is more robust to call GfnFree from the thread that called GfnGetPartnerData. Similar care must be taken when calling synchronous functions that block a thread while other threads continue to execute.
+Several SDK API functions either work asynchronously, or have an asynchronous variant. When calling such functions or registering for callbacks in multi-threaded processes, it is important to keep the calls and returned data straight. For example, care must be taken when one thread calls GfnGetPartnerSecureData that allocates memory, and another thread is tasked with the call to GfnFree. In such cases, it is more robust to call GfnFree from the thread that called GfnGetPartnerSecureData. Similar care must be taken when calling synchronous functions that block a thread while other threads continue to execute.
 
 ### Complex Data into Generic Data Types
 

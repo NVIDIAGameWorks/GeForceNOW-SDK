@@ -72,34 +72,34 @@
 #endif
 
 // GFN SDK Major Version
-#define NVGFNSDK_VERSION_MAJOR 4
+#define NVGFNSDK_VERSION_MAJOR 5
 
 // GFN SDK Minor Version
-#define NVGFNSDK_VERSION_MINOR 1
+#define NVGFNSDK_VERSION_MINOR 0
 
 // GFN SDK Version
-#define NVGFNSDK_VERSION_SHORT 4.1
+#define NVGFNSDK_VERSION_SHORT 5.0
 
 // GFN SDK Patch Version
 #define NVGFNSDK_VERSION_PATCH 0
 
 // GFN SDK Build Version
-#define NVGFNSDK_VERSION_BUILD 37671004
+#define NVGFNSDK_VERSION_BUILD 39012467
 
 // GFN SDK Version
-#define NVGFNSDK_VERSION_LONG 4.1.0.37671004
+#define NVGFNSDK_VERSION_LONG 5.0.0.39012467
 
 // GFN SDK Version string
-#define NVGFNSDK_VERSION_STR   "4.1.0.37671004"
+#define NVGFNSDK_VERSION_STR   "5.0.0.39012467"
 // GFN SDK PROD Version string
-#define NVGFNSDK_VERSION_STR_PROD "4.1.0"
+#define NVGFNSDK_VERSION_STR_PROD "5.0.0"
 
 // GFN SDK Build CL
-#define NVGFNSDK_VERSION_BUILDCL 37671004
+#define NVGFNSDK_VERSION_BUILDCL 39012467
 // GFN SDK Build High part of the build version
-#define NVGFNSDK_VERSION_BUILDH 3767
+#define NVGFNSDK_VERSION_BUILDH 3901
 // GFN SDK Build Low part of the build version
-#define NVGFNSDK_VERSION_BUILDL 1004
+#define NVGFNSDK_VERSION_BUILDL 2467
 
 
 #ifdef __cplusplus
@@ -127,7 +127,7 @@
             gfnUnsupportedAPICall = -9, // API Call is not supported
             gfnInvalidToken = -10, // Invalid token
             gfnTimedOut = -11, // Operation timed out
-            gfnSetupTitleFailure = -12, // Failed to setup title
+            gfnSetupTitleFailure = -12, // Failed to setup title (Deprecated, no longer returned by any API)
             gfnClientDownloadFailed = -13, // Failed to download the Geforce NOW client
             gfnCallWrongEnvironment = -14, // Function limited to specific environment called in wrong environment
             gfnWebApiFailed = -15, // A call to a NVIDIA Web API failed to return valid data

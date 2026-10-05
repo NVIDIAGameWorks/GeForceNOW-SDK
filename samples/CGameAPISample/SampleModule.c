@@ -55,15 +55,6 @@ GfnApplicationCallbackResult GFN_CALLBACK PauseApp(void* pContext)
     return crCallbackSuccess;
 }
 
-GfnApplicationCallbackResult GFN_CALLBACK InstallApp(TitleInstallationInformation* pInfo, void* pContext)
-{
-    // Callback for when GeForce NOW finished installing the requested application.
-    // Any last install configuration steps should be performed at this time.
-    printf("\"Completing\" title setup for: %s.\n\tBuild path: %s\n\tMetadata path: %s\n\tApplication Context: %p\n",
-        pInfo->pchPlatformAppId, pInfo->pchBuildPath, pInfo->pchMetadataPath, pContext);
-    return crCallbackSuccess;
-}
-
 GfnApplicationCallbackResult GFN_CALLBACK AutoSave(void* pContext)
 {
     // Callback for when GeForce NOW requests the application to save its state, including user data.

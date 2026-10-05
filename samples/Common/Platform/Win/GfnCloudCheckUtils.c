@@ -470,6 +470,7 @@ static bool ParsePayloadJson(const unsigned char* payload, const size_t payloadL
     unsigned char* decodedNonce = NULL;
     char* nonceValue = NULL;
     char* payloadCopy = NULL;
+    int decodedNonceLen = 0;
 
     payloadCopy = GFN_CC_MALLOC(sizeof(char) * (payloadLen + 1));
     if (payloadCopy == NULL)
@@ -533,9 +534,10 @@ static bool ParsePayloadJson(const unsigned char* payload, const size_t payloadL
     memset(nonceValue, 0, nonceLen);
     memcpy(nonceValue, nonceValueStart + 1, (size_t)nonceLen - 1);
 
-    if (Base64Decode((unsigned char*)nonceValue, &decodedNonce))
+    decodedNonceLen = Base64Decode((unsigned char*)nonceValue, &decodedNonce);
+    if (decodedNonceLen > 0)
     {
-        if (memcmp(decodedNonce, nonce, nonceSize) != 0)
+        if ((size_t)decodedNonceLen != nonceSize || memcmp(decodedNonce, nonce, nonceSize) != 0)
         {
             GFN_CC_LOG("Failed to match nonce value in the payload with input nonce\n");
             result = false;
